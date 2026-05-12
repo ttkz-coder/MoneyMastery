@@ -418,10 +418,10 @@
                         </div>
                     </div>
 
-                    <!-- Widgets Grid Section (ใช้ order-* เพื่อเรียงใหม่บนมือถือและปรับ layout บนจอใหญ่) -->
+                    <!-- Widgets Grid Section -->
                     <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 lg:gap-6 flex flex-col md:grid">
                         
-                        <!-- 1. Investment Portfolio (มือถือ: 1, Tablet: 3, Desktop: 4) -->
+                        <!-- 1. Investment Portfolio -->
                         <div class="retro-panel p-4 md:p-5 m-0 h-full flex flex-col order-1 md:order-3 xl:order-4 md:col-span-1 xl:col-span-1">
                             <h3 class="font-bold text-retro-text mb-3 flex items-center gap-2 border-b-2 border-retro-border pb-2">
                                 <i class="ph-fill ph-briefcase text-[#8338EC]"></i> พอร์ตลงทุน (สะสม)
@@ -439,7 +439,7 @@
                             <div id="investment-portfolio-list" class="flex-1 space-y-2 overflow-y-auto pr-1 max-h-[250px] md:max-h-[300px]"></div>
                         </div>
 
-                        <!-- 2. Calendar (มือถือ: 2, Tablet: 4, Desktop: 5) -->
+                        <!-- 2. Calendar -->
                         <div class="retro-panel p-4 md:p-5 m-0 h-full flex flex-col order-2 md:order-4 xl:order-5 md:col-span-1 xl:col-span-1">
                             <div class="flex justify-between items-center mb-4 border-b-2 border-[var(--border-dark)] pb-2">
                                 <h3 class="font-bold text-retro-text flex items-center gap-2"><i class="ph-fill ph-calendar text-[#06D6A0]"></i> ปฏิทินการเงิน</h3>
@@ -447,7 +447,7 @@
                             <div id="calendar-container" class="text-sm flex-1"></div>
                         </div>
 
-                        <!-- 3. Recent Expenses (มือถือ: 3, Tablet: 5, Desktop: 6) -->
+                        <!-- 3. Recent Expenses -->
                         <div class="retro-panel p-4 md:p-5 m-0 h-full flex flex-col order-3 md:order-5 xl:order-6 md:col-span-1 xl:col-span-1">
                             <h3 class="font-bold text-retro-text mb-3 border-b-2 border-[var(--border-dark)] pb-2 flex items-center gap-2">
                                 <i class="ph-fill ph-receipt text-[#FFD166]"></i> รายรับ - รายจ่าย วันนี้
@@ -459,7 +459,7 @@
                             </div>
                         </div>
 
-                        <!-- 4. Expense Chart (มือถือ: 4, Tablet: 1, Desktop: 1) -->
+                        <!-- 4. Expense Chart -->
                         <div class="retro-panel p-4 md:p-5 m-0 h-full flex flex-col order-4 md:order-1 xl:order-1 md:col-span-2 xl:col-span-2">
                             <h3 class="font-bold text-retro-text mb-2 border-b-2 border-[var(--border-dark)] pb-2 flex items-center gap-2">
                                 <i class="ph-fill ph-pie-chart text-[#EF476F]"></i> สัดส่วนรายจ่าย
@@ -469,7 +469,7 @@
                             </div>
                         </div>
 
-                        <!-- 5. Category Summary (มือถือ: 5, Tablet: 2, Desktop: 2) -->
+                        <!-- 5. Category Summary -->
                         <div class="retro-panel p-4 md:p-5 m-0 h-full flex flex-col order-5 md:order-2 xl:order-2 md:col-span-2 xl:col-span-1 xl:row-span-2">
                             <h3 class="font-bold text-retro-text mb-3 border-b-2 border-[var(--border-dark)] pb-2 flex items-center gap-2">
                                 <i class="ph-fill ph-list-numbers text-[#4361EE]"></i> สรุปตามหมวดหมู่
@@ -477,7 +477,7 @@
                             <div id="category-summary-list" class="flex-1 space-y-4 mt-2 overflow-y-auto pr-2 max-h-[300px] md:max-h-[400px] xl:max-h-none"></div>
                         </div>
 
-                        <!-- 6. Cash Flow Projection (มือถือ: 6, Tablet: 6, Desktop: 3) -->
+                        <!-- 6. Cash Flow Projection -->
                         <div id="cashflow-projection-panel" class="retro-panel p-4 md:p-5 m-0 border-2 border-[#118AB2] h-full flex flex-col order-6 md:order-6 xl:order-3 md:col-span-1 xl:col-span-2">
                             <div class="flex justify-between items-center border-b-2 border-retro-border pb-2 mb-4">
                                 <h3 class="font-bold text-retro-text flex items-center gap-2">
@@ -526,7 +526,7 @@
                 <!-- 🌟 TRANSACTIONS PAGE 🌟 -->
                 <div id="transactions-page" class="page">
                     <div class="flex flex-col lg:flex-row gap-4 mb-6 lg:items-end">
-                        <!-- Actions (แก้ไขใหม่ เป็นระบบ Grid 3 ปุ่มพอดีกับจอมือถือ) -->
+                        <!-- Actions -->
                         <div class="grid grid-cols-3 lg:flex gap-2 w-full lg:w-auto">
                             <button id="select-transactions-btn" class="retro-btn bg-[var(--card-bg)] text-[var(--text-main)] px-1 py-2.5 md:px-4 md:py-2.5 rounded-xl text-[11px] sm:text-sm font-bold shadow-[2px_2px_0px_0px_var(--shadow-color)] flex items-center justify-center text-center leading-none">เลือกรายการ</button>
                             <button id="voice-add-btn" class="retro-btn bg-[#00F5D4] text-[#1E1E24] px-1 py-2.5 md:px-4 md:py-2.5 rounded-xl text-[11px] sm:text-sm flex items-center justify-center gap-1 font-bold shadow-[2px_2px_0px_0px_var(--shadow-color)]"><i class="ph-bold ph-microphone text-[14px] md:text-lg"></i> <span class="leading-none">พูดบันทึก</span></button>
@@ -841,6 +841,32 @@
     <!-- Bulk Edit Modal -->
     <div id="bulk-edit-modal" class="fixed inset-0 z-50 hidden"><div class="modal-backdrop absolute inset-0"></div><div class="modal-sheet p-6 text-retro-text md:pt-8"><h3 id="bulk-edit-modal-title" class="text-center font-black text-xl mb-4 uppercase border-b-2 border-retro-border pb-2"></h3><form id="bulk-edit-form" class="space-y-3 pt-2"><select id="bulk-edit-type" class="retro-input w-full p-3 font-bold"></select><select id="bulk-edit-category" class="retro-input w-full p-3 font-bold"></select><input id="bulk-edit-description" class="retro-input w-full p-3" placeholder="แก้ไขคำอธิบาย"><div class="grid grid-cols-2 gap-3 mt-6"><button type="button" id="cancel-bulk-edit-modal-btn" class="modal-cancel-btn retro-btn bg-retro-card py-3 rounded-xl shadow-[3px_3px_0px_0px_var(--shadow-color)] font-bold">ยกเลิก</button><button type="submit" class="retro-btn bg-[#4361EE] text-white py-3 rounded-xl shadow-[3px_3px_0px_0px_var(--shadow-color)] font-black">บันทึก</button></div></form></div></div>
     
+    <!-- Goal Edit Modal -->
+    <div id="goal-edit-modal" class="fixed inset-0 z-50 hidden">
+        <div class="modal-backdrop absolute inset-0"></div>
+        <div class="modal-sheet p-6 text-retro-text md:pt-8">
+            <h3 class="text-center font-black text-xl mb-4 uppercase border-b-2 border-retro-border pb-2">แก้ไขเป้าหมาย</h3>
+            <form id="goal-edit-form" class="space-y-3 pt-2">
+                <div>
+                    <label class="text-xs font-bold text-[var(--text-muted)] ml-1 uppercase">ชื่อเป้าหมาย (แก้ไขไม่ได้)</label>
+                    <input id="edit-goal-name" class="retro-input w-full p-3 font-bold bg-[var(--card-alt)] opacity-70 cursor-not-allowed text-[var(--text-muted)]" readonly>
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-[var(--text-muted)] ml-1 uppercase">เป้าหมาย (บาท)</label>
+                    <input type="number" id="edit-goal-amount" class="retro-input w-full p-3 font-mono-num font-bold">
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-[var(--text-muted)] ml-1 uppercase">วันที่เป้าหมาย</label>
+                    <input type="date" id="edit-goal-date" class="retro-input w-full p-3 font-mono-num font-bold">
+                </div>
+                <div class="grid grid-cols-2 gap-3 mt-6">
+                    <button type="button" class="modal-cancel-btn retro-btn bg-[var(--card-bg)] py-3 rounded-xl shadow-[3px_3px_0px_0px_var(--shadow-color)] font-bold">ยกเลิก</button>
+                    <button type="submit" class="retro-btn bg-[#FFD166] text-[#1E1E24] py-3 rounded-xl shadow-[3px_3px_0px_0px_var(--shadow-color)] font-black">บันทึก</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Confirm Modal -->
     <div id="confirm-modal" class="fixed inset-0 z-[60] hidden flex items-center justify-center px-4"><div class="modal-backdrop absolute inset-0"></div><div class="retro-panel bg-[var(--card-bg)] p-6 md:p-8 w-full max-w-sm relative z-10 text-center shadow-[8px_8px_0px_0px_var(--shadow-color)] m-0"><div class="w-16 h-16 mx-auto bg-[#FFD166] rounded-full border-2 border-[var(--border-dark)] flex items-center justify-center mb-5 shadow-[2px_2px_0px_0px_var(--shadow-color)]"><i class="ph-bold ph-warning text-4xl text-[#1E1E24]"></i></div><h3 class="font-black text-2xl mb-2 uppercase text-[var(--text-main)]">ยืนยัน</h3><p id="confirm-modal-message" class="text-[var(--text-muted)] mb-8 text-sm font-bold"></p><div class="flex gap-3"><button id="confirm-modal-cancel-btn" class="modal-cancel-btn retro-btn flex-1 bg-[var(--card-bg)] text-[var(--text-main)] py-3 rounded-xl font-bold shadow-[3px_3px_0_0_var(--shadow-color)]">ยกเลิก</button><button id="confirm-modal-confirm-btn" class="retro-btn flex-1 bg-[#EF476F] text-white py-3 rounded-xl font-black shadow-[3px_3px_0_0_var(--shadow-color)]">ยืนยันลบ</button></div></div></div>
 
@@ -1806,9 +1832,29 @@
         const renderSettingsLists = () => {
             const content = $('settings-area-content');
             if(state.activeSettingsPage === 'category') {
-                content.innerHTML = state.categories.map(c => `<div class="retro-card bg-[var(--card-bg)] p-3 flex justify-between items-center mb-2 border border-[var(--border-dark)]/30"><div class="font-bold text-[var(--text-main)]"><span>${c.Emoji} ${c.Name}</span> <span class="text-[10px] text-[var(--text-muted)] uppercase ml-1 border border-[var(--border-dark)]/30 px-1.5 py-0.5 rounded bg-[var(--card-alt)]">(${c.Type})</span></div><button class="retro-btn bg-[#EF476F] text-white text-xs px-3 py-1.5 rounded-lg shadow-[2px_2px_0_0_var(--shadow-color)]" onclick="deleteCategory('${c.Name}')">ลบ</button></div>`).join('') + `<button class="retro-btn w-full bg-[#06D6A0] text-[#1E1E24] py-3.5 rounded-xl mt-4 font-black uppercase shadow-[3px_3px_0_0_var(--shadow-color)]" onclick="window.openCategoryModal()">+ เพิ่มหมวดหมู่ใหม่</button>`;
+                content.innerHTML = state.categories.map(c => `
+                    <div class="retro-card bg-[var(--card-bg)] p-3 flex justify-between items-center mb-2 border border-[var(--border-dark)]/30">
+                        <div class="font-bold text-[var(--text-main)] truncate mr-2">
+                            <span>${c.Emoji} ${c.Name}</span> 
+                            <span class="text-[10px] text-[var(--text-muted)] uppercase ml-1 border border-[var(--border-dark)]/30 px-1.5 py-0.5 rounded bg-[var(--card-alt)]">(${c.Type})</span>
+                        </div>
+                        <div class="flex gap-2 shrink-0">
+                            <button class="retro-btn bg-[#4361EE] text-white text-xs px-3 py-1.5 rounded-lg shadow-[2px_2px_0_0_var(--shadow-color)]" onclick="editCategory('${escAttr(c.Name)}')">แก้ไข</button>
+                            <button class="retro-btn bg-[#EF476F] text-white text-xs px-3 py-1.5 rounded-lg shadow-[2px_2px_0_0_var(--shadow-color)]" onclick="deleteCategory('${escAttr(c.Name)}')">ลบ</button>
+                        </div>
+                    </div>`).join('') + `<button class="retro-btn w-full bg-[#06D6A0] text-[#1E1E24] py-3.5 rounded-xl mt-4 font-black uppercase shadow-[3px_3px_0_0_var(--shadow-color)]" onclick="window.openCategoryModal()">+ เพิ่มหมวดหมู่ใหม่</button>`;
             } else if(state.activeSettingsPage === 'goal') {
-                content.innerHTML = state.goals.map(g => `<div class="retro-card bg-[var(--card-bg)] p-3 flex justify-between items-center mb-2 border border-[var(--border-dark)]/30"><div><p class="font-bold text-[var(--text-main)]">${g.GoalName}</p><p class="text-[10px] font-bold text-[var(--text-muted)] uppercase font-mono-num">เป้า: ${formatMoney(g.TargetAmount)}</p></div><button class="retro-btn bg-[#EF476F] text-white text-xs px-3 py-1.5 rounded-lg shadow-[2px_2px_0_0_var(--shadow-color)]" onclick="deleteGoal('${g.GoalName}')">ลบ</button></div>`).join('') + `<div class="mt-5 border-t-2 border-[var(--border-dark)] pt-5"><h4 class="font-black text-sm mb-3">สร้างเป้าหมายใหม่</h4><input id="new-goal-name" class="retro-input w-full p-3 mb-3 font-bold" placeholder="ชื่อเป้าหมาย"><input type="number" id="new-goal-amount" class="retro-input w-full p-3 mb-3 font-mono-num font-bold" placeholder="จำนวนเงิน (บาท)"><input type="date" id="new-goal-date" class="retro-input w-full p-3 mb-4 font-mono-num font-bold"><button class="retro-btn w-full bg-[#FFD166] text-[#1E1E24] py-3.5 rounded-xl font-black uppercase shadow-[3px_3px_0_0_var(--shadow-color)]" onclick="addNewGoal()">บันทึกเป้าหมาย</button></div>`;
+                content.innerHTML = state.goals.map(g => `
+                    <div class="retro-card bg-[var(--card-bg)] p-3 flex justify-between items-center mb-2 border border-[var(--border-dark)]/30">
+                        <div class="truncate mr-2">
+                            <p class="font-bold text-[var(--text-main)] truncate">${g.GoalName}</p>
+                            <p class="text-[10px] font-bold text-[var(--text-muted)] uppercase font-mono-num">เป้า: ${formatMoney(g.TargetAmount)}</p>
+                        </div>
+                        <div class="flex gap-2 shrink-0">
+                            <button class="retro-btn bg-[#4361EE] text-white text-xs px-3 py-1.5 rounded-lg shadow-[2px_2px_0_0_var(--shadow-color)]" onclick="editGoal('${escAttr(g.GoalName)}')">แก้ไข</button>
+                            <button class="retro-btn bg-[#EF476F] text-white text-xs px-3 py-1.5 rounded-lg shadow-[2px_2px_0_0_var(--shadow-color)]" onclick="deleteGoal('${escAttr(g.GoalName)}')">ลบ</button>
+                        </div>
+                    </div>`).join('') + `<div class="mt-5 border-t-2 border-[var(--border-dark)] pt-5"><h4 class="font-black text-sm mb-3">สร้างเป้าหมายใหม่</h4><input id="new-goal-name" class="retro-input w-full p-3 mb-3 font-bold" placeholder="ชื่อเป้าหมาย"><input type="number" id="new-goal-amount" class="retro-input w-full p-3 mb-3 font-mono-num font-bold" placeholder="จำนวนเงิน (บาท)"><input type="date" id="new-goal-date" class="retro-input w-full p-3 mb-4 font-mono-num font-bold"><button class="retro-btn w-full bg-[#FFD166] text-[#1E1E24] py-3.5 rounded-xl font-black uppercase shadow-[3px_3px_0_0_var(--shadow-color)]" onclick="addNewGoal()">บันทึกเป้าหมาย</button></div>`;
             } else if(state.activeSettingsPage === 'fixed') {
                  content.innerHTML = state.fixedCosts.map(f => `<div class="retro-card bg-[var(--card-bg)] p-3 flex justify-between mb-2 border border-[var(--border-dark)]/30"><div><p class="font-bold text-[var(--text-main)]">${f.Description}</p><p class="text-[10px] font-bold text-[var(--text-muted)] uppercase font-mono-num">${formatMoney(f.Amount)} (วันที่ ${f.DayOfMonth})</p></div><button class="retro-btn bg-[#EF476F] text-white text-xs px-3 py-1.5 rounded-lg h-fit shadow-[2px_2px_0_0_var(--shadow-color)]" onclick="deleteFixed('${f.Description}')">ลบ</button></div>`).join('') + `<div class="mt-5 border-t-2 border-[var(--border-dark)] pt-5"><h4 class="font-black text-sm mb-3">เพิ่มรายจ่ายคงที่</h4><input id="new-fixed-desc" class="retro-input w-full p-3 mb-3 font-bold" placeholder="รายการ (เช่น ค่าเน็ต, ค่าห้อง)"><input type="number" id="new-fixed-amount" class="retro-input w-full p-3 mb-3 font-mono-num font-bold" placeholder="จำนวนเงิน (บาท)"><input type="number" id="new-fixed-day" class="retro-input w-full p-3 mb-3 font-mono-num font-bold" placeholder="วันที่ต้องจ่าย (1-31)"><select id="new-fixed-cat" class="retro-input w-full p-3 mb-4 font-bold"></select><button class="retro-btn w-full bg-[#EF476F] text-white py-3.5 rounded-xl font-black uppercase shadow-[3px_3px_0_0_var(--shadow-color)]" onclick="addNewFixed()">บันทึกรายการ</button></div>`;
                  setTimeout(() => { const sel = $('new-fixed-cat'); if(sel) sel.innerHTML = state.categories.filter(c=>c.Type==='Expense').map(c=>`<option value="${c.Name}">${c.Name}</option>`).join(''); }, 0);
@@ -1826,6 +1872,20 @@
         
         window.openCategoryModal = () => { $('category-form').reset(); $('category-form-type').innerHTML = [['Expense','รายจ่าย'],['Income','รายรับ'],['Saving','ออม'],['Investment','ลงทุน'],['FreeCashFlow','ทุนสำรอง']].map(t => `<option value="${t[0]}">${t[1]}</option>`).join(''); $('category-modal-title').textContent = 'เพิ่มหมวดหมู่ใหม่'; $('category-original-name').value = ''; modalControls['category-modal'].open(); };
         
+        // --- ส่วนแก้ไขหมวดหมู่ ---
+        window.editCategory = (name) => {
+            const cat = state.categories.find(c => c.Name === name);
+            if (!cat) return;
+            $('category-form').reset();
+            $('category-form-type').innerHTML = [['Expense','รายจ่าย'],['Income','รายรับ'],['Saving','ออม'],['Investment','ลงทุน'],['FreeCashFlow','ทุนสำรอง']].map(t => `<option value="${t[0]}">${t[1]}</option>`).join('');
+            $('category-form-type').value = cat.Type;
+            $('category-form-name').value = cat.Name;
+            $('category-form-emoji').value = cat.Emoji;
+            $('category-original-name').value = cat.Name; // เก็บชื่อเดิมไว้สำหรับอ้างอิงตอนอัปเดต
+            $('category-modal-title').textContent = 'แก้ไขหมวดหมู่';
+            modalControls['category-modal'].open();
+        };
+
         window.deleteCategory = async (name) => { 
             if(confirm(`ต้องการลบหมวดหมู่ '${name}' ใช่หรือไม่?`)) { 
                 ui.loading.classList.remove('hidden');
@@ -1845,10 +1905,54 @@
             
             ui.loading.classList.remove('hidden');
             try {
+                // ถ้ามี origName แสดงว่าเป็นการอัปเดต ถ้าไม่มีคือการสร้างใหม่
                 await apiCall(origName ? 'updateCategory' : 'addCategory', { originalName: origName, data });
                 showToast(origName ? 'แก้ไขหมวดหมู่สำเร็จ' : 'เพิ่มหมวดหมู่สำเร็จ'); 
                 await init(true, true);
             } catch(e) { ui.loading.classList.add('hidden'); }
+        });
+
+        // --- ส่วนแก้ไขเป้าหมาย ---
+        window.editGoal = (name) => {
+            const goal = state.goals.find(g => g.GoalName === name);
+            if (!goal) return;
+            
+            $('edit-goal-name').value = goal.GoalName;
+            $('edit-goal-amount').value = goal.TargetAmount;
+            
+            if (goal.TargetDate) {
+                const d = new Date(goal.TargetDate);
+                if (!isNaN(d.getTime())) {
+                    $('edit-goal-date').value = formatDateToInput(d);
+                } else {
+                    $('edit-goal-date').value = '';
+                }
+            } else {
+                $('edit-goal-date').value = '';
+            }
+            
+            modalControls['goal-edit-modal'].open();
+        };
+
+        $('goal-edit-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const data = { 
+                name: $('edit-goal-name').value, 
+                targetAmount: $('edit-goal-amount').value, 
+                targetDate: $('edit-goal-date').value 
+            };
+            if(!data.targetAmount) return showToast('กรุณาระบุจำนวนเงินเป้าหมาย', 'error');
+            
+            modalControls['goal-edit-modal'].close();
+            ui.loading.classList.remove('hidden');
+            try {
+                await apiCall('saveGoal', { data }); 
+                showToast('แก้ไขเป้าหมายสำเร็จ'); 
+                await init(true, true);
+            } catch(err) { 
+                ui.loading.classList.add('hidden'); 
+                showToast('เกิดข้อผิดพลาดในการแก้ไขเป้าหมาย', 'error');
+            }
         });
 
         window.addNewGoal = async () => {
