@@ -14,7 +14,7 @@
     <meta name="apple-mobile-web-app-title" content="Money Mastery">
     
     <!-- Tailwind & Icons -->
-    <script src="https://cdn.tailwindcss.com"></script>
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
     <title>Money Mastery Pro - Retro Edition</title>
@@ -583,7 +583,7 @@
                             <h3 class="font-bold text-[var(--text-main)] border-b-2 border-[var(--border-dark)] pb-2 mb-3 flex items-center gap-2">
                                 <i class="ph-fill ph-chart-line-up text-blue-500 text-xl"></i> 
                                 <div>
-                                    <span id="analytics-nw-title" class="block">การเติบโตของสินทรัพย์</span>
+                                    <span id="analytics-nw-title" class="block">ยอดเงินลงทุนและเงินสำรองสะสม</span>
                                     <span class="text-[10px] font-bold text-[var(--text-muted)] uppercase block -mt-1">ออม + ลงทุน</span>
                                 </div>
                             </h3>
@@ -849,7 +849,7 @@
             <form id="goal-edit-form" class="space-y-3 pt-2">
                 <div>
                     <label class="text-xs font-bold text-[var(--text-muted)] ml-1 uppercase">ชื่อเป้าหมาย (แก้ไขไม่ได้)</label>
-                    <input id="edit-goal-name" class="retro-input w-full p-3 font-bold bg-[var(--card-alt)] opacity-70 cursor-not-allowed text-[var(--text-muted)]" readonly>
+                    <input id="edit-goal-name" class="retro-input w-full p-3 font-bold" required>
                 </div>
                 <div>
                     <label class="text-xs font-bold text-[var(--text-muted)] ml-1 uppercase">เป้าหมาย (บาท)</label>
@@ -946,59 +946,8 @@
         }
 
         // --- เริ่มต้นระบบ Service Worker (Offline Mode) ---
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                const swCode = `
-                    const CACHE_NAME = 'money-mastery-v2';
-                    
-                    self.addEventListener('install', (e) => {
-                        e.waitUntil(
-                            caches.open(CACHE_NAME).then((cache) => {
-                                return cache.addAll([
-                                    'https://cdn.tailwindcss.com',
-                                    'https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap',
-                                    'https://cdn.jsdelivr.net/npm/chart.js',
-                                    'https://unpkg.com/@phosphor-icons/web'
-                                ]).catch(err => console.log('Some assets failed to cache', err));
-                            })
-                        );
-                        self.skipWaiting();
-                    });
-
-                    self.addEventListener('activate', (event) => {
-                        event.waitUntil(self.clients.claim());
-                    });
-
-                    self.addEventListener('fetch', (event) => {
-                        if (event.request.url.includes('script.google.com')) return;
-
-                        event.respondWith(
-                            caches.match(event.request).then((response) => {
-                                if (response) return response; 
-                                return fetch(event.request).then((networkResponse) => {
-                                    if (!networkResponse || networkResponse.status !== 200 || (networkResponse.type !== 'basic' && networkResponse.type !== 'cors')) {
-                                        return networkResponse;
-                                    }
-                                    if(event.request.method === 'GET') {
-                                        const responseToCache = networkResponse.clone();
-                                        caches.open(CACHE_NAME).then((cache) => {
-                                            cache.put(event.request, responseToCache);
-                                        });
-                                    }
-                                    return networkResponse;
-                                }).catch(err => {
-                                    console.log('Fetch failed and no cache fallback', err);
-                                });
-                            })
-                        );
-                    });
-                `;
-                const blob = new Blob([swCode], { type: 'application/javascript' });
-                const swUrl = URL.createObjectURL(blob);
-                navigator.serviceWorker.register(swUrl)
-                    .then(reg => console.log('Service Worker Registered (Offline Mode Active)'))
-                    .catch(err => console.log('Service Worker Registration Failed:', err));
-            });
+        if ('serviceWorker' in navigator && ['https:', 'http:'].includes(location.protocol)) {
+            window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(e=>console.warn('Offline cache unavailable',e)));
         }
         // --- สิ้นสุดระบบ Service Worker ---
     </script>
@@ -1006,7 +955,7 @@
     <script>
     document.addEventListener('DOMContentLoaded', () => {
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyA3a4hYP6xI26qGjdl-u3GpnINlOUVS7AVIJosaqZZGe4svLB33NwRa42k8KMKJDi6/exec"; 
-        const CACHE_KEY = 'money_mastery_local_data';
+        const CACHE_KEY = 'money_mastery_v3:' + SCRIPT_URL;
         
         // -------------------------------------------------------------
         // 1. Helper Functions 
@@ -1014,12 +963,12 @@
         const $ = (id) => document.getElementById(id);
         const $$ = (sel) => document.querySelectorAll(sel);
         const setText = (id, val) => { const el = $(id); if(el) el.textContent = val; };
-        const getCutoffDay = () => parseInt(localStorage.getItem('cutoffDay') || 10);
+        const getCutoffDay = () => { const n=Number(localStorage.getItem('cutoffDay') || 10); return Number.isInteger(n) && n>=1 && n<=28 ? n : 10; };
         const getInitialCycleDate = (cutoff) => { const today = new Date(); return today.getDate() < cutoff ? new Date(today.getFullYear(), today.getMonth() - 1, 1) : new Date(today.getFullYear(), today.getMonth(), 1); };
 
         const _dateCache = new Map();
         const getLocalDate = (dateString) => {
-            if (!dateString) return null;
+            if (!dateString) return null; dateString=String(dateString).replace(' ', 'T');
             if (_dateCache.has(dateString)) return _dateCache.get(dateString);
             const d = new Date(dateString.includes('T') ? dateString : dateString + 'T12:00:00');
             const result = isNaN(d.getTime()) ? null : d;
@@ -1031,9 +980,18 @@
         const debounce = (fn, ms = 250) => { let t; return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); }; };
         const formatDateToInput = (d) => { if (!d) return ''; const year = d.getFullYear(); const month = String(d.getMonth() + 1).padStart(2, '0'); const day = String(d.getDate()).padStart(2, '0'); return `${year}-${month}-${day}`; };
         const formatMoney = (num) => parseFloat(num || 0).toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-        // FIX 9: helper สำหรับ escape ชื่อที่อาจมี ' หรือ " ใน onclick attribute
-        const escAttr = (s) => (s || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
-        
+        const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+        const escAttr = value => escapeHtml(JSON.stringify(String(value ?? '')).slice(1,-1).replace(/'/g, "\\u0027"));
+        const signedAmount = t => (t.IsDeduct ? -1 : 1) * Number(t.Amount);
+        // Saving withdrawals represent direct spending from an earmarked goal in this app.
+        const cashEffect = t => t.Type === 'Income' ? Number(t.Amount) : t.Type === 'Saving' && t.IsDeduct ? 0 : -signedAmount(t);
+        const normalizeTransactions = rows => {
+            const populated=(Array.isArray(rows)?rows:[]).filter(t=>t && Object.values(t).some(v=>v!=='' && v!=null));
+            const valid=populated.filter(t=>getLocalDate(t.Date) && Number.isFinite(Number(t.Amount)) && Number(t.Amount)>0 && ['Income','Expense','Saving','Investment','FreeCashFlow'].includes(t.Type));
+            if(valid.length!==populated.length) showToast(`พบข้อมูลรายการไม่ถูกต้อง ${populated.length-valid.length} รายการ กรุณาตรวจชีต Transactions`, 'error', 8000);
+            return valid.map(t=>({...t, ID:String(t.ID ?? ''), Category:String(t.Category ?? ''), Description:String(t.Description ?? ''), Amount:Number(t.Amount), IsDeduct:t.IsDeduct===true || t.IsDeduct===1 || String(t.IsDeduct).toLowerCase()==='true'}));
+        };
+
         const colors = {
             income: 'text-[#06D6A0]', expense: 'text-[#EF476F]', saving: 'text-[#E07A5F]', investment: 'text-[#8338EC]', fcf: 'text-[#118AB2]',
             black: 'text-[var(--text-main)]'
@@ -1095,16 +1053,16 @@
                 fixedCosts: data.fixedCosts || [],
                 budgets: data.budgets || []
             };
-            localStorage.setItem(CACHE_KEY, JSON.stringify(cacheData));
+            try { localStorage.setItem(CACHE_KEY, JSON.stringify(cacheData)); } catch(e) { console.warn('Cache unavailable', e); }
         };
 
         const loadFromLocalCache = () => {
-            const cached = localStorage.getItem(CACHE_KEY);
+            let cached; try { cached=localStorage.getItem(CACHE_KEY); } catch(e) { return false; }
             if (cached) {
                 try {
                     const data = JSON.parse(cached);
-                    state.allTransactions = data.allTransactions || data.transactions || [];
-                    state.categories = data.categories || [];
+                    state.allTransactions = normalizeTransactions(data.allTransactions || data.transactions || []);
+                    state.categories = (data.categories || []).filter(c=>c.Name && ['Income','Expense','Saving','Investment','FreeCashFlow'].includes(c.Type));
                     state.goals = data.goals || [];
                     state.fixedCosts = data.fixedCosts || [];
                     state.budgets = data.budgets || [];
@@ -1318,7 +1276,7 @@
                 const { startDate, endDate } = getDateRange(state.currentDate);
                 transactionsToShow = state.allTransactions.filter(t => { const tDate = getLocalDate(t.Date); return tDate && tDate >= startDate && tDate < endDate; });
             } else {
-                const startDate = startDateVal ? new Date(startDateVal) : null; const endDate = endDateVal ? new Date(endDateVal) : null;
+                const startDate = startDateVal ? new Date(startDateVal+'T00:00:00') : null; const endDate = endDateVal ? new Date(endDateVal+'T00:00:00') : null;
                 if(endDate) endDate.setHours(23, 59, 59, 999);
                 transactionsToShow = state.allTransactions.filter(t => {
                     const tDate = getLocalDate(t.Date);
@@ -1331,7 +1289,7 @@
             renderTransactionsList(transactionsToShow);
             
             if (isFilterActive) {
-                const total = transactionsToShow.reduce((sum, t) => sum + (t.Type === 'Income' ? parseFloat(t.Amount) : -parseFloat(t.Amount)), 0);
+                const total = transactionsToShow.reduce((sum, t) => sum + cashEffect(t), 0);
                 let colorClass = colors.black;
                 if (total > 0) colorClass = colors.income;
                 else if (total < 0) colorClass = colors.expense;
@@ -1361,14 +1319,16 @@
                 const fcAmt  = parseFloat(fc.Amount) || 0;
                 const fcType = fc.Type || 'Expense';
 
-                let fcDate = new Date(startDate.getFullYear(), startDate.getMonth(), fcDay);
-                if (fcDate < startDate) fcDate = new Date(startDate.getFullYear(), startDate.getMonth() + 1, fcDay);
+                const fixedDate=m=>new Date(startDate.getFullYear(),m,Math.min(fcDay,new Date(startDate.getFullYear(),m+1,0).getDate()));
+                let fcDate = fixedDate(startDate.getMonth());
+                if (fcDate < startDate) fcDate = fixedDate(startDate.getMonth()+1);
 
                 if (fcDate < endDate) {
                     const alreadyRecorded = cycleTrans.some(t =>
                         t.Type === fcType &&
-                        (t.Description || '').toLowerCase().includes((fc.Description || '').toLowerCase()) &&
-                        fc.Description && fc.Description.length > 2
+                        t.Category === fc.Category &&
+                        (t.Description || '').trim().toLowerCase() === (fc.Description || '').trim().toLowerCase() &&
+                        Math.abs(Number(t.Amount)-fcAmt)<0.005
                     );
                     const isPast = fcDate <= today;
                     if (!alreadyRecorded) {
@@ -1406,9 +1366,9 @@
                     const isOverdue = f.isPast;
                     return `<div class="flex items-center justify-between bg-[var(--card-bg)] px-3 py-2 rounded-lg border ${isOverdue ? 'border-[#EF476F]/60' : 'border-[var(--border-dark)]/30'}">
                         <div class="flex items-center gap-2">
-                            <span class="text-sm">${cat.Emoji}</span>
+                            <span class="text-sm">${escapeHtml(cat.Emoji)}</span>
                             <div>
-                                <p class="text-xs font-bold text-[var(--text-main)]">${f.Description || f.Category}</p>
+                                <p class="text-xs font-bold text-[var(--text-main)]">${escapeHtml(f.Description || f.Category)}</p>
                                 <p class="text-[10px] font-bold ${isOverdue ? 'text-[#EF476F]' : 'text-[var(--text-muted)]'} uppercase">${isOverdue ? '⚠️ เลยกำหนด ' : ''}${dateStr}</p>
                             </div>
                         </div>
@@ -1526,7 +1486,7 @@
                 const deductLabel = t.IsDeduct ? '<span class="text-[10px] font-bold text-red-500 bg-red-100/10 px-1 border border-red-500 rounded ml-2 uppercase">ถอน</span>' : '';
                 const cColor = typeColors[t.Type] || defaultColor || 'text-[var(--text-main)]';
                 
-                return `<div class="retro-card p-3 flex items-center justify-between transaction-item cursor-pointer hover:bg-[var(--card-bg)] bg-[var(--card-alt)] mb-2 border-[var(--border-dark)]/50 border" data-id="${t.ID}"><div class="flex items-center gap-3"><div class="text-xl w-10 h-10 rounded-lg bg-[var(--card-bg)] border-2 border-[var(--border-dark)] flex items-center justify-center shadow-[1px_1px_0_0_var(--shadow-color)]">${cat.Emoji}</div><div><p class="font-bold text-[var(--text-main)] text-sm flex items-center">${t.Category} ${deductLabel}</p><p class="text-[10px] font-bold text-[var(--text-muted)] uppercase">${date.getDate()} ${date.toLocaleString('th-TH', { month: 'short', year: '2-digit' })} ${t.Description ? '• ' + t.Description : ''}</p></div></div><span class="font-black font-mono-num ${cColor}">${formatMoney(t.Amount)}</span></div>`;
+                return `<div class="retro-card p-3 flex items-center justify-between transaction-item cursor-pointer hover:bg-[var(--card-bg)] bg-[var(--card-alt)] mb-2 border-[var(--border-dark)]/50 border" data-id="${escapeHtml(t.ID)}"><div class="flex items-center gap-3"><div class="text-xl w-10 h-10 rounded-lg bg-[var(--card-bg)] border-2 border-[var(--border-dark)] flex items-center justify-center shadow-[1px_1px_0_0_var(--shadow-color)]">${escapeHtml(cat.Emoji)}</div><div><p class="font-bold text-[var(--text-main)] text-sm flex items-center">${escapeHtml(t.Category)} ${deductLabel}</p><p class="text-[10px] font-bold text-[var(--text-muted)] uppercase">${date.getDate()} ${date.toLocaleString('th-TH', { month: 'short', year: '2-digit' })} ${escapeHtml(t.Description ? '• ' + t.Description : '')}</p></div></div><span class="font-black font-mono-num ${cColor}">${formatMoney(t.Amount)}</span></div>`;
             }).join('') : '<p class="text-center font-bold text-[var(--text-muted)] py-4 border-2 border-dashed border-[var(--border-dark)]/30 rounded bg-[var(--card-alt)]">ไม่มีรายการ</p>';
         };
 
@@ -1556,12 +1516,12 @@
                 const badge = isWithdrawal 
                     ? '<span class="text-[10px] font-bold text-white bg-[#EF476F] px-1.5 py-0.5 rounded ml-1 uppercase">ถอนใช้</span>'
                     : '<span class="text-[10px] font-bold text-[#1E1E24] bg-[#FFD166] px-1.5 py-0.5 rounded ml-1 uppercase">ออม</span>';
-                return `<div class="retro-card p-3 flex items-center justify-between transaction-item cursor-pointer hover:bg-[var(--card-bg)] bg-[var(--card-alt)] mb-2 border-[var(--border-dark)]/50 border" data-id="${t.ID}">
+                return `<div class="retro-card p-3 flex items-center justify-between transaction-item cursor-pointer hover:bg-[var(--card-bg)] bg-[var(--card-alt)] mb-2 border-[var(--border-dark)]/50 border" data-id="${escapeHtml(t.ID)}">
                     <div class="flex items-center gap-3">
                         <div class="text-xl w-10 h-10 rounded-lg bg-[var(--card-bg)] border-2 border-[var(--border-dark)] flex items-center justify-center shadow-[1px_1px_0_0_var(--shadow-color)]">${isWithdrawal ? '💸' : '🎯'}</div>
                         <div>
-                            <p class="font-bold text-[var(--text-main)] text-sm flex items-center">${t.Category}${badge}</p>
-                            <p class="text-[10px] font-bold text-[var(--text-muted)] uppercase">${date.getDate()} ${date.toLocaleString('th-TH', { month: 'short', year: '2-digit' })} ${t.Description ? '• ' + t.Description : ''}</p>
+                            <p class="font-bold text-[var(--text-main)] text-sm flex items-center">${escapeHtml(t.Category)}${badge}</p>
+                            <p class="text-[10px] font-bold text-[var(--text-muted)] uppercase">${date.getDate()} ${date.toLocaleString('th-TH', { month: 'short', year: '2-digit' })} ${escapeHtml(t.Description ? '• ' + t.Description : '')}</p>
                         </div>
                     </div>
                     <span class="font-black font-mono-num ${amountColor}">${sign}${formatMoney(t.Amount)}</span>
@@ -1619,7 +1579,7 @@
         const renderInvestmentPortfolio = () => {
             const { endDate } = getDateRange(state.currentDate);
             const invests = state.allTransactions.filter(t => t.Type === 'Investment' && getLocalDate(t.Date) && getLocalDate(t.Date) < endDate);
-            const grouped = invests.reduce((acc, t) => { const val = parseFloat(t.Amount); acc[t.Category] = (acc[t.Category] || 0) + (t.IsDeduct ? -val : val); return acc; }, {});
+            const grouped = invests.reduce((acc, t) => { const val = parseFloat(t.Amount); acc[t.Category] = (acc[t.Category] || 0) + (t.IsDeduct ? -val : val); return acc; }, Object.create(null));
             const total = Object.values(grouped).reduce((a, b) => a + b, 0);
 
             if (Object.keys(grouped).length === 0) {
@@ -1627,7 +1587,7 @@
             } else {
                 ui.investmentPortfolioList.innerHTML = Object.entries(grouped).sort(([,a], [,b]) => b - a).map(([name, amount]) => {
                     const cat = state.categories.find(c => c.Name === name) || { Emoji: '💹' };
-                    return `<div class="retro-card p-3 flex justify-between items-center bg-[var(--card-alt)] cursor-pointer hover:bg-[var(--card-bg)] transition-colors border border-[var(--border-dark)]/30" onclick="showCumulativeInvestmentDetails('${escAttr(name)}')"><div class="flex items-center gap-3 text-[var(--text-main)] font-bold"><span class="text-xl bg-[var(--card-bg)] w-8 h-8 flex items-center justify-center rounded border border-[var(--border-dark)]/50">${cat.Emoji}</span><span>${name}</span></div><span class="font-black text-[#8338EC] font-mono-num">${formatMoney(amount)}</span></div>`;
+                    return `<div class="retro-card p-3 flex justify-between items-center bg-[var(--card-alt)] cursor-pointer hover:bg-[var(--card-bg)] transition-colors border border-[var(--border-dark)]/30" onclick="showCumulativeInvestmentDetails('${escAttr(name)}')"><div class="flex items-center gap-3 text-[var(--text-main)] font-bold"><span class="text-xl bg-[var(--card-bg)] w-8 h-8 flex items-center justify-center rounded border border-[var(--border-dark)]/50">${escapeHtml(cat.Emoji)}</span><span>${escapeHtml(name)}</span></div><span class="font-black text-[#8338EC] font-mono-num">${formatMoney(amount)}</span></div>`;
                 }).join('');
             }
             animateValue(ui.investmentPortfolioTotal, 0, total, 1000);
@@ -1635,7 +1595,7 @@
 
         const renderCategorySummary = (transactions) => {
             const expenses = transactions.filter(t => t.Type === 'Expense');
-            const grouped = {}; let total = 0;
+            const grouped = Object.create(null); let total = 0;
             expenses.forEach(t => { const amount = parseFloat(t.Amount); grouped[t.Category] = (grouped[t.Category] || 0) + amount; total += amount; });
 
             const sorted = Object.entries(grouped).sort(([,a], [,b]) => b - a);
@@ -1645,7 +1605,7 @@
             container.innerHTML = sorted.map(([catName, amount]) => {
                 const cat = state.categories.find(c => c.Name === catName) || { Emoji: '💸' };
                 const percent = (amount / total) * 100;
-                return `<div class="flex flex-col space-y-1 bg-[var(--card-alt)] p-3 rounded-lg border border-[var(--border-dark)]/30 hover:border-[var(--border-dark)] transition-colors"><div class="flex justify-between items-center text-sm"><div class="flex items-center gap-2 font-bold"><span class="text-lg bg-[var(--card-bg)] w-8 h-8 rounded flex items-center justify-center border border-[var(--border-dark)]/50">${cat.Emoji}</span><span class="text-[var(--text-main)] uppercase">${catName}</span></div><div class="text-right"><p class="font-black text-[#EF476F] font-mono-num">${formatMoney(amount)} ฿</p></div></div><div class="flex items-center gap-2 mt-1.5"><div class="w-full bg-[var(--card-bg)] h-2 rounded-full border border-[var(--border-dark)] overflow-hidden"><div class="bg-[#EF476F] h-full" style="width: ${percent}%"></div></div><span class="text-[10px] font-bold text-[var(--text-muted)] w-8 text-right font-mono-num">${percent.toFixed(1)}%</span></div></div>`;
+                return `<div class="flex flex-col space-y-1 bg-[var(--card-alt)] p-3 rounded-lg border border-[var(--border-dark)]/30 hover:border-[var(--border-dark)] transition-colors"><div class="flex justify-between items-center text-sm"><div class="flex items-center gap-2 font-bold"><span class="text-lg bg-[var(--card-bg)] w-8 h-8 rounded flex items-center justify-center border border-[var(--border-dark)]/50">${escapeHtml(cat.Emoji)}</span><span class="text-[var(--text-main)] uppercase">${escapeHtml(catName)}</span></div><div class="text-right"><p class="font-black text-[#EF476F] font-mono-num">${formatMoney(amount)} ฿</p></div></div><div class="flex items-center gap-2 mt-1.5"><div class="w-full bg-[var(--card-bg)] h-2 rounded-full border border-[var(--border-dark)] overflow-hidden"><div class="bg-[#EF476F] h-full" style="width: ${percent}%"></div></div><span class="text-[10px] font-bold text-[var(--text-muted)] w-8 text-right font-mono-num">${percent.toFixed(1)}%</span></div></div>`;
             }).join('');
         };
 
@@ -1661,13 +1621,13 @@
                 const date = getLocalDate(t.Date); const isSelected = state.selectedTransactionIds.has(t.ID);
                 const deductLabel = t.IsDeduct ? '<span class="text-[10px] font-bold text-red-500 bg-red-100/10 px-1.5 py-0.5 border border-red-500 rounded ml-2 uppercase">ถอน</span>' : '';
                 
-                return `<div class="retro-card p-3 md:p-4 flex items-center justify-between transaction-item cursor-pointer mb-2.5 bg-[var(--card-bg)] ${isSelected ? 'border-[#4361EE] bg-blue-50/10 shadow-[0px_0px_0px_2px_#4361EE]' : 'hover:bg-[var(--card-alt)]'}" data-id="${t.ID}">
+                return `<div class="retro-card p-3 md:p-4 flex items-center justify-between transaction-item cursor-pointer mb-2.5 bg-[var(--card-bg)] ${isSelected ? 'border-[#4361EE] bg-blue-50/10 shadow-[0px_0px_0px_2px_#4361EE]' : 'hover:bg-[var(--card-alt)]'}" data-id="${escapeHtml(t.ID)}">
                     <div class="flex items-center gap-3 md:gap-4">
                         ${state.isSelectMode ? `<div class="w-5 h-5 rounded border-2 ${isSelected ? 'bg-[#4361EE] border-[#4361EE]' : 'border-[var(--border-dark)] bg-[var(--card-bg)]'} flex items-center justify-center shrink-0"><i class="ph-bold ph-check text-white text-xs ${isSelected ? '' : 'hidden'}"></i></div>` : ''}
-                        <div class="text-2xl w-12 h-12 rounded-xl bg-[var(--card-alt)] border-2 border-[var(--border-dark)] flex items-center justify-center shadow-[1px_1px_0px_0px_var(--shadow-color)] shrink-0">${cat.Emoji}</div>
+                        <div class="text-2xl w-12 h-12 rounded-xl bg-[var(--card-alt)] border-2 border-[var(--border-dark)] flex items-center justify-center shadow-[1px_1px_0px_0px_var(--shadow-color)] shrink-0">${escapeHtml(cat.Emoji)}</div>
                         <div class="min-w-0">
-                            <p class="font-bold text-[var(--text-main)] flex items-center text-sm md:text-base truncate">${t.Category} ${deductLabel}</p>
-                            <p class="text-[10px] md:text-xs font-bold text-[var(--text-muted)] uppercase truncate mt-0.5">${date.getDate()} ${date.toLocaleString('th-TH',{month:'short'})} • ${t.Description || '-'}</p>
+                            <p class="font-bold text-[var(--text-main)] flex items-center text-sm md:text-base truncate">${escapeHtml(t.Category)} ${deductLabel}</p>
+                            <p class="text-[10px] md:text-xs font-bold text-[var(--text-muted)] uppercase truncate mt-0.5">${date.getDate()} ${date.toLocaleString('th-TH',{month:'short'})} • ${escapeHtml(t.Description || '-')}</p>
                         </div>
                     </div>
                     <span class="font-black font-mono-num text-right shrink-0 md:text-lg ${classTypeMap[t.Type]}">${signs[t.Type]}${formatMoney(t.Amount)}</span>
@@ -1700,10 +1660,10 @@
                         const cat = state.categories.find(c => c.Name === t.Category) || { Emoji: isIncome ? '💰' : '💸' };
                         return `<div class="flex justify-between items-center text-sm border-b-2 border-dashed border-[var(--border-dark)]/20 pb-2 mb-2 last:border-0 last:mb-0 last:pb-0 bg-[var(--card-bg)] hover:bg-[var(--card-alt)] transition-colors p-2 rounded-lg border border-transparent hover:border-[var(--border-dark)]/20">
                             <div class="flex items-center gap-2 min-w-0 pr-2">
-                                <span class="text-lg bg-[var(--card-alt)] p-1.5 rounded border border-[var(--border-dark)]/50 shrink-0">${cat.Emoji}</span>
+                                <span class="text-lg bg-[var(--card-alt)] p-1.5 rounded border border-[var(--border-dark)]/50 shrink-0">${escapeHtml(cat.Emoji)}</span>
                                 <div class="flex flex-col min-w-0">
-                                    <span class="text-[var(--text-main)] font-bold text-xs truncate">${t.Category}</span>
-                                    ${t.Description ? `<span class="text-[10px] font-bold text-[var(--text-muted)] truncate">${t.Description}</span>` : ''}
+                                    <span class="text-[var(--text-main)] font-bold text-xs truncate">${escapeHtml(t.Category)}</span>
+                                    ${t.Description ? `<span class="text-[10px] font-bold text-[var(--text-muted)] truncate">${escapeHtml(t.Description)}</span>` : ''}
                                 </div>
                             </div>
                             <span class="${colorClass} font-black font-mono-num shrink-0">${sign}${formatMoney(t.Amount)}</span>
@@ -1754,7 +1714,7 @@
                 $('summary-details-list').innerHTML = trans.length ? trans.map(t => {
                     const cat = state.categories.find(c => c.Name === t.Category) || { Emoji: '📄' }; const date = getLocalDate(t.Date);
                     const deductLabel = t.IsDeduct ? '<span class="text-[10px] font-bold text-red-500 bg-red-100/10 px-1 border border-red-500 rounded ml-2 uppercase">ถอน</span>' : '';
-                    return `<div class="retro-card p-3 flex items-center justify-between transaction-item bg-[var(--card-bg)] mb-2" data-id="${t.ID}"><div class="flex items-center gap-3"><div class="text-xl w-10 h-10 rounded-lg bg-[var(--card-alt)] border-2 border-[var(--border-dark)] flex items-center justify-center shadow-[1px_1px_0_0_var(--shadow-color)]">${cat.Emoji}</div><div><p class="font-bold text-[var(--text-main)] flex items-center text-sm">${t.Category} ${deductLabel}</p><p class="text-[10px] font-bold text-[var(--text-muted)] uppercase">${date.getDate()} ${date.toLocaleString('th-TH', { month: 'short' })} ${t.Description ? '• ' + t.Description : ''}</p></div></div><span class="font-black font-mono-num ${colorMap[type] || 'text-[var(--text-main)]'}">${formatMoney(t.Amount)}</span></div>`;
+                    return `<div class="retro-card p-3 flex items-center justify-between transaction-item bg-[var(--card-bg)] mb-2" data-id="${escapeHtml(t.ID)}"><div class="flex items-center gap-3"><div class="text-xl w-10 h-10 rounded-lg bg-[var(--card-alt)] border-2 border-[var(--border-dark)] flex items-center justify-center shadow-[1px_1px_0_0_var(--shadow-color)]">${escapeHtml(cat.Emoji)}</div><div><p class="font-bold text-[var(--text-main)] flex items-center text-sm">${escapeHtml(t.Category)} ${deductLabel}</p><p class="text-[10px] font-bold text-[var(--text-muted)] uppercase">${date.getDate()} ${date.toLocaleString('th-TH', { month: 'short' })} ${escapeHtml(t.Description ? '• ' + t.Description : '')}</p></div></div><span class="font-black font-mono-num ${colorMap[type] || 'text-[var(--text-main)]'}">${formatMoney(t.Amount)}</span></div>`;
                 }).join('') : '<p class="text-center font-bold text-[var(--text-muted)] py-4 border-2 border-dashed border-[var(--border-dark)]/30 rounded bg-[var(--card-alt)]">ไม่มีรายการ</p>';
                 modalControls['summary-details-modal'].open();
             });
@@ -1762,11 +1722,11 @@
 
         $('summary-card-investment-cumulative').addEventListener('click', () => {
              const invests = state.allTransactions.filter(t => t.Type === 'Investment' && getLocalDate(t.Date) <= new Date());
-             const grouped = invests.reduce((acc, t) => { acc[t.Category] = (acc[t.Category] || 0) + (t.IsDeduct ? -parseFloat(t.Amount) : parseFloat(t.Amount)); return acc; }, {});
+             const grouped = invests.reduce((acc, t) => { acc[t.Category] = (acc[t.Category] || 0) + (t.IsDeduct ? -parseFloat(t.Amount) : parseFloat(t.Amount)); return acc; }, Object.create(null));
              setText('summary-details-modal-title', "พอร์ตลงทุนรวม");
              $('summary-details-list').innerHTML = Object.keys(grouped).length ? Object.entries(grouped).sort(([,a],[,b]) => b-a).map(([name, amount]) => {
                     const cat = state.categories.find(c => c.Name === name) || { Emoji: '📈' };
-                    return `<div class="retro-card p-3 flex justify-between items-center bg-[var(--card-bg)] mb-2"><div class="flex items-center gap-3"><div class="text-xl w-10 h-10 rounded-lg bg-[var(--card-alt)] border-2 border-[var(--border-dark)] flex items-center justify-center shadow-[1px_1px_0_0_var(--shadow-color)]">${cat.Emoji}</div><span class="font-bold text-[var(--text-main)]">${name}</span></div><span class="font-black font-mono-num ${colors.investment}">${formatMoney(amount)}</span></div>`;
+                    return `<div class="retro-card p-3 flex justify-between items-center bg-[var(--card-bg)] mb-2"><div class="flex items-center gap-3"><div class="text-xl w-10 h-10 rounded-lg bg-[var(--card-alt)] border-2 border-[var(--border-dark)] flex items-center justify-center shadow-[1px_1px_0_0_var(--shadow-color)]">${escapeHtml(cat.Emoji)}</div><span class="font-bold text-[var(--text-main)]">${escapeHtml(name)}</span></div><span class="font-black font-mono-num ${colors.investment}">${formatMoney(amount)}</span></div>`;
                 }).join('') : '<p class="text-center font-bold text-[var(--text-muted)] py-4 border-2 border-dashed border-[var(--border-dark)]/30 rounded bg-[var(--card-alt)]">ยังไม่มีการลงทุน</p>';
              modalControls['summary-details-modal'].open();
         });
@@ -1779,7 +1739,7 @@
             const colorMap = { 'Income': colors.income, 'Expense': colors.expense, 'Saving': colors.saving, 'Investment': colors.investment, 'FreeCashFlow': colors.fcf };
             $('day-details-list').innerHTML = trans.length ? trans.map(t => {
                 const cat = state.categories.find(c => c.Name === t.Category) || { Emoji: '📄' };
-                return `<div class="retro-card p-3 flex items-center justify-between transaction-item cursor-pointer hover:bg-[var(--card-bg)] bg-[var(--card-bg)] mb-2" data-id="${t.ID}"><div class="flex items-center gap-3"><div class="text-xl w-10 h-10 rounded-lg bg-[var(--card-alt)] border-2 border-[var(--border-dark)] flex items-center justify-center shadow-[1px_1px_0_0_var(--shadow-color)]">${cat.Emoji}</div><div><p class="font-bold text-[var(--text-main)] text-sm">${t.Category}</p><p class="text-[10px] font-bold text-[var(--text-muted)] uppercase">${d.getDate()} ${d.toLocaleString('th-TH', { month: 'short' })} ${t.Description ? '• ' + t.Description : ''}</p></div></div><span class="font-black font-mono-num ${colorMap[t.Type] || 'text-[var(--text-main)]'}">${formatMoney(t.Amount)}</span></div>`;
+                return `<div class="retro-card p-3 flex items-center justify-between transaction-item cursor-pointer hover:bg-[var(--card-bg)] bg-[var(--card-bg)] mb-2" data-id="${escapeHtml(t.ID)}"><div class="flex items-center gap-3"><div class="text-xl w-10 h-10 rounded-lg bg-[var(--card-alt)] border-2 border-[var(--border-dark)] flex items-center justify-center shadow-[1px_1px_0_0_var(--shadow-color)]">${escapeHtml(cat.Emoji)}</div><div><p class="font-bold text-[var(--text-main)] text-sm">${escapeHtml(t.Category)}</p><p class="text-[10px] font-bold text-[var(--text-muted)] uppercase">${d.getDate()} ${d.toLocaleString('th-TH', { month: 'short' })} ${escapeHtml(t.Description ? '• ' + t.Description : '')}</p></div></div><span class="font-black font-mono-num ${colorMap[t.Type] || 'text-[var(--text-main)]'}">${formatMoney(t.Amount)}</span></div>`;
             }).join('') : '<p class="text-center font-bold text-[var(--text-muted)] py-4 border-2 border-dashed border-[var(--border-dark)]/30 rounded bg-[var(--card-alt)]">ไม่มีรายการ</p>';
             modalControls['day-details-modal'].open();
         };
@@ -1799,7 +1759,7 @@
                 const t = state.allTransactions.find(tr => tr.ID == id);
                 // FIX 6: ป้องกัน crash เมื่อ transaction ไม่เจอ (เช่น ยังไม่ sync หรือข้อมูล stale)
                 if (!t) { showToast('ไม่พบรายการ กรุณารีเฟรชข้อมูล', 'error'); return; }
-                $('transaction-action-details').innerHTML = `<p class="font-black text-xl text-[var(--text-main)]">${t.Category}</p><p class="font-bold text-[#4361EE] font-mono-num text-2xl my-1">${formatMoney(t.Amount)} ฿</p><p class="text-xs font-bold text-[var(--text-muted)] mt-1">${t.Description || '-'}</p>`;
+                $('transaction-action-details').innerHTML = `<p class="font-black text-xl text-[var(--text-main)]">${escapeHtml(t.Category)}</p><p class="font-bold text-[#4361EE] font-mono-num text-2xl my-1">${formatMoney(t.Amount)} ฿</p><p class="text-xs font-bold text-[var(--text-muted)] mt-1">${escapeHtml(t.Description || '-')}</p>`;
                 modalControls['transaction-action-modal'].open(); modalControls['day-details-modal'].close(); modalControls['summary-details-modal'].close();
             }
         };
@@ -1835,8 +1795,8 @@
                 content.innerHTML = state.categories.map(c => `
                     <div class="retro-card bg-[var(--card-bg)] p-3 flex justify-between items-center mb-2 border border-[var(--border-dark)]/30">
                         <div class="font-bold text-[var(--text-main)] truncate mr-2">
-                            <span>${c.Emoji} ${c.Name}</span> 
-                            <span class="text-[10px] text-[var(--text-muted)] uppercase ml-1 border border-[var(--border-dark)]/30 px-1.5 py-0.5 rounded bg-[var(--card-alt)]">(${c.Type})</span>
+                            <span>${escapeHtml(c.Emoji)} ${escapeHtml(c.Name)}</span> 
+                            <span class="text-[10px] text-[var(--text-muted)] uppercase ml-1 border border-[var(--border-dark)]/30 px-1.5 py-0.5 rounded bg-[var(--card-alt)]">(${escapeHtml(c.Type)})</span>
                         </div>
                         <div class="flex gap-2 shrink-0">
                             <button class="retro-btn bg-[#4361EE] text-white text-xs px-3 py-1.5 rounded-lg shadow-[2px_2px_0_0_var(--shadow-color)]" onclick="editCategory('${escAttr(c.Name)}')">แก้ไข</button>
@@ -1847,7 +1807,7 @@
                 content.innerHTML = state.goals.map(g => `
                     <div class="retro-card bg-[var(--card-bg)] p-3 flex justify-between items-center mb-2 border border-[var(--border-dark)]/30">
                         <div class="truncate mr-2">
-                            <p class="font-bold text-[var(--text-main)] truncate">${g.GoalName}</p>
+                            <p class="font-bold text-[var(--text-main)] truncate">${escapeHtml(g.GoalName)}</p>
                             <p class="text-[10px] font-bold text-[var(--text-muted)] uppercase font-mono-num">เป้า: ${formatMoney(g.TargetAmount)}</p>
                         </div>
                         <div class="flex gap-2 shrink-0">
@@ -1856,15 +1816,15 @@
                         </div>
                     </div>`).join('') + `<div class="mt-5 border-t-2 border-[var(--border-dark)] pt-5"><h4 class="font-black text-sm mb-3">สร้างเป้าหมายใหม่</h4><input id="new-goal-name" class="retro-input w-full p-3 mb-3 font-bold" placeholder="ชื่อเป้าหมาย"><input type="number" id="new-goal-amount" class="retro-input w-full p-3 mb-3 font-mono-num font-bold" placeholder="จำนวนเงิน (บาท)"><input type="date" id="new-goal-date" class="retro-input w-full p-3 mb-4 font-mono-num font-bold"><button class="retro-btn w-full bg-[#FFD166] text-[#1E1E24] py-3.5 rounded-xl font-black uppercase shadow-[3px_3px_0_0_var(--shadow-color)]" onclick="addNewGoal()">บันทึกเป้าหมาย</button></div>`;
             } else if(state.activeSettingsPage === 'fixed') {
-                 content.innerHTML = state.fixedCosts.map(f => `<div class="retro-card bg-[var(--card-bg)] p-3 flex justify-between mb-2 border border-[var(--border-dark)]/30"><div><p class="font-bold text-[var(--text-main)]">${f.Description}</p><p class="text-[10px] font-bold text-[var(--text-muted)] uppercase font-mono-num">${formatMoney(f.Amount)} (วันที่ ${f.DayOfMonth})</p></div><button class="retro-btn bg-[#EF476F] text-white text-xs px-3 py-1.5 rounded-lg h-fit shadow-[2px_2px_0_0_var(--shadow-color)]" onclick="deleteFixed('${f.Description}')">ลบ</button></div>`).join('') + `<div class="mt-5 border-t-2 border-[var(--border-dark)] pt-5"><h4 class="font-black text-sm mb-3">เพิ่มรายจ่ายคงที่</h4><input id="new-fixed-desc" class="retro-input w-full p-3 mb-3 font-bold" placeholder="รายการ (เช่น ค่าเน็ต, ค่าห้อง)"><input type="number" id="new-fixed-amount" class="retro-input w-full p-3 mb-3 font-mono-num font-bold" placeholder="จำนวนเงิน (บาท)"><input type="number" id="new-fixed-day" class="retro-input w-full p-3 mb-3 font-mono-num font-bold" placeholder="วันที่ต้องจ่าย (1-31)"><select id="new-fixed-cat" class="retro-input w-full p-3 mb-4 font-bold"></select><button class="retro-btn w-full bg-[#EF476F] text-white py-3.5 rounded-xl font-black uppercase shadow-[3px_3px_0_0_var(--shadow-color)]" onclick="addNewFixed()">บันทึกรายการ</button></div>`;
-                 setTimeout(() => { const sel = $('new-fixed-cat'); if(sel) sel.innerHTML = state.categories.filter(c=>c.Type==='Expense').map(c=>`<option value="${c.Name}">${c.Name}</option>`).join(''); }, 0);
+                 content.innerHTML = state.fixedCosts.map(f => `<div class="retro-card bg-[var(--card-bg)] p-3 flex justify-between mb-2 border border-[var(--border-dark)]/30"><div><p class="font-bold text-[var(--text-main)]">${escapeHtml(f.Description)}</p><p class="text-[10px] font-bold text-[var(--text-muted)] uppercase font-mono-num">${formatMoney(f.Amount)} (วันที่ ${escapeHtml(f.DayOfMonth)})</p></div><button class="retro-btn bg-[#EF476F] text-white text-xs px-3 py-1.5 rounded-lg h-fit shadow-[2px_2px_0_0_var(--shadow-color)]" onclick="deleteFixed('${escAttr(f.Description)}')">ลบ</button></div>`).join('') + `<div class="mt-5 border-t-2 border-[var(--border-dark)] pt-5"><h4 class="font-black text-sm mb-3">เพิ่มรายจ่ายคงที่</h4><input id="new-fixed-desc" class="retro-input w-full p-3 mb-3 font-bold" placeholder="รายการ (เช่น ค่าเน็ต, ค่าห้อง)"><input type="number" id="new-fixed-amount" class="retro-input w-full p-3 mb-3 font-mono-num font-bold" placeholder="จำนวนเงิน (บาท)"><input type="number" id="new-fixed-day" class="retro-input w-full p-3 mb-3 font-mono-num font-bold" placeholder="วันที่ต้องจ่าย (1-31)"><select id="new-fixed-cat" class="retro-input w-full p-3 mb-4 font-bold"></select><button class="retro-btn w-full bg-[#EF476F] text-white py-3.5 rounded-xl font-black uppercase shadow-[3px_3px_0_0_var(--shadow-color)]" onclick="addNewFixed()">บันทึกรายการ</button></div>`;
+                 setTimeout(() => { const sel = $('new-fixed-cat'); if(sel) sel.innerHTML = state.categories.filter(c=>c.Type==='Expense').map(c=>`<option value="${escapeHtml(c.Name)}">${escapeHtml(c.Name)}</option>`).join(''); }, 0);
             } else if(state.activeSettingsPage === 'batch') {
                 const currentYear = new Date().getFullYear(); const yearOptions = Array.from({length: 7}, (_, i) => currentYear + i).map(y => `<option value="${y}">${y}</option>`).join('');
                 content.innerHTML = `<div class="space-y-4"><div class="grid grid-cols-2 gap-3"><select id="batch-type" class="retro-input w-full p-3 font-bold"><option value="Expense">รายจ่าย</option><option value="Income">รายรับ</option></select><select id="batch-cat" class="retro-input w-full p-3 font-bold"></select></div><input id="batch-desc" class="retro-input w-full p-3 font-bold" placeholder="คำอธิบาย (เช่น ค่าเทอม)"><input type="number" id="batch-amt" class="retro-input w-full p-3 font-mono-num font-bold" placeholder="จำนวนเงินต่อเดือน"><div class="grid grid-cols-2 gap-3"><input type="number" id="batch-day" class="retro-input w-full p-3 font-mono-num font-bold" placeholder="วันที่ (1-31)"><select id="batch-year" class="retro-input w-full p-3 font-mono-num font-bold">${yearOptions}</select></div><p class="text-xs font-bold text-[var(--text-muted)] uppercase mt-2">เลือกเดือนที่ต้องการบันทึก</p><div id="batch-months" class="grid grid-cols-3 md:grid-cols-4 gap-2 mt-1"></div><button class="retro-btn w-full bg-[#8338EC] text-white py-3.5 rounded-xl mt-4 font-black uppercase shadow-[3px_3px_0_0_var(--shadow-color)]" onclick="submitBatch()">บันทึกรายการทีละหลายเดือน</button></div>`;
                 setTimeout(() => {
                     const months = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
                     $('batch-months').innerHTML = months.map((m,i) => `<label class="retro-card bg-[var(--card-bg)] p-2 text-center text-xs font-bold cursor-pointer border border-[var(--border-dark)] hover:bg-[var(--card-alt)] transition-colors"><input type="checkbox" value="${i}" class="mb-1 block mx-auto w-4 h-4 accent-[#8338EC]"> ${m}</label>`).join('');
-                    $('batch-type').onchange = (e) => $('batch-cat').innerHTML = state.categories.filter(c=>c.Type===e.target.value).map(c=>`<option value="${c.Name}">${c.Name}</option>`).join('');
+                    $('batch-type').onchange = (e) => $('batch-cat').innerHTML = state.categories.filter(c=>c.Type===e.target.value).map(c=>`<option value="${escapeHtml(c.Name)}">${escapeHtml(c.Name)}</option>`).join('');
                     $('batch-type').dispatchEvent(new Event('change'));
                 }, 0);
             }
@@ -1917,6 +1877,7 @@
             const goal = state.goals.find(g => g.GoalName === name);
             if (!goal) return;
             
+            $('goal-edit-form').dataset.originalName = goal.GoalName;
             $('edit-goal-name').value = goal.GoalName;
             $('edit-goal-amount').value = goal.TargetAmount;
             
@@ -1946,7 +1907,7 @@
             modalControls['goal-edit-modal'].close();
             ui.loading.classList.remove('hidden');
             try {
-                await apiCall('saveGoal', { data }); 
+                await apiCall('updateGoal', { originalName: $('goal-edit-form').dataset.originalName, data }); 
                 showToast('แก้ไขเป้าหมายสำเร็จ'); 
                 await init(true, true);
             } catch(err) { 
@@ -2017,7 +1978,7 @@
         };
 
         const renderExpenseChart = (trans) => {
-            const expenses = trans.filter(t => t.Type === 'Expense'); const grouped = {}; expenses.forEach(t => grouped[t.Category] = (grouped[t.Category] || 0) + parseFloat(t.Amount));
+            const expenses = trans.filter(t => t.Type === 'Expense'); const grouped = Object.create(null); expenses.forEach(t => grouped[t.Category] = (grouped[t.Category] || 0) + parseFloat(t.Amount));
             if(state.charts.expense) state.charts.expense.destroy(); const canvas = $('expenseChart');
             
             const textColor = getComputedStyle(document.documentElement).getPropertyValue('--text-main').trim() || '#1E1E24';
@@ -2107,11 +2068,11 @@
                 });
                 
                 for(let m=0; m<12; m++) { 
-                    const end = new Date(year, m + 1, 0); 
-                    assetData[m] = state.allTransactions.filter(t => getLocalDate(t.Date) <= end && ['Investment','FreeCashFlow'].includes(t.Type))
+                    const end = new Date(year, m + 1, 1); 
+                    assetData[m] = state.allTransactions.filter(t => getLocalDate(t.Date) < end && ['Investment','FreeCashFlow'].includes(t.Type))
                         .reduce((s,t) => t.IsDeduct ? s - parseFloat(t.Amount) : s + parseFloat(t.Amount), 0); 
                 }
-                setText('analytics-nw-title', 'การเติบโตของสินทรัพย์');
+                setText('analytics-nw-title', 'ยอดเงินลงทุนและเงินสำรองสะสม');
                 setText('analytics-ie-title', 'รายรับ vs รายจ่าย (รายเดือนใน 1 ปี)');
                 setText('analytics-top-title', '10 รายจ่ายสูงสุด (รายปี)');
                 setText('analytics-inv-title', 'สรุปยอดลงทุน (รายปี)');
@@ -2141,11 +2102,11 @@
 
                 for(let w=0; w<weeksCount; w++) { 
                     const endDay = Math.min((w + 1) * 7, daysInMonth);
-                    const end = new Date(year, month, endDay); 
-                    assetData[w] = state.allTransactions.filter(t => getLocalDate(t.Date) <= end && ['Investment','FreeCashFlow'].includes(t.Type))
+                    const end = new Date(year, month, endDay + 1); 
+                    assetData[w] = state.allTransactions.filter(t => getLocalDate(t.Date) < end && ['Investment','FreeCashFlow'].includes(t.Type))
                         .reduce((s,t) => t.IsDeduct ? s - parseFloat(t.Amount) : s + parseFloat(t.Amount), 0); 
                 }
-                setText('analytics-nw-title', 'การเติบโตของสินทรัพย์');
+                setText('analytics-nw-title', 'ยอดเงินลงทุนและเงินสำรองสะสม');
                 setText('analytics-ie-title', 'รายรับ vs รายจ่าย (รายสัปดาห์)');
                 setText('analytics-top-title', '10 รายจ่ายสูงสุด (เดือนนี้)');
                 setText('analytics-inv-title', 'สรุปยอดลงทุน (เดือนนี้)');
@@ -2159,7 +2120,7 @@
                 options: { responsive: true, maintainAspectRatio: false, scales: { x: { grid: { display: false }, ticks: {font: {family: 'Kanit', weight: 'bold'}, color: textColor} }, y: { grid: { color: gridColor }, border: {color: borderColor, width: 2}, ticks: {font: {family: 'Space Mono', weight: 'bold'}, color: textColor} } }, plugins: { legend: { labels: { color: textColor, font: {family: 'Kanit', weight: 'bold'} } } } } 
             });
 
-            const expenses = {}; filteredTrans.filter(t => t.Type === 'Expense').forEach(t => expenses[t.Category] = (expenses[t.Category] || 0) + parseFloat(t.Amount));
+            const expenses = Object.create(null); filteredTrans.filter(t => t.Type === 'Expense').forEach(t => expenses[t.Category] = (expenses[t.Category] || 0) + parseFloat(t.Amount));
             const top10 = Object.entries(expenses).sort(([,a],[,b]) => b-a).slice(0, 10);
             if(state.charts.topExpense) state.charts.topExpense.destroy();
             const chartTop = $('yearly-top-expense-chart');
@@ -2192,16 +2153,16 @@
                 options: { responsive: true, maintainAspectRatio: false, scales: { x: { grid: { display: false }, ticks: {font: {family: 'Kanit', weight: 'bold'}, color: textColor} }, y: { grid: { color: gridColor, borderDash: [5, 5] }, border: {color: borderColor, width: 2}, ticks: {font: {family: 'Space Mono', weight: 'bold'}, color: textColor} } }, plugins: { legend: { display: false } } } 
             });
 
-            const invests = filteredTrans.filter(t => t.Type === 'Investment'); const invTotal = invests.reduce((s, t) => s + parseFloat(t.Amount), 0);
+            const invests = filteredTrans.filter(t => t.Type === 'Investment'); const invTotal = invests.reduce((s, t) => s + signedAmount(t), 0);
             setText('yearly-total-investment', formatMoney(invTotal) + ' ฿');
-            const groupedInv = invests.reduce((acc, t) => { acc[t.Category] = (acc[t.Category] || 0) + parseFloat(t.Amount); return acc; }, {});
+            const groupedInv = invests.reduce((acc, t) => { acc[t.Category] = (acc[t.Category] || 0) + signedAmount(t); return acc; }, Object.create(null));
             const sortedInv = Object.entries(groupedInv).sort(([,a],[,b]) => b-a);
             
             const invListEl = $('yearly-investment-summary-list');
             if(invListEl) {
                 invListEl.innerHTML = sortedInv.length ? sortedInv.map(([name, amount]) => {
-                    const cat = state.categories.find(c => c.Name === name) || { Emoji: '💹' }; const percent = invTotal > 0 ? (amount / invTotal) * 100 : 0;
-                    return `<div class="flex flex-col space-y-1 bg-[var(--card-bg)] p-3 rounded-lg border border-[var(--border-dark)]/30 hover:border-[var(--border-dark)] transition-colors mb-3 cursor-pointer" onclick="showYearlyInvestmentDetails('${escAttr(name)}', '${escAttr(periodLabelForModal)}')"><div class="flex justify-between items-center text-sm"><div class="flex items-center gap-2 font-bold"><span class="text-xl bg-[var(--card-alt)] w-8 h-8 rounded border border-[var(--border-dark)]/50 flex items-center justify-center">${cat.Emoji}</span><span class="text-[var(--text-main)]">${name}</span></div><div class="text-right"><p class="font-black text-[#8338EC] font-mono-num">${formatMoney(amount)}</p></div></div><div class="flex items-center gap-2 mt-1.5"><div class="w-full bg-[var(--card-alt)] h-2.5 rounded-full border border-[var(--border-dark)]/50 overflow-hidden"><div class="bg-[#8338EC] h-full" style="width: ${percent}%"></div></div><span class="text-[10px] font-bold text-[var(--text-muted)] w-8 text-right font-mono-num">${percent.toFixed(1)}%</span></div></div>`;
+                    const cat = state.categories.find(c => c.Name === name) || { Emoji: '💹' }; const percent = invTotal > 0 ? Math.max(0,Math.min(100,(amount / invTotal) * 100)) : 0;
+                    return `<div class="flex flex-col space-y-1 bg-[var(--card-bg)] p-3 rounded-lg border border-[var(--border-dark)]/30 hover:border-[var(--border-dark)] transition-colors mb-3 cursor-pointer" onclick="showYearlyInvestmentDetails('${escAttr(name)}', '${escAttr(periodLabelForModal)}')"><div class="flex justify-between items-center text-sm"><div class="flex items-center gap-2 font-bold"><span class="text-xl bg-[var(--card-alt)] w-8 h-8 rounded border border-[var(--border-dark)]/50 flex items-center justify-center">${escapeHtml(cat.Emoji)}</span><span class="text-[var(--text-main)]">${escapeHtml(name)}</span></div><div class="text-right"><p class="font-black text-[#8338EC] font-mono-num">${formatMoney(amount)}</p></div></div><div class="flex items-center gap-2 mt-1.5"><div class="w-full bg-[var(--card-alt)] h-2.5 rounded-full border border-[var(--border-dark)]/50 overflow-hidden"><div class="bg-[#8338EC] h-full" style="width: ${percent}%"></div></div><span class="text-[10px] font-bold text-[var(--text-muted)] w-8 text-right font-mono-num">${percent.toFixed(1)}%</span></div></div>`;
                 }).join('') : `<p class="text-center font-bold text-[var(--text-muted)] text-sm py-4 border-2 border-dashed border-[var(--border-dark)]/30 rounded-xl bg-[var(--card-alt)]">ไม่มีข้อมูลการลงทุนในช่วงนี้</p>`;
             }
             
@@ -2209,7 +2170,7 @@
             const sav = filteredTrans.filter(t=>['Investment','FreeCashFlow'].includes(t.Type)).reduce((s,t)=> t.IsDeduct ? s - parseFloat(t.Amount) : s + parseFloat(t.Amount),0);
             const rate = inc > 0 ? (sav/inc)*100 : 0; 
             const healthEl = $('financial-health-checkup');
-            if(healthEl) healthEl.innerHTML = `<div class="bg-[var(--card-bg)] border-2 border-[#118AB2] rounded-xl p-4 shadow-[4px_4px_0_0_#118AB2] cursor-pointer hover:bg-[var(--card-alt)] transition-colors" onclick="showYearlySavingsDetails('${periodLabelForModal}')"><p class="text-xs font-bold text-[var(--text-muted)] uppercase">อัตราการออม</p><div class="flex items-end gap-2 mt-1"><span class="text-4xl font-black font-mono-num tracking-tighter ${rate>=20?'text-[#06D6A0]':rate>=10?'text-[#FFD166]':'text-[#EF476F]'}">${rate.toFixed(1)}%</span><span class="text-[10px] font-bold text-[var(--text-main)] mb-1.5 uppercase bg-[var(--card-alt)] px-2 py-0.5 border border-[var(--border-dark)] rounded-md">เป้า: 20%</span></div><div class="w-full bg-[var(--card-alt)] h-4 border-2 border-[#118AB2] rounded-full mt-4 overflow-hidden"><div class="h-full transition-all duration-1000 ${rate>=20?'bg-[#06D6A0]':'bg-[#FFD166]'}" style="width:${Math.min(rate,100)}%"></div></div></div>`;
+            if(healthEl) healthEl.innerHTML = `<div class="bg-[var(--card-bg)] border-2 border-[#118AB2] rounded-xl p-4 shadow-[4px_4px_0_0_#118AB2] cursor-pointer hover:bg-[var(--card-alt)] transition-colors" onclick="showYearlySavingsDetails('${periodLabelForModal}')"><p class="text-xs font-bold text-[var(--text-muted)] uppercase">อัตราการออม</p><div class="flex items-end gap-2 mt-1"><span class="text-4xl font-black font-mono-num tracking-tighter ${rate>=20?'text-[#06D6A0]':rate>=10?'text-[#FFD166]':'text-[#EF476F]'}">${rate.toFixed(1)}%</span><span class="text-[10px] font-bold text-[var(--text-main)] mb-1.5 uppercase bg-[var(--card-alt)] px-2 py-0.5 border border-[var(--border-dark)] rounded-md">เป้า: 20%</span></div><div class="w-full bg-[var(--card-alt)] h-4 border-2 border-[#118AB2] rounded-full mt-4 overflow-hidden"><div class="h-full transition-all duration-1000 ${rate>=20?'bg-[#06D6A0]':'bg-[#FFD166]'}" style="width:${Math.max(0,Math.min(rate,100))}%"></div></div></div>`;
 
             const goalListEl = $('goal-summary-list');
             if (goalListEl) {
@@ -2227,7 +2188,7 @@
                         <div class="retro-card bg-[var(--card-bg)] p-4 mb-3 border-2 border-[var(--border-dark)] cursor-pointer hover:bg-[var(--card-alt)] transition-colors shadow-[2px_2px_0px_0px_var(--shadow-color)]" onclick="showGoalDetails('${escAttr(goal.GoalName)}')">
                             <div class="flex justify-between items-end text-sm mb-3">
                                 <div class="flex flex-col">
-                                    <span class="text-[var(--text-main)] font-black text-base">${goal.GoalName}</span>
+                                    <span class="text-[var(--text-main)] font-black text-base">${escapeHtml(goal.GoalName)}</span>
                                     ${dateText ? `<span class="text-[10px] font-bold text-[var(--text-muted)] uppercase">${dateText}</span>` : ''}
                                 </div>
                                 <div class="text-right font-mono-num">
@@ -2262,8 +2223,8 @@
                     if (json.status !== 'success') throw new Error(json.message);
                     
                     const data = json.data;
-                    state.allTransactions = data.transactions || []; 
-                    state.categories = data.categories || []; 
+                    state.allTransactions = normalizeTransactions(data.transactions || []); 
+                    state.categories = (data.categories || []).filter(c=>c.Name && ['Income','Expense','Saving','Investment','FreeCashFlow'].includes(c.Type)); 
                     state.goals = data.goals || []; 
                     state.fixedCosts = data.fixedCosts || []; 
                     state.budgets = data.budgets || []; 
@@ -2277,7 +2238,7 @@
                     routeToActivePage();
                 } catch(e) { 
                     console.error(e); 
-                    if(!hasCache && navigator.onLine) showToast('เชื่อมต่อฐานข้อมูลล้มเหลว', 'error');
+                    showToast(hasCache ? 'โหลดข้อมูลล่าสุดไม่สำเร็จ กำลังแสดงข้อมูลที่เก็บไว้' : 'เชื่อมต่อฐานข้อมูลล้มเหลว', 'error'); if(hasCache) routeToActivePage();
                 } finally {
                     ui.loading.classList.add('hidden');
                 }
@@ -2394,7 +2355,7 @@
         $('transaction-type').addEventListener('change', (e) => {
             const type = e.target.value; 
             const cats = type === 'Saving' ? state.goals.map(g => ({Name: g.GoalName, Emoji: '🎯'})) : state.categories.filter(c => c.Type === type);
-            $('transaction-category').innerHTML = cats.map(c => `<option value="${c.Name}">${c.Emoji} ${c.Name}</option>`).join('');
+            $('transaction-category').innerHTML = cats.map(c => `<option value="${escapeHtml(c.Name)}">${escapeHtml(c.Emoji)} ${escapeHtml(c.Name)}</option>`).join('');
             
             if (type === 'Investment' || type === 'FreeCashFlow') { 
                 if(ui.deductContainer) ui.deductContainer.classList.remove('hidden'); 
@@ -2491,8 +2452,8 @@
 
                 suggestionsEl.innerHTML = recent.map(t => {
                     const catObj = state.categories.find(c => c.Name === t.Category) || { Emoji: '📝' };
-                    return `<button type="button" class="autocomplete-chip flex items-center gap-1.5 bg-retro-alt border border-retro-border/70 rounded-full px-2.5 py-1 text-xs font-bold text-retro-text hover:border-[#4361EE] hover:bg-[#4361EE]/10 transition-all" data-desc="${t.Description}" data-cat="${t.Category}" data-type="${t.Type}">
-                        <span>${catObj.Emoji}</span><span>${t.Description}</span>
+                    return `<button type="button" class="autocomplete-chip flex items-center gap-1.5 bg-retro-alt border border-retro-border/70 rounded-full px-2.5 py-1 text-xs font-bold text-retro-text hover:border-[#4361EE] hover:bg-[#4361EE]/10 transition-all" data-desc="${escapeHtml(t.Description)}" data-cat="${escapeHtml(t.Category)}" data-type="${escapeHtml(t.Type)}">
+                        <span>${escapeHtml(catObj.Emoji)}</span><span>${escapeHtml(t.Description)}</span>
                     </button>`;
                 }).join('');
                 suggestionsEl.classList.remove('hidden');
@@ -2573,13 +2534,13 @@
                 const completedGoals = state.goals.filter(g => {
                     const saved = state.allTransactions.filter(t => t.Type === 'Saving' && t.Category === g.GoalName)
                         .reduce((s, t) => t.IsDeduct ? s - parseFloat(t.Amount) : s + parseFloat(t.Amount), 0);
-                    return saved >= parseFloat(g.TargetAmount);
+                    return saved > 0;
                 });
 
                 if (completedGoals.length === 0) {
                     e.target.checked = false;
                     selector.classList.add('hidden');
-                    showToast('⚠️ ยังไม่มีเป้าหมายที่ออมครบตามเป้า', 'error');
+                    showToast('ยังไม่มีเป้าหมายที่มียอดเงินออมคงเหลือ', 'error');
                     vibrate([30, 50, 30]);
                     return;
                 }
@@ -2588,7 +2549,7 @@
                     const saved = state.allTransactions.filter(t => t.Type === 'Saving' && t.Category === g.GoalName)
                         .reduce((s, t) => t.IsDeduct ? s - parseFloat(t.Amount) : s + parseFloat(t.Amount), 0);
                     const target = parseFloat(g.TargetAmount);
-                    return `<option value="${g.GoalName}" data-balance="${saved}" data-target="${target}">✅ ${g.GoalName} — ${formatMoney(saved)} ฿</option>`;
+                    return `<option value="${escapeHtml(g.GoalName)}" data-balance="${saved}" data-target="${target}">✅ ${escapeHtml(g.GoalName)} — ${formatMoney(saved)} ฿</option>`;
                 }).join('');
                 selector.classList.remove('hidden');
                 updateGoalBalanceDisplay();
@@ -2617,12 +2578,13 @@
             }
             statusEl.innerHTML = isComplete
                 ? `<p class="text-xs font-bold text-[#06D6A0] flex items-center gap-1 mt-1"><i class="ph-fill ph-check-circle"></i> ออมครบแล้ว สามารถถอนได้</p>`
-                : `<p class="text-xs font-bold text-[#EF476F] flex items-center gap-1 mt-1"><i class="ph-fill ph-warning-circle"></i> ออมยังไม่ครบ ไม่สามารถถอนได้</p>`;
+                : `<p class="text-xs font-bold text-[#EF476F] flex items-center gap-1 mt-1"><i class="ph-fill ph-warning-circle"></i> ยังไม่ครบเป้าหมาย ถอนได้ไม่เกินยอดคงเหลือ</p>`;
         };
         $('saving-goal-select').addEventListener('change', updateGoalBalanceDisplay);
         
         $('transaction-form').addEventListener('submit', async (e) => {
             e.preventDefault(); 
+            if(ui.submitTransBtn.disabled) return;
             const id = $('transaction-id').value; 
             const isDeduct = ui.isDeduct ? ui.isDeduct.checked : false;
             const data = { 
@@ -2633,27 +2595,29 @@
                 Mood: $('transaction-mood').value, IsDeduct: isDeduct 
             };
 
+            if(!Number.isFinite(data.Amount) || data.Amount<=0 || !$('transaction-date').value || !data.Category) return showToast('กรุณาระบุวันที่ หมวดหมู่ และจำนวนเงินมากกว่า 0', 'error');
             const useSavingToggle = $('use-saving-toggle');
             const useSavingGoal = useSavingToggle && useSavingToggle.checked && data.Type === 'Expense';
             const selectedGoalName = useSavingGoal ? $('saving-goal-select').value : null;
 
+            if(useSavingGoal && !selectedGoalName) return showToast('กรุณาเลือกเป้าหมาย', 'error');
             if (useSavingGoal && selectedGoalName) {
                 const goal = state.goals.find(g => g.GoalName === selectedGoalName);
                 if (goal) {
                     const saved = state.allTransactions.filter(t => t.Type === 'Saving' && t.Category === selectedGoalName)
                         .reduce((s, t) => t.IsDeduct ? s - parseFloat(t.Amount) : s + parseFloat(t.Amount), 0);
                     const target = parseFloat(goal.TargetAmount);
-                    if (saved < target) {
-                        showToast(`⚠️ "${selectedGoalName}" ออมได้ ${formatMoney(saved)} / ${formatMoney(target)} ฿ — ยังไม่ครบ`, 'error');
-                        vibrate([30, 50, 30, 50, 30]);
-                        return; 
+                    if (data.Amount > saved) {
+                        showToast('ยอดเงินออมไม่เพียงพอ', 'error'); return;
                     }
+
                 }
             }
 
             modalControls['transaction-modal'].close();
             
             try {
+                ui.submitTransBtn.disabled = true;
                 // โชว์ Loading ชั่วคราวเพื่อรอส่งข้อมูลกลับเซิร์ฟเวอร์
                 ui.loading.classList.remove('hidden');
 
@@ -2670,7 +2634,7 @@
                         Mood: ''
                     };
                     await apiCall('addTransaction', { data: withdrawData });
-                    await apiCall('deleteGoal', { name: selectedGoalName });
+                    // Keep the goal and its remaining balance/history after withdrawal.
                     showToast(`🎯 บันทึกการใช้เงินออม "${selectedGoalName}" เรียบร้อย — ไม่นับเป็นรายจ่าย`);
                 } else {
                     // บันทึกรายการปกติ
@@ -2681,8 +2645,9 @@
                 // ดาวน์โหลดข้อมูลใหม่ทั้งหมดกลับมาและเซฟลง Cache อัตโนมัติ (Force Refresh)
                 await init(true, true);
             } catch(e) { 
-                showToast('เกิดข้อผิดพลาดในการบันทึก กรุณาลองใหม่', 'error'); 
+                showToast(e.message || 'บันทึกไม่สำเร็จ กรุณาโหลดข้อมูลล่าสุดก่อนลองใหม่', 'error'); 
             } finally {
+                ui.submitTransBtn.disabled = false;
                 ui.loading.classList.add('hidden');
             }
         });
@@ -2693,9 +2658,10 @@
                 const form = $('transaction-form'); form.reset(); $('modal-title').textContent = 'แก้ไขรายการ'; $('transaction-id').value = t.ID;
                 $('transaction-type').innerHTML = [['Expense','รายจ่าย'],['Income','รายรับ'],['Saving','ออม'],['Investment','ลงทุน'],['FreeCashFlow','ทุนสำรอง']].map(o=>`<option value="${o[0]}">${o[1]}</option>`).join(''); 
                 $('transaction-type').value = t.Type; const cats = t.Type === 'Saving' ? state.goals.map(g => ({Name: g.GoalName, Emoji: '🎯'})) : state.categories.filter(c => c.Type === t.Type);
-                $('transaction-category').innerHTML = cats.map(c => `<option value="${c.Name}">${c.Emoji} ${c.Name}</option>`).join(''); $('transaction-category').value = t.Category;
+                $('transaction-category').innerHTML = cats.map(c => `<option value="${escapeHtml(c.Name)}">${escapeHtml(c.Emoji)} ${escapeHtml(c.Name)}</option>`).join(''); if(!cats.some(c=>c.Name===t.Category)) $('transaction-category').add(new Option(t.Category || '(ไม่ระบุหมวดหมู่)',t.Category)); $('transaction-category').value = t.Category;
                 $('transaction-amount').value = t.Amount; $('transaction-date').value = formatDateToInput(getLocalDate(t.Date)); $('transaction-description').value = t.Description;
-                if (t.Type === 'Investment' || t.Type === 'FreeCashFlow') { if(ui.deductContainer) ui.deductContainer.classList.remove('hidden'); if(ui.isDeduct) ui.isDeduct.checked = t.IsDeduct; } else { if(ui.deductContainer) ui.deductContainer.classList.add('hidden'); }
+                $('transaction-mood').value=t.Mood || ''; $('use-saving-goal-container').classList.add('hidden'); $('saving-goal-selector').classList.add('hidden'); ui.isDeduct.checked=t.IsDeduct;
+                if (t.Type === 'Investment' || t.Type === 'FreeCashFlow' || (t.Type === 'Saving' && t.IsDeduct)) { if(ui.deductContainer) ui.deductContainer.classList.remove('hidden'); if(ui.isDeduct) ui.isDeduct.checked = t.IsDeduct; } else { if(ui.deductContainer) ui.deductContainer.classList.add('hidden'); }
                 modalControls['transaction-modal'].open();
             } else showToast('ไม่พบข้อมูลรายการ', 'error');
         });
@@ -2738,6 +2704,7 @@
             } catch(e) {
                 showToast('เกิดข้อผิดพลาดในการทำซ้ำ', 'error');
             } finally {
+                ui.submitTransBtn.disabled = false;
                 ui.loading.classList.add('hidden');
             }
         });
@@ -2746,8 +2713,8 @@
         $('cancel-bulk-edit-btn').addEventListener('click', () => { state.isSelectMode = false; $('bulk-edit-bar').classList.add('hidden'); $('bottom-nav-bar').classList.remove('hidden'); routeToActivePage(); });
         
         if (ui.bulkDeleteBtn) { ui.bulkDeleteBtn.addEventListener('click', () => { const count = state.selectedTransactionIds.size; if (count === 0) return; setText('confirm-modal-message', `ต้องการลบ ${count} รายการที่เลือกหรือไม่?`); modalControls['confirm-modal'].open(); const confirmBtn = $('confirm-modal-confirm-btn'); const newBtn = confirmBtn.cloneNode(true); confirmBtn.parentNode.replaceChild(newBtn, confirmBtn); newBtn.addEventListener('click', async () => { modalControls['confirm-modal'].close(); ui.loading.classList.remove('hidden'); try { await apiCall('bulkDeleteTransactions', { ids: Array.from(state.selectedTransactionIds) }); showToast(`ลบ ${count} รายการเรียบร้อยแล้ว`); state.isSelectMode = false; ui.bulkEditBar.classList.add('hidden'); ui.bottomNav.classList.remove('hidden'); await init(true, true); } catch(e) { ui.loading.classList.add('hidden'); showToast('เกิดข้อผิดพลาดในการลบหลายรายการ', 'error'); } }); }); }
-        if (ui.bulkEditBtn) { ui.bulkEditBtn.addEventListener('click', () => { const count = state.selectedTransactionIds.size; if (count === 0) return; $('bulk-edit-form').reset(); const typeSel = $('bulk-edit-type'); typeSel.innerHTML = '<option value="">-- ไม่เปลี่ยนแปลง --</option>' + [['Expense','รายจ่าย'],['Income','รายรับ'],['Saving','ออม'],['Investment','ลงทุน'],['FreeCashFlow','ทุนสำรอง']].map(t=>`<option value="${t[0]}">${t[1]}</option>`).join(''); typeSel.onchange = (e) => { const catSel = $('bulk-edit-category'); if (!e.target.value) { catSel.innerHTML = '<option value="">-- ไม่เปลี่ยนแปลง --</option>'; return; } const cats = e.target.value === 'Saving' ? state.goals.map(g => ({Name: g.GoalName, Emoji: '🎯'})) : state.categories.filter(c => c.Type === e.target.value); catSel.innerHTML = '<option value="">-- ไม่เปลี่ยนแปลง --</option>' + cats.map(c => `<option value="${c.Name}">${c.Emoji} ${c.Name}</option>`).join(''); }; setText('bulk-edit-modal-title', `แก้ไข ${count} รายการ`); modalControls['bulk-edit-modal'].open(); }); }
-        if (ui.bulkEditForm) { ui.bulkEditForm.addEventListener('submit', async (e) => { e.preventDefault(); const updates = {}; const type = $('bulk-edit-type').value; const category = $('bulk-edit-category').value; const desc = $('bulk-edit-description').value; if (type) updates.Type = type; if (category) updates.Category = category; if (desc) updates.Description = desc; if (Object.keys(updates).length === 0) { showToast('ยังไม่ได้ระบุข้อมูลที่จะแก้ไข', 'error'); return; } modalControls['bulk-edit-modal'].close(); ui.loading.classList.remove('hidden'); try { await apiCall('bulkUpdateTransactions', { ids: Array.from(state.selectedTransactionIds), updates }); showToast('แก้ไขข้อมูลเรียบร้อยแล้ว'); state.isSelectMode = false; ui.bulkEditBar.classList.add('hidden'); ui.bottomNav.classList.remove('hidden'); await init(true, true); } catch(e) { ui.loading.classList.add('hidden'); showToast('แก้ไขรายการไม่สำเร็จ', 'error'); } }); }
+        if (ui.bulkEditBtn) { ui.bulkEditBtn.addEventListener('click', () => { const count = state.selectedTransactionIds.size; if (count === 0) return; $('bulk-edit-form').reset(); $('bulk-edit-category').innerHTML='<option value="">-- ไม่เปลี่ยนแปลง --</option>'; const typeSel = $('bulk-edit-type'); typeSel.innerHTML = '<option value="">-- ไม่เปลี่ยนแปลง --</option>' + [['Expense','รายจ่าย'],['Income','รายรับ'],['Saving','ออม'],['Investment','ลงทุน'],['FreeCashFlow','ทุนสำรอง']].map(t=>`<option value="${t[0]}">${t[1]}</option>`).join(''); typeSel.onchange = (e) => { const catSel = $('bulk-edit-category'); if (!e.target.value) { catSel.innerHTML = '<option value="">-- ไม่เปลี่ยนแปลง --</option>'; return; } const cats = e.target.value === 'Saving' ? state.goals.map(g => ({Name: g.GoalName, Emoji: '🎯'})) : state.categories.filter(c => c.Type === e.target.value); catSel.innerHTML = '<option value="">-- ไม่เปลี่ยนแปลง --</option>' + cats.map(c => `<option value="${escapeHtml(c.Name)}">${escapeHtml(c.Emoji)} ${escapeHtml(c.Name)}</option>`).join(''); }; setText('bulk-edit-modal-title', `แก้ไข ${count} รายการ`); modalControls['bulk-edit-modal'].open(); }); }
+        if (ui.bulkEditForm) { ui.bulkEditForm.addEventListener('submit', async (e) => { e.preventDefault(); const updates = {}; const type = $('bulk-edit-type').value; const category = $('bulk-edit-category').value; const desc = $('bulk-edit-description').value; if(type && !category) { showToast('กรุณาเลือกหมวดหมู่ให้ตรงกับประเภทใหม่', 'error'); return; } if (type) updates.Type = type; if (category) updates.Category = category; if (desc) updates.Description = desc; if (Object.keys(updates).length === 0) { showToast('ยังไม่ได้ระบุข้อมูลที่จะแก้ไข', 'error'); return; } modalControls['bulk-edit-modal'].close(); ui.loading.classList.remove('hidden'); try { await apiCall('bulkUpdateTransactions', { ids: Array.from(state.selectedTransactionIds), updates }); showToast('แก้ไขข้อมูลเรียบร้อยแล้ว'); state.isSelectMode = false; ui.bulkEditBar.classList.add('hidden'); ui.bottomNav.classList.remove('hidden'); await init(true, true); } catch(e) { ui.loading.classList.add('hidden'); showToast('แก้ไขรายการไม่สำเร็จ', 'error'); } }); }
 
         if (ui.filterDateStart) ui.filterDateStart.addEventListener('change', () => { routeToActivePage(); });
         if (ui.filterDateEnd) ui.filterDateEnd.addEventListener('change', () => { routeToActivePage(); });
@@ -2772,6 +2739,15 @@
             if (ui.filterDateStart) ui.filterDateStart.value = formatDateToInput(cycleStart);
             if (ui.filterDateEnd) ui.filterDateEnd.value = formatDateToInput(today);
         };
+        $('cutoff-day-input').value = getCutoffDay();
+        $('save-settings-btn').addEventListener('click', () => {
+            const day=Number($('cutoff-day-input').value);
+            if(!Number.isInteger(day)||day<1||day>28) return showToast('วันตัดรอบต้องอยู่ระหว่าง 1 ถึง 28', 'error');
+            try { localStorage.setItem('cutoffDay',String(day)); }
+            catch(e) { return showToast('บันทึกการตั้งค่าในเบราว์เซอร์ไม่ได้', 'error'); }
+            state.currentDate=getInitialCycleDate(day);
+            setDefaultFilterDates(); routeToActivePage(); showToast('บันทึกวันตัดรอบแล้ว');
+        });
         setDefaultFilterDates();
 
         init(true);
