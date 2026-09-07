@@ -954,7 +954,7 @@
 
     <script>
     document.addEventListener('DOMContentLoaded', () => {
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxOHDMg6okiJ56mWs9chJUauTwvzHqDE4el5OQETv8Z36HO4qT1rfc39DH-X_HE_FJh/exec"; 
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyA3a4hYP6xI26qGjdl-u3GpnINlOUVS7AVIJosaqZZGe4svLB33NwRa42k8KMKJDi6/exec"; 
         const CACHE_KEY = 'money_mastery_v3:' + SCRIPT_URL;
         
         // -------------------------------------------------------------
@@ -1162,18 +1162,35 @@
         // -------------------------------------------------------------
         // 5. API & Utils
         // -------------------------------------------------------------
-        const apiCall = async (action, data = {}) => {
-            if (!navigator.onLine) throw new Error('Offline');
-            try {
-                const res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action, ...data }) });
-                const json = await res.json();
-                if (json.status !== 'success') throw new Error(json.message);
-                return json.data;
-            } catch (e) { 
-                const msg = e.message === 'Failed to fetch' ? 'เชื่อมต่อเซิร์ฟเวอร์ไม่ได้ กรุณาตรวจสอบอินเทอร์เน็ต' : e.message;
-                showToast(msg, 'error'); 
-                throw e; 
+        let dataEpoch=0;
+        const activeWrites=new Map();
+        const requestJSON = async (action, data={}, readOnly=false) => {
+            for(let attempt=0;attempt<(readOnly?2:1);attempt++) {
+                const controller=new AbortController();
+                const timer=setTimeout(()=>controller.abort(),60000);
+                try {
+                    if(!navigator.onLine) throw new Error('ไม่มีการเชื่อมต่ออินเทอร์เน็ต');
+                    const res=await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({action,...data}),signal:controller.signal});
+                    if(!res.ok) { const e=new Error('เซิร์ฟเวอร์ตอบกลับ HTTP '+res.status);e.retryable=res.status===429||res.status>=500;throw e; }
+                    let json;try { json=await res.json(); } catch(e) { throw new Error('คำตอบจากเซิร์ฟเวอร์ไม่ใช่ JSON กรุณาตรวจ URL และสิทธิ์ Deployment'); }
+                    if(json.status!=='success') throw new Error(json.message || 'เซิร์ฟเวอร์ทำรายการไม่สำเร็จ');
+                    return json.data;
+                } catch(e) {
+                    if(readOnly && attempt===0 && navigator.onLine && (e.retryable || e.name==='AbortError' || e instanceof TypeError)) {
+                        await new Promise(resolve=>setTimeout(resolve,600));continue;
+                    }
+                    if(e.name==='AbortError'||e instanceof TypeError) throw new Error(readOnly?'โหลดข้อมูลไม่สำเร็จ กรุณาลองใหม่':'ยังยืนยันผลการบันทึกไม่ได้ กรุณาโหลดข้อมูลล่าสุดก่อนบันทึกซ้ำ');
+                    throw e;
+                } finally {clearTimeout(timer);}
             }
+        };
+        const apiCall = (action, data = {}) => {
+            const key=JSON.stringify({action,...data});
+            if(activeWrites.has(key)) return activeWrites.get(key);
+            // Invalidate any read already in flight before sending a write.
+            dataEpoch++;
+            const pending=requestJSON(action,data).then(result=>{dataEpoch++;return result;}).catch(e=>{showToast(e.message,'error',7000);throw e;}).finally(()=>activeWrites.delete(key));
+            activeWrites.set(key,pending);return pending;
         };
 
         const vibrate = (pattern = 15) => { if (navigator.vibrate) navigator.vibrate(pattern); };
@@ -1676,12 +1693,13 @@
         const renderCalendar = (transactions) => {
             const { startDate, endDate } = getDateRange(state.currentDate);
             let html = '<div class="grid grid-cols-7 gap-1 mb-2 text-center text-[10px] md:text-xs font-black text-[var(--text-muted)] uppercase tracking-widest bg-[var(--card-alt)] p-2 border-2 border-[var(--border-dark)] rounded-lg"><div>อา</div><div>จ</div><div>อ</div><div>พ</div><div>พฤ</div><div>ศ</div><div>ส</div></div><div class="grid grid-cols-7 gap-1 md:gap-1.5">';
+            const byDay=new Map();transactions.forEach(t=>{const key=getLocalDate(t.Date).toDateString();if(!byDay.has(key))byDay.set(key,[]);byDay.get(key).push(t);});
             const startDay = startDate.getDay(); const totalDays = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24));
             for(let i=0; i<startDay; i++) html += `<div></div>`;
             const todayStr = new Date().toDateString();
             for(let i=0; i<totalDays; i++) {
                 const d = new Date(startDate); d.setDate(d.getDate() + i);
-                const dayTrans = transactions.filter(t => getLocalDate(t.Date).toDateString() === d.toDateString());
+                const dayTrans = byDay.get(d.toDateString()) || [];
                 const isToday = d.toDateString() === todayStr;
                 const hasDot = dayTrans.length > 0;
                 const dotClass = dayTrans.some(t => t.Type === 'Expense') ? 'bg-[#EF476F]' : 'bg-[#06D6A0]';
@@ -1978,6 +1996,7 @@
         };
 
         const renderExpenseChart = (trans) => {
+            if(typeof Chart!=='function') return;
             const expenses = trans.filter(t => t.Type === 'Expense'); const grouped = Object.create(null); expenses.forEach(t => grouped[t.Category] = (grouped[t.Category] || 0) + parseFloat(t.Amount));
             if(state.charts.expense) state.charts.expense.destroy(); const canvas = $('expenseChart');
             
@@ -2114,7 +2133,7 @@
 
             if(state.charts.incomeExpense) state.charts.incomeExpense.destroy();
             const chartIE = $('yearly-income-expense-chart');
-            if(chartIE) state.charts.incomeExpense = new Chart(chartIE, { 
+            if(typeof Chart==='function' && chartIE) state.charts.incomeExpense = new Chart(chartIE, { 
                 type: 'bar', 
                 data: { labels: chartLabels, datasets: [{ label: 'รายรับ', data: incomeData, backgroundColor: '#06D6A0', borderColor: borderColor, borderWidth: 2, borderRadius: 0 }, { label: 'รายจ่าย', data: expenseData, backgroundColor: '#EF476F', borderColor: borderColor, borderWidth: 2, borderRadius: 0 }] }, 
                 options: { responsive: true, maintainAspectRatio: false, scales: { x: { grid: { display: false }, ticks: {font: {family: 'Kanit', weight: 'bold'}, color: textColor} }, y: { grid: { color: gridColor }, border: {color: borderColor, width: 2}, ticks: {font: {family: 'Space Mono', weight: 'bold'}, color: textColor} } }, plugins: { legend: { labels: { color: textColor, font: {family: 'Kanit', weight: 'bold'} } } } } 
@@ -2125,7 +2144,7 @@
             if(state.charts.topExpense) state.charts.topExpense.destroy();
             const chartTop = $('yearly-top-expense-chart');
             
-            if(chartTop) state.charts.topExpense = new Chart(chartTop, { 
+            if(typeof Chart==='function' && chartTop) state.charts.topExpense = new Chart(chartTop, { 
                 type: 'pie', 
                 data: { labels: top10.map(t=>t[0]), datasets: [{ data: top10.map(t=>t[1]), backgroundColor: ['#EF476F', '#FFD166', '#06D6A0', '#118AB2', '#073B4C', '#8338EC', '#F15BB5', '#00BBF9', '#00F5D4', '#FEE440'], borderColor: borderColor, borderWidth: 2 }] }, 
                 options: { 
@@ -2147,7 +2166,7 @@
 
             if(state.charts.netWorth) state.charts.netWorth.destroy();
             const chartNet = $('netWorthChart');
-            if(chartNet) state.charts.netWorth = new Chart(chartNet, { 
+            if(typeof Chart==='function' && chartNet) state.charts.netWorth = new Chart(chartNet, { 
                 type: 'line', 
                 data: { labels: chartLabels, datasets: [{ label: 'สินทรัพย์', data: assetData, borderColor: '#4361EE', backgroundColor: '#4361EE', borderWidth: 3, pointBackgroundColor: '#FFD166', pointBorderColor: borderColor, pointBorderWidth: 2, pointRadius: 4 }] }, 
                 options: { responsive: true, maintainAspectRatio: false, scales: { x: { grid: { display: false }, ticks: {font: {family: 'Kanit', weight: 'bold'}, color: textColor} }, y: { grid: { color: gridColor, borderDash: [5, 5] }, border: {color: borderColor, width: 2}, ticks: {font: {family: 'Space Mono', weight: 'bold'}, color: textColor} } }, plugins: { legend: { display: false } } } 
@@ -2208,44 +2227,34 @@
             }
         };
 
-        const init = async (full = true, forceRefresh = false) => { 
-            if(full) { 
-                const hasCache = loadFromLocalCache();
-                // แสดงหน้าจอจาก Cache ทันทีหากไม่ได้บังคับ Refresh
-                if (hasCache && !forceRefresh) routeToActivePage(); 
-
+        let cacheLoaded=false, hasData=false, refreshTask=null, refreshEpoch=-1;
+        const init = async (full = true, forceRefresh = false) => {
+            if(!full) { routeToActivePage();return; }
+            if(!cacheLoaded) { cacheLoaded=true;hasData=loadFromLocalCache();if(hasData) routeToActivePage(); }
+            if(refreshTask) {
+                if(refreshEpoch===dataEpoch) return refreshTask;
+                await refreshTask;return init(true,true);
+            }
+            const epoch=dataEpoch;refreshEpoch=epoch;
+            if(!hasData || forceRefresh) ui.loading.classList.remove('hidden');
+            refreshTask=(async()=>{
                 try {
-                    // หากยังไม่มี Cache หรือถูกบังคับ Refresh ให้โชว์ Loading
-                    if (!hasCache || forceRefresh) ui.loading.classList.remove('hidden');
-                    
-                    const res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'getInitialData' }) });
-                    const json = await res.json();
-                    if (json.status !== 'success') throw new Error(json.message);
-                    
-                    const data = json.data;
-                    state.allTransactions = normalizeTransactions(data.transactions || []); 
-                    state.categories = (data.categories || []).filter(c=>c.Name && ['Income','Expense','Saving','Investment','FreeCashFlow'].includes(c.Type)); 
-                    state.goals = data.goals || []; 
-                    state.fixedCosts = data.fixedCosts || []; 
-                    state.budgets = data.budgets || []; 
-                    
-                    // นำข้อมูลใหม่ที่ได้ เซฟทับลง Cache 
-                    saveToLocalCache(state);
-                    // FIX 10: ล้าง date cache เพื่อให้ parse วันที่ใหม่ทั้งหมดถูกต้อง
+                    const data=await requestJSON('getInitialData',{},true);
+                    if(epoch!==dataEpoch) return; // A write superseded this snapshot.
+                    if(!data || !['transactions','categories','goals','fixedCosts','budgets'].every(k=>Array.isArray(data[k]))) throw new Error('โครงสร้างข้อมูลจากเซิร์ฟเวอร์ไม่ถูกต้อง');
                     clearDateCache();
-
-                    // วาดหน้าจอใหม่อีกครั้งเพื่ออัปเดตข้อมูลล่าสุด
-                    routeToActivePage();
-                } catch(e) { 
-                    console.error(e); 
-                    showToast(hasCache ? 'โหลดข้อมูลล่าสุดไม่สำเร็จ กำลังแสดงข้อมูลที่เก็บไว้' : 'เชื่อมต่อฐานข้อมูลล้มเหลว', 'error'); if(hasCache) routeToActivePage();
-                } finally {
-                    ui.loading.classList.add('hidden');
-                }
-            } else {
-                routeToActivePage();
-            } 
+                    state.allTransactions=normalizeTransactions(data.transactions);
+                    state.categories=data.categories.filter(c=>c && c.Name && ['Income','Expense','Saving','Investment','FreeCashFlow'].includes(c.Type));
+                    state.goals=data.goals;state.fixedCosts=data.fixedCosts;state.budgets=data.budgets;
+                    hasData=true;saveToLocalCache(state);routeToActivePage();
+                } catch(e) {
+                    showToast(hasData?'โหลดข้อมูลล่าสุดไม่สำเร็จ กำลังแสดงข้อมูลที่เก็บไว้':e.message,'error',7000);
+                } finally {ui.loading.classList.add('hidden');refreshTask=null;}
+            })();
+            return refreshTask;
         };
+        window.addEventListener('online',()=>init(true));
+        ui.transactionSearchInput.addEventListener('input',debounce(()=>routeToActivePage(),200));
 
         if (ui.prevMonthBtn) ui.prevMonthBtn.addEventListener('click', () => handleMonthChange(-1));
         if (ui.nextMonthBtn) ui.nextMonthBtn.addEventListener('click', () => handleMonthChange(1));
