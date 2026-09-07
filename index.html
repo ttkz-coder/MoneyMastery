@@ -257,6 +257,24 @@
 
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-thumb { background: var(--border-dark); border-radius: 4px; }
+
+        .saving-garden { margin: 20px 0; }
+        .garden-heading { font-size: 20px; font-weight: 900; margin-bottom: 4px; }
+        .garden-note { font-size: 12px; color: var(--text-muted); margin-bottom: 14px; }
+        .garden-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(min(100%,280px),1fr)); gap: 14px; }
+        .garden-card { width:100%; text-align:left; color:var(--text-main); background:var(--card-bg); border:2px solid var(--border-dark); border-radius:18px; padding:18px; box-shadow:3px 3px 0 var(--shadow-color); cursor:pointer; font:inherit; }
+        .garden-card:focus-visible { outline:3px solid #06D6A0; outline-offset:4px; }
+        .garden-art { background:linear-gradient(160deg,#e7f6dc,#fdf7df); border-radius:12px; margin:12px 0; position:relative; overflow:hidden; }
+        .garden-art svg { display:block; width:100%; height:150px; }
+        .garden-stage { font-size:12px; font-weight:800; text-align:center; padding:0 8px 12px; color:#244b36; }
+        .garden-name { font-size:16px; font-weight:900; overflow-wrap:anywhere; }
+        .garden-total { font-size:20px; font-weight:900; font-variant-numeric:tabular-nums; }
+        .garden-track { height:10px; background:var(--card-alt); border:1px solid var(--border-dark); border-radius:8px; overflow:hidden; margin:10px 0; }
+        .garden-fill { height:100%; background:#27925b; }
+        .garden-milestones { display:flex; gap:5px; margin:12px 0; }
+        .garden-milestones span { flex:1; text-align:center; border:1px solid var(--border-dark); border-radius:8px; padding:5px 1px; font-size:11px; }
+        .garden-milestones .reached { background:#c8ecd0; color:#164b2c; font-weight:900; }
+        .garden-next { font-size:12px; line-height:1.6; min-height:38px; }
     </style>
 </head>
 <body>
@@ -1445,6 +1463,39 @@
             }
         };
 
+        // Savings garden uses the same cycle-end cutoff as the dashboard balance.
+        const gardenMilestones = [10,25,50,75,100];
+        const gardenProgress = (saved,target) => {
+            const valid=Number.isFinite(target) && target>0 && Number.isFinite(saved);
+            const percent=valid?Math.max(0,Math.min(100,saved/target*100)):0;
+            const stage=gardenMilestones.filter(m=>percent>=m).length;
+            const next=gardenMilestones.find(m=>percent<m);
+            return {valid,percent,stage,next,remaining:next&&valid?Math.max(0,target*next/100-saved):0};
+        };
+        const gardenTree = stage => {
+            const heights=[0,24,40,58,72,84],h=heights[stage];
+            const leaves=stage===0?'':`<path d="M140 ${127-h/2} Q104 ${94-h/2} 112 ${120-h/2} Q121 ${140-h/2} 140 ${127-h/2}" fill="#53a963"/><path d="M140 ${119-h/2} Q174 ${88-h/2} 171 ${113-h/2} Q161 ${137-h/2} 140 ${119-h/2}" fill="#2e8457"/>`;
+            const crown=stage<3?'':`<circle cx="115" cy="${130-h}" r="26" fill="#409361"/><circle cx="165" cy="${130-h}" r="27" fill="#298455"/><circle cx="140" cy="${112-h}" r="33" fill="#60af6a"/>`;
+            const fruit=stage<4?'':`<circle cx="120" cy="${130-h}" r="6" fill="#f6bf4d"/><circle cx="159" cy="${122-h}" r="6" fill="#f6bf4d"/>`;
+            return `<svg viewBox="0 0 280 165" aria-hidden="true"><circle cx="229" cy="31" r="18" fill="#ffe3a0"/><ellipse cx="140" cy="146" rx="72" ry="10" fill="#bdd6a0"/>${stage===0?'<ellipse cx="140" cy="136" rx="8" ry="6" fill="#9c7344"/>':`<path d="M140 144 L140 ${140-h}" stroke="#89633d" stroke-width="${stage<3?5:9}" stroke-linecap="round"/>`}${leaves}${crown}${fruit}${stage===5?'<path d="M140 12 l3 7 8 1 -6 5 2 8 -7 -4 -7 4 2 -8 -6 -5 8 -1z" fill="#e5a522"/>':''}</svg>`;
+        };
+        const renderGardenCards = endDate => {
+            const totals=new Map();
+            state.allTransactions.forEach(t=>{if(t.Type==='Saving' && getLocalDate(t.Date)<endDate)totals.set(t.Category,(totals.get(t.Category)||0)+signedAmount(t));});
+            if(!state.goals.length) return '<p class="garden-note">สวนยังว่างอยู่ สร้างเป้าหมายในหน้าตั้งค่า แล้วบันทึกเงินออมเพื่อเริ่มปลูกต้นไม้ของคุณ</p>';
+            const names=['เมล็ดพันธุ์แห่งเป้าหมาย','ต้นอ่อนเริ่มเติบโต','แตกใบใหม่แล้ว','ต้นไม้แข็งแรงขึ้น','ใกล้เก็บเกี่ยวแล้ว','สำเร็จแล้ว! ต้นไม้ออกผล'];
+            return '<div class="garden-grid">'+state.goals.map(goal=>{
+                const saved=totals.get(goal.GoalName)||0,target=Number(goal.TargetAmount),g=gardenProgress(saved,target);
+                const next=!g.valid?'กรุณากำหนดจำนวนเงินเป้าหมายให้มากกว่า 0':g.next?`อีก ${formatMoney(g.remaining)} บาท ถึงด่าน ${g.next}%`:'ครบเป้าหมายแล้ว ยินดีกับความตั้งใจของคุณ!';
+                return `<button type="button" class="garden-card" data-garden-stage="${g.stage}" onclick="showGoalDetails('${escAttr(goal.GoalName)}')" aria-label="${escapeHtml(goal.GoalName)} ออมแล้ว ${g.percent.toFixed(1)} เปอร์เซ็นต์ ดูประวัติเงินออม"><div class="garden-name">${escapeHtml(goal.GoalName)}</div><div class="garden-note">${goal.TargetDate && getLocalDate(goal.TargetDate)?'กำหนดเป้าหมาย: '+getLocalDate(goal.TargetDate).toLocaleDateString('th-TH'): ""}</div><div class="garden-art">${gardenTree(g.stage)}<div class="garden-stage">${names[g.stage]}</div></div><div class="garden-total">${formatMoney(saved)} ฿</div><div class="garden-note">เป้าหมาย ${g.valid?formatMoney(target):'—'} ฿ · ${g.percent.toFixed(1)}%</div><div class="garden-track"><div class="garden-fill" style="width:${g.percent}%"></div></div><div class="garden-milestones">${gardenMilestones.map(m=>`<span class="${g.valid&&g.percent>=m?'reached':''}">${g.valid&&g.percent>=m?'✓ ':''}${m}%</span>`).join('')}</div><div class="garden-next">${next}</div><div class="garden-note" style="margin:8px 0 0">แตะเพื่อดูประวัติเงินออม</div></button>`;
+            }).join('')+'</div>';
+        };
+        const renderSavingGarden = endDate => {
+            let garden=$('saving-garden');
+            if(!garden){garden=document.createElement('section');garden.id='saving-garden';garden.className='saving-garden';$('dashboard-page').appendChild(garden);}
+            garden.innerHTML='<h2 class="garden-heading">สวนเงินออมของคุณ</h2><p class="garden-note">เติบโตจากยอดฝากหักยอดถอน ถึงสิ้นรอบบิลที่เลือก · เมื่อถอนใช้ ต้นไม้จะปรับตามยอดคงเหลือ</p>'+renderGardenCards(endDate);
+        };
+
         const renderDashboard = (cycleTrans, startDate, endDate) => {
             const summary = { Income: 0, Expense: 0, Saving: 0, Investment: 0, FreeCashFlow: 0 };
             // FIX: แยก savingDeposit ออกจาก summary.Saving
@@ -1484,6 +1535,7 @@
             const cumulativeInv = state.allTransactions.filter(t => t.Type === 'Investment' && getLocalDate(t.Date) < endDate).reduce((s, t) => t.IsDeduct ? s - parseFloat(t.Amount) : s + parseFloat(t.Amount), 0);
             animateValue($('summary-investment-total'), 0, cumulativeInv, 1000);
 
+            renderSavingGarden(endDate);
             renderCalendar(cycleTrans); 
             renderExpenseChart(cycleTrans); 
             renderTodaysExpenses();
@@ -2192,38 +2244,9 @@
             if(healthEl) healthEl.innerHTML = `<div class="bg-[var(--card-bg)] border-2 border-[#118AB2] rounded-xl p-4 shadow-[4px_4px_0_0_#118AB2] cursor-pointer hover:bg-[var(--card-alt)] transition-colors" onclick="showYearlySavingsDetails('${periodLabelForModal}')"><p class="text-xs font-bold text-[var(--text-muted)] uppercase">อัตราการออม</p><div class="flex items-end gap-2 mt-1"><span class="text-4xl font-black font-mono-num tracking-tighter ${rate>=20?'text-[#06D6A0]':rate>=10?'text-[#FFD166]':'text-[#EF476F]'}">${rate.toFixed(1)}%</span><span class="text-[10px] font-bold text-[var(--text-main)] mb-1.5 uppercase bg-[var(--card-alt)] px-2 py-0.5 border border-[var(--border-dark)] rounded-md">เป้า: 20%</span></div><div class="w-full bg-[var(--card-alt)] h-4 border-2 border-[#118AB2] rounded-full mt-4 overflow-hidden"><div class="h-full transition-all duration-1000 ${rate>=20?'bg-[#06D6A0]':'bg-[#FFD166]'}" style="width:${Math.max(0,Math.min(rate,100))}%"></div></div></div>`;
 
             const goalListEl = $('goal-summary-list');
-            if (goalListEl) {
-                if (!state.goals || state.goals.length === 0) goalListEl.innerHTML = '<p class="text-center font-bold text-[var(--text-muted)] text-sm py-4 bg-[var(--card-bg)] border-2 border-dashed border-[var(--border-dark)]/30 rounded-xl">ยังไม่ได้ตั้งเป้าหมาย</p>';
-                else {
-                    const { endDate } = getDateRange(state.currentDate);
-                    const allSavings = state.allTransactions.filter(t => t.Type === 'Saving' && getLocalDate(t.Date) < endDate);
-                    goalListEl.innerHTML = state.goals.map(goal => {
-                        const savedAmount = allSavings.filter(t => t.Category === goal.GoalName).reduce((sum, t) => t.IsDeduct ? sum - parseFloat(t.Amount) : sum + parseFloat(t.Amount), 0);
-                        const targetAmount = parseFloat(goal.TargetAmount);
-                        let percent = targetAmount > 0 ? (savedAmount / targetAmount) * 100 : 0; if (percent > 100) percent = 100;
-                        let dateText = ''; if (goal.TargetDate) { const d = new Date(goal.TargetDate); dateText = `เป้า: ${d.toLocaleDateString('th-TH', { month: 'short', year: '2-digit' })}`; }
-
-                        return `
-                        <div class="retro-card bg-[var(--card-bg)] p-4 mb-3 border-2 border-[var(--border-dark)] cursor-pointer hover:bg-[var(--card-alt)] transition-colors shadow-[2px_2px_0px_0px_var(--shadow-color)]" onclick="showGoalDetails('${escAttr(goal.GoalName)}')">
-                            <div class="flex justify-between items-end text-sm mb-3">
-                                <div class="flex flex-col">
-                                    <span class="text-[var(--text-main)] font-black text-base">${escapeHtml(goal.GoalName)}</span>
-                                    ${dateText ? `<span class="text-[10px] font-bold text-[var(--text-muted)] uppercase">${dateText}</span>` : ''}
-                                </div>
-                                <div class="text-right font-mono-num">
-                                    <span class="font-black text-lg text-[#E07A5F]">${formatMoney(savedAmount)}</span>
-                                    <span class="text-[10px] font-bold text-[var(--text-muted)]"> / ${formatMoney(targetAmount)}</span>
-                                </div>
-                            </div>
-                            <div class="flex items-center gap-3">
-                                <div class="w-full bg-[var(--card-alt)] h-3 rounded-full border-2 border-[var(--border-dark)] overflow-hidden shadow-inner">
-                                    <div class="bg-[#FFD166] h-full transition-all duration-1000 border-r-2 border-[var(--border-dark)]" style="width: ${percent}%"></div>
-                                </div>
-                                <span class="text-xs font-black text-[var(--text-main)] w-10 text-right font-mono-num">${percent.toFixed(1)}%</span>
-                            </div>
-                        </div>`;
-                    }).join('');
-                }
+            if(goalListEl) {
+                const {endDate}=getDateRange(state.currentDate);
+                goalListEl.innerHTML='<p class="garden-note">ต้นไม้แสดงยอดออมสุทธิถึงสิ้นรอบบิลที่เลือก</p>'+renderGardenCards(endDate);
             }
         };
 
