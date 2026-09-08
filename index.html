@@ -9753,6 +9753,81 @@ body,.font-mono-num {font-family:'Kanit','Tahoma',sans-serif!important;}
 .modern-summary>div:first-child>p:first-of-type::after{content:' · รอบบิลนี้';font-size:11px;opacity:.8;}
 .modern-toolbar .modern-eyebrow{font-size:10px;}.modern-toolbar .modern-subtitle{font-size:12px;}
 @media(max-width:767px){.chart-category-list{max-height:210px;}.chart-category-value small{display:block;}.chart-category-list li{font-size:12px;}.modern-widgets div.expense-visual:has(>canvas#expenseChart){height:215px!important;min-height:215px!important;max-height:215px!important;}}
+</style><style id="responsive-sizing">/* Responsive sizing pass: preserve controls and financial workflows. */
+html {scroll-padding-bottom:100px;}
+#app {min-width:0;overflow-x:visible;}
+#app main,.modern-toolbar {width:100%;max-width:1500px!important;margin-inline:auto!important;}
+#app main {padding-inline:clamp(12px,2.3vw,36px);}
+.modern-toolbar {padding-inline:clamp(12px,2.3vw,36px)!important;}
+.page .grid>*,.modern-summary>*,.modern-widgets>*,.garden-grid>* {min-width:0;}
+.modern-summary>div {min-height:120px;}
+#summary-balance {font-size:clamp(28px,3.2vw,46px)!important;overflow-wrap:anywhere;}
+.modern-summary [id^="summary-"]:not(#summary-balance) {font-size:clamp(18px,1.8vw,27px)!important;overflow-wrap:anywhere;}
+.garden-total {font-size:clamp(20px,2vw,27px);overflow-wrap:anywhere;}
+.garden-name {overflow-wrap:anywhere;}
+#goal-summary-list {max-height:none!important;overflow:visible!important;}
+.chart-category-name {flex:1;}.chart-category-value {white-space:nowrap;}
+canvas {max-width:100%;}
+.retro-input {font-size:16px!important;max-width:100%;}
+.modal-sheet {max-height:calc(100dvh - 32px)!important;}
+.modal-sheet .scroll-area {min-height:0;overflow-y:auto;overscroll-behavior:contain;}
+.modal-sheet>form {min-height:0;overflow-y:auto;}
+#toast {max-width:calc(100vw - 24px);overflow-wrap:anywhere;}
+#bottom-nav-bar {height:100dvh;}
+@media(min-width:768px) and (max-width:1100px){
+ #bottom-nav-bar {width:88px!important;}
+ #bottom-nav-bar>div {padding:22px 10px!important;align-items:center!important;}
+ #bottom-nav-bar .nav-btn {justify-content:center!important;padding:12px 8px!important;}
+ #bottom-nav-bar .nav-btn span {display:none!important;}
+ #bottom-nav-bar .nav-btn i {margin:0!important;}
+ .modern-brand {padding:4px 0 20px;}.modern-brand>div {display:none;}
+ #nav-add-btn span {display:none!important;}#nav-add-btn i {margin:0!important;}
+ #desktop-theme-toggle-btn {font-size:0!important;width:48px;padding:10px!important;}#desktop-theme-toggle-btn i {font-size:20px!important;}
+ #settings-page>.grid {grid-template-columns:1fr!important;}
+ #settings-page>.grid>* {grid-column:auto!important;}
+}
+@media(min-width:768px) and (max-width:1250px){
+ #analytics-page>.grid {grid-template-columns:repeat(2,minmax(0,1fr))!important;}
+ #analytics-page>.grid>* {grid-column:auto!important;}
+}
+@media(max-width:767px){
+ #app {padding-bottom:calc(110px + env(safe-area-inset-bottom));}
+ #app>header {padding-inline:16px;}
+ #bottom-nav-bar {height:auto;padding-bottom:env(safe-area-inset-bottom);}
+ #bottom-nav-bar>div {gap:0!important;padding:8px 4px 10px!important;}
+ #bottom-nav-bar .nav-btn {width:calc((100% - 60px)/4)!important;min-width:0!important;min-height:48px;}
+ #bottom-nav-bar .nav-btn span {font-size:10px;letter-spacing:0;white-space:nowrap;}
+ #nav-add-btn {flex:0 0 52px!important;}
+ .modern-summary>div {padding:14px!important;}
+ #summary-balance {font-size:clamp(27px,8vw,38px)!important;}
+ .modern-summary [id^="summary-"]:not(#summary-balance) {font-size:clamp(18px,5.1vw,23px)!important;}
+ .modern-summary>div:first-child {min-height:145px;}
+ .modern-widgets .retro-panel {padding:16px!important;}
+ .saving-garden {padding:14px;}.garden-card {padding:15px;}
+ .garden-heading {font-size:20px;}
+ .modal-sheet {max-height:calc(100dvh - 12px)!important;padding-bottom:max(12px,env(safe-area-inset-bottom));}
+ .modal-sheet .scroll-area {padding:18px 16px 24px!important;}
+ #settings-page>.grid,#analytics-page>.grid {grid-template-columns:1fr!important;}
+ #settings-page>.grid>*,#analytics-page>.grid>* {grid-column:auto!important;}
+}
+@media(max-width:359px){
+ .modern-summary {gap:8px!important;}.modern-summary>div {padding:12px!important;}
+ .chart-category-list li {gap:6px;font-size:11px;}
+ .garden-milestones {gap:3px;}.garden-milestones span{font-size:10px;}
+ .modal-sheet form>.grid {gap:8px;}
+}
+@media(max-height:550px){
+ #bottom-nav-bar {overflow-y:auto;}
+ .modern-brand {padding-bottom:8px!important;}
+ #bottom-nav-bar>div {gap:4px!important;padding-block:10px!important;}
+ #bottom-nav-bar .nav-btn {min-height:40px;}
+ #nav-add-btn {margin-block:6px!important;}
+ .modal-sheet {max-height:calc(100dvh - 12px)!important;}
+}
+</style><style>
+.transaction-item>div:first-child {min-width:0;flex:1;}
+.transaction-item>span:last-child {max-width:46%;overflow-wrap:anywhere;white-space:normal;}
+@media(max-width:767px){#transactions-list .transaction-item{padding:12px!important;gap:8px;}.transaction-item>div:first-child{gap:8px;}.transaction-item>div:first-child>div:first-child{width:36px;height:36px;font-size:20px;}.transaction-item>span:last-child{font-size:14px;}}
 </style></head>
 <body>
     <!-- App Wrapper (Handles Desktop Sidebar vs Mobile Layout) -->
