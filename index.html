@@ -9677,7 +9677,7 @@ h2,h3,h4 {letter-spacing:-.025em!important;}
 .dark #summary-card-investment-cumulative {background:#302f49!important;}
 #summary-card-investment-cumulative p {color:inherit!important;}
 #summary-card-investment-cumulative #summary-investment-total {color:#7662ac!important;}
-#category-summary-list {max-height:340px!important;}
+
 .calendar-day {border:0!important;border-radius:10px;background:var(--card-alt)!important;}
 .calendar-day.is-today {background:#d5edbc!important;color:#24533e!important;box-shadow:none!important;}
 #transactions-list .transaction-item {border:1px solid var(--border-dark)!important;border-radius:15px!important;box-shadow:none!important;padding:16px!important;}
@@ -9840,6 +9840,20 @@ body:has(#tax-page.active) .modern-toolbar>div:last-child{display:none!important
 
 #tax-deduction-groups{min-width:0;border-top:1px solid #89988a33;padding-top:24px}.tax-personal{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;background:var(--card-alt);border-radius:12px;padding:15px;font-size:13px;margin:16px 0}.tax-personal span{width:100%;font-size:11px;color:var(--text-muted)}.tax-group{border:1px solid #89988a40;border-radius:15px;margin-top:12px;overflow:hidden}.tax-group summary{display:flex;align-items:center;gap:12px;padding:16px;cursor:pointer;list-style:none}.tax-group summary::-webkit-details-marker{display:none}.tax-group summary>i{font-size:22px;color:#619d83}.tax-group summary>span:nth-child(2){flex:1;font-size:14px;font-weight:700}.tax-group summary small{display:block;font-size:12px;font-weight:500;color:var(--text-muted);margin-top:4px}.tax-group[open] summary{background:var(--card-alt)}.tax-group[open] .tax-chevron{transform:rotate(180deg)}.tax-group-body{padding:18px;display:grid;gap:22px}.tax-field select{width:100%;min-width:0;border:1px solid #89988a66;border-radius:12px;padding:12px;background:var(--card-alt);color:var(--text-main);font:inherit;font-size:14px}.tax-field .tax-allowed{color:var(--text-main);font-size:11px;font-weight:600}.tax-cap-note{color:var(--text-main);border-left:3px solid #c39850;padding:8px 12px;background:var(--card-alt);font-size:12px;line-height:1.8}.tax-cap-note:empty{display:none}.tax-deduction-summary>strong{font-size:32px;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}.tax-meter{margin-top:15px;font-size:11px}.tax-meter>div{display:flex;justify-content:space-between;gap:10px;margin-bottom:5px}.tax-meter progress{width:100%;height:7px;accent-color:#619d83}.tax-meter small{display:block;color:var(--text-muted);line-height:1.7;margin-top:5px}@media(min-width:1100px){.tax-results{position:sticky;top:20px;max-height:calc(100dvh - 40px);overflow:auto;scrollbar-width:thin;padding-right:3px}}@media(max-width:400px){.tax-group-body{padding:14px}.tax-group summary{padding:14px;gap:8px}.tax-group summary>span:nth-child(2){font-size:13px}}
 </style>
+<style id="mobile-fab-layout">
+@media(max-width:767px){
+ #bottom-nav-bar{overflow:visible!important;}
+ #bottom-nav-bar #nav-add-btn{position:absolute!important;right:max(16px,env(safe-area-inset-right))!important;bottom:calc(100% + 14px)!important;top:auto!important;left:auto!important;width:56px!important;height:56px!important;min-height:56px!important;margin:0!important;padding:0!important;border-radius:50%!important;background:#ffdf32!important;color:#193b31!important;box-shadow:0 5px 18px #122d3433!important;}
+ #bottom-nav-bar #nav-add-btn i{margin:0!important;font-size:28px!important;}
+ #bottom-nav-bar .nav-btn{width:20%!important;flex:1 1 0!important;}
+ #dashboard-page .modern-widgets>div:has(#calendar-container){order:0!important;}
+ #app{padding-bottom:calc(160px + env(safe-area-inset-bottom))!important;}
+}
+</style>
+<style id="category-emoji-style">
+.category-emoji-control>label,#category-emoji-picker>label{display:block;font-size:12px;font-weight:600;margin-bottom:7px}.category-emoji-row{display:flex;gap:8px}.category-emoji-row input{min-width:0;flex:1}.category-emoji-row button{display:flex;align-items:center;gap:7px;white-space:nowrap;padding:8px 12px;min-height:48px}#category-emoji-preview{font-size:24px}#category-emoji-picker{margin-top:12px;padding:12px;background:var(--card-alt);border-radius:14px;border:1px solid var(--border-dark)}#category-emoji-picker[hidden]{display:none!important}#category-emoji-group{width:100%;padding:8px;margin-bottom:10px}#category-emoji-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(44px,1fr));gap:5px;max-height:190px;overflow:auto;padding:3px}#category-emoji-grid button{min-width:44px;min-height:44px;border:1px solid transparent;border-radius:10px;background:var(--card-bg);font-size:25px;line-height:1.2}#category-emoji-grid button:hover,#category-emoji-grid button[aria-pressed="true"]{background:var(--bg-saving);border-color:#619d83}#category-emoji-grid button:focus-visible,#category-emoji-toggle:focus-visible{outline:2px solid #619d83;outline-offset:2px}#category-emoji-status{font-size:11px;color:var(--text-muted);margin-top:8px}#category-modal .modal-sheet{overflow-y:auto;max-height:calc(100dvh - 24px)}@media(max-width:360px){.category-emoji-row{flex-wrap:wrap}.category-emoji-row input{flex-basis:100%}.category-emoji-row button{width:100%;justify-content:center}}
+</style>
+<style>@media(min-width:1101px){#dashboard-page .modern-widgets>div:has(#calendar-container){grid-column:1 / -1!important;}}</style>
 </head>
 <body>
     <!-- App Wrapper (Handles Desktop Sidebar vs Mobile Layout) -->
@@ -9875,7 +9889,7 @@ body:has(#tax-page.active) .modern-toolbar>div:last-child{display:none!important
                     <span class="text-[10px] md:text-xs font-bold uppercase tracking-wider hidden md:block lg:block">รายการ</span>
                 </button>
                 
-                <button id="nav-add-btn" class="add-btn-retro w-14 h-14 rounded-full flex items-center justify-center -mt-6 md:mt-4 md:w-full md:h-auto md:py-3 md:rounded-xl md:px-4 md:justify-center lg:justify-start">
+                <button id="nav-add-btn" type="button" aria-label="เพิ่มรายการใหม่" class="add-btn-retro w-14 h-14 rounded-full flex items-center justify-center -mt-6 md:mt-4 md:w-full md:h-auto md:py-3 md:rounded-xl md:px-4 md:justify-center lg:justify-start">
                     <i class="ph-bold ph-plus text-3xl md:text-xl lg:mr-3"></i>
                     <span class="hidden lg:block font-black uppercase tracking-wide">ทำรายการ</span>
                 </button>
@@ -10033,13 +10047,7 @@ body:has(#tax-page.active) .modern-toolbar>div:last-child{display:none!important
                             </div>
                         </div>
 
-                        <!-- 5. Category Summary -->
-                        <div class="retro-panel p-4 md:p-5 m-0 h-full flex flex-col order-5 md:order-2 xl:order-2 md:col-span-2 xl:col-span-1 xl:row-span-2">
-                            <h3 class="font-bold text-retro-text mb-3 border-b-2 border-[var(--border-dark)] pb-2 flex items-center gap-2">
-                                <i class="ph-fill ph-list-numbers text-[#4361EE]"></i> สรุปตามหมวดหมู่
-                            </h3>
-                            <div id="category-summary-list" class="flex-1 space-y-4 mt-2 overflow-y-auto pr-2 max-h-[300px] md:max-h-[400px] xl:max-h-none"></div>
-                        </div>
+                        
 
 
 
@@ -10366,7 +10374,7 @@ body:has(#tax-page.active) .modern-toolbar>div:last-child{display:none!important
     </div>
 
     <!-- Category Modal -->
-    <div id="category-modal" class="fixed inset-0 z-50 hidden"><div class="modal-backdrop absolute inset-0"></div><div class="modal-sheet p-6 text-retro-text md:pt-8"><h3 class="text-center font-black text-xl mb-4 uppercase border-b-2 border-retro-border pb-2" id="category-modal-title">จัดการหมวดหมู่</h3><form id="category-form" class="space-y-3 pt-2"><input type="hidden" id="category-original-name"><select id="category-form-type" class="retro-input w-full p-3 font-bold"></select><input id="category-form-emoji" class="retro-input w-full p-3" placeholder="Emoji"><input id="category-form-name" class="retro-input w-full p-3 font-bold" placeholder="ชื่อหมวดหมู่"><div class="flex gap-3 mt-6"><button type="button" id="cancel-category-modal-btn" class="modal-cancel-btn retro-btn w-full bg-retro-card py-3 rounded-xl shadow-[3px_3px_0px_0px_var(--shadow-color)] font-bold">ยกเลิก</button><button type="submit" class="retro-btn w-full bg-[#06D6A0] text-[#1E1E24] py-3 rounded-xl shadow-[3px_3px_0px_0px_var(--shadow-color)] font-black">บันทึก</button></div></form></div></div>
+    <div id="category-modal" class="fixed inset-0 z-50 hidden"><div class="modal-backdrop absolute inset-0"></div><div class="modal-sheet p-6 text-retro-text md:pt-8"><h3 class="text-center font-black text-xl mb-4 uppercase border-b-2 border-retro-border pb-2" id="category-modal-title">จัดการหมวดหมู่</h3><form id="category-form" class="space-y-3 pt-2"><input type="hidden" id="category-original-name"><select id="category-form-type" class="retro-input w-full p-3 font-bold"></select><div class="category-emoji-control"><label for="category-form-emoji">Emoji ของหมวดหมู่</label><div class="category-emoji-row"><input id="category-form-emoji" class="retro-input w-full p-3" placeholder="พิมพ์หรือวาง Emoji" autocomplete="off"><button type="button" id="category-emoji-toggle" class="retro-btn" aria-expanded="false" aria-controls="category-emoji-picker"><span id="category-emoji-preview" aria-hidden="true">😊</span> เลือก Emoji</button></div><div id="category-emoji-picker" hidden><label for="category-emoji-group">กลุ่ม Emoji</label><select id="category-emoji-group" class="retro-input"></select><div id="category-emoji-grid" role="group" aria-label="เลือก Emoji สำหรับหมวดหมู่"></div><p id="category-emoji-status" aria-live="polite">กด Emoji ที่ต้องการเพื่อเลือก</p></div></div><input id="category-form-name" class="retro-input w-full p-3 font-bold" placeholder="ชื่อหมวดหมู่"><div class="flex gap-3 mt-6"><button type="button" id="cancel-category-modal-btn" class="modal-cancel-btn retro-btn w-full bg-retro-card py-3 rounded-xl shadow-[3px_3px_0px_0px_var(--shadow-color)] font-bold">ยกเลิก</button><button type="submit" class="retro-btn w-full bg-[#06D6A0] text-[#1E1E24] py-3 rounded-xl shadow-[3px_3px_0px_0px_var(--shadow-color)] font-black">บันทึก</button></div></form></div></div>
     
     <!-- Action Modal -->
     <div id="transaction-action-modal" class="fixed inset-0 z-50 hidden"><div class="modal-backdrop absolute inset-0"></div><div class="modal-sheet p-6 text-retro-text"><div id="transaction-action-details" class="mb-5 p-4 retro-card bg-[var(--bg-saving)] border-2 border-retro-border rounded-xl text-center"></div><div class="space-y-3"><button id="transaction-action-duplicate-btn" class="retro-btn w-full bg-[#06D6A0] text-[#1E1E24] py-3.5 rounded-xl font-black shadow-[3px_3px_0px_0px_var(--shadow-color)] flex justify-center items-center gap-2"><i class="ph-bold ph-copy"></i> ทำซ้ำ</button><button id="transaction-action-edit-btn" class="retro-btn w-full bg-[#4361EE] text-white py-3.5 rounded-xl font-black shadow-[3px_3px_0px_0px_var(--shadow-color)] flex justify-center items-center gap-2"><i class="ph-bold ph-pencil-simple"></i> แก้ไข</button><button id="transaction-action-delete-btn" class="retro-btn w-full bg-[#EF476F] text-white py-3.5 rounded-xl font-black shadow-[3px_3px_0px_0px_var(--shadow-color)] flex justify-center items-center gap-2"><i class="ph-bold ph-trash"></i> ลบ</button><button id="cancel-transaction-action-modal-btn" class="modal-cancel-btn retro-btn w-full bg-[var(--card-bg)] py-3.5 mt-2 rounded-xl font-bold shadow-[3px_3px_0px_0px_var(--shadow-color)]">ยกเลิก</button></div></div></div>
@@ -11292,7 +11300,7 @@ body:has(#tax-page.active) .modern-toolbar>div:last-child{display:none!important
             }
         };
         
-        window.openCategoryModal = () => { $('category-form').reset(); $('category-form-type').innerHTML = [['Expense','รายจ่าย'],['Income','รายรับ'],['Saving','ออม'],['Investment','ลงทุน'],['FreeCashFlow','ทุนสำรอง']].map(t => `<option value="${t[0]}">${t[1]}</option>`).join(''); $('category-modal-title').textContent = 'เพิ่มหมวดหมู่ใหม่'; $('category-original-name').value = ''; modalControls['category-modal'].open(); };
+        window.openCategoryModal = () => { $('category-form').reset(); $('category-form-type').innerHTML = [['Expense','รายจ่าย'],['Income','รายรับ'],['Saving','ออม'],['Investment','ลงทุน'],['FreeCashFlow','ทุนสำรอง']].map(t => `<option value="${t[0]}">${t[1]}</option>`).join(''); $('category-modal-title').textContent = 'เพิ่มหมวดหมู่ใหม่'; $('category-original-name').value = ''; resetCategoryEmojiPicker(); modalControls['category-modal'].open(); };
         
         // --- ส่วนแก้ไขหมวดหมู่ ---
         window.editCategory = (name) => {
@@ -11305,7 +11313,7 @@ body:has(#tax-page.active) .modern-toolbar>div:last-child{display:none!important
             $('category-form-emoji').value = cat.Emoji;
             $('category-original-name').value = cat.Name; // เก็บชื่อเดิมไว้สำหรับอ้างอิงตอนอัปเดต
             $('category-modal-title').textContent = 'แก้ไขหมวดหมู่';
-            modalControls['category-modal'].open();
+            resetCategoryEmojiPicker(); modalControls['category-modal'].open();
         };
 
         window.deleteCategory = async (name) => { 
@@ -12250,6 +12258,27 @@ body:has(#tax-page.active) .modern-toolbar>div:last-child{display:none!important
         try {const saved=JSON.parse(localStorage.getItem(taxStorageKey)||'null');if(saved && typeof saved==='object')taxKeys.forEach(k=>{if(typeof saved[k]==='number'&&Number.isFinite(saved[k])&&saved[k]>=0&&saved[k]<=999999999999)$('tax-'+k).value=saved[k];});}catch(e){}
         if(Number($('tax-deductions').value)>0)$('tax-group-manual').open=true;
         renderTax();
+
+
+        const categoryEmojiGroups = {
+            'ใช้บ่อย': '💰 รายได้|💸 รายจ่าย|🍽️ อาหาร|☕ กาแฟ|🛒 ซื้อของ|🚗 รถยนต์|🏠 บ้าน|💡 ไฟฟ้า|📱 โทรศัพท์|❤️ สุขภาพ|🎓 การศึกษา|🎁 ของขวัญ|🐷 ออมเงิน|📈 ลงทุน|✈️ เดินทาง|🎮 เกม',
+            'อาหารและช้อปปิ้ง': '🍚 ข้าว|🍜 ก๋วยเตี๋ยว|🍕 พิซซ่า|🍔 เบอร์เกอร์|🥗 สลัด|🍰 ขนม|🍎 ผลไม้|🥤 เครื่องดื่ม|🧋 ชานม|🍺 เบียร์|🛍️ ช้อปปิ้ง|👕 เสื้อผ้า|👟 รองเท้า|💄 เครื่องสำอาง|💍 เครื่องประดับ|🎧 หูฟัง',
+            'บ้านและการเดินทาง': '🏠 บ้าน|🏢 คอนโด|🔑 ค่าเช่า|🛠️ ซ่อมแซม|💡 ไฟฟ้า|💧 น้ำ|🌐 อินเทอร์เน็ต|🧹 ของใช้ในบ้าน|🚗 รถ|⛽ น้ำมัน|🚌 รถโดยสาร|🚆 รถไฟ|🚕 แท็กซี่|🏍️ มอเตอร์ไซค์|✈️ เที่ยวบิน|🏨 ที่พัก',
+            'ครอบครัวและไลฟ์สไตล์': '👨‍👩‍👧‍👦 ครอบครัว|👶 ลูก|👵 ผู้สูงอายุ|🐶 สัตว์เลี้ยง|🐱 แมว|🏥 โรงพยาบาล|💊 ยา|🦷 ทันตกรรม|🏋️ ออกกำลังกาย|🎓 การศึกษา|📚 หนังสือ|🎬 ภาพยนตร์|🎵 เพลง|🎮 เกม|🎁 ของขวัญ|🙏 ทำบุญ',
+            'การเงินและการทำงาน': '💰 เงินเดือน|💵 เงินสด|💳 บัตรเครดิต|🏦 ธนาคาร|🐷 เงินออม|📈 หุ้น|🪙 เหรียญ|💎 ทรัพย์สิน|🛡️ ประกัน|🧾 ภาษี|💼 งาน|💻 คอมพิวเตอร์|🏪 ธุรกิจ|📦 สินค้า|🎯 เป้าหมาย|🌱 อนาคต'
+        };
+        const emojiInput=$('category-form-emoji'), emojiToggle=$('category-emoji-toggle'), emojiPicker=$('category-emoji-picker');
+        $('category-emoji-group').innerHTML=Object.keys(categoryEmojiGroups).map(name=>`<option>${name}</option>`).join('');
+        const renderCategoryEmojis=()=>{
+            $('category-emoji-grid').innerHTML=categoryEmojiGroups[$('category-emoji-group').value].split('|').map(item=>{const space=item.indexOf(' '),emoji=item.slice(0,space),label=item.slice(space+1);return `<button type="button" data-emoji="${emoji}" aria-label="${label}" title="${label}" aria-pressed="${emojiInput.value.trim()===emoji}">${emoji}</button>`;}).join('');
+        };
+        const syncCategoryEmoji=()=>{$('category-emoji-preview').textContent=emojiInput.value.trim()||'😊';};
+        const resetCategoryEmojiPicker=()=>{emojiPicker.hidden=true;emojiToggle.setAttribute('aria-expanded','false');$('category-emoji-group').selectedIndex=0;syncCategoryEmoji();};
+        emojiToggle.addEventListener('click',()=>{const opening=emojiPicker.hidden;emojiPicker.hidden=!opening;emojiToggle.setAttribute('aria-expanded',String(opening));if(opening){renderCategoryEmojis();$('category-emoji-group').focus();}});
+        $('category-emoji-group').addEventListener('change',renderCategoryEmojis);
+        emojiInput.addEventListener('input',()=>{syncCategoryEmoji();if(!emojiPicker.hidden)renderCategoryEmojis();});
+        $('category-emoji-grid').addEventListener('click',e=>{const button=e.target.closest('button[data-emoji]');if(!button)return;emojiInput.value=button.dataset.emoji;emojiInput.dispatchEvent(new Event('input',{bubbles:true}));$('category-emoji-status').textContent='เลือก '+button.getAttribute('aria-label')+' แล้ว';emojiPicker.hidden=true;emojiToggle.setAttribute('aria-expanded','false');emojiToggle.focus();});
+        emojiPicker.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();e.stopPropagation();resetCategoryEmojiPicker();emojiToggle.focus();}});
 
         init(true);
     });
