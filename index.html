@@ -9854,6 +9854,9 @@ body:has(#tax-page.active) .modern-toolbar>div:last-child{display:none!important
 .category-emoji-control>label,#category-emoji-picker>label{display:block;font-size:12px;font-weight:600;margin-bottom:7px}.category-emoji-row{display:flex;gap:8px}.category-emoji-row input{min-width:0;flex:1}.category-emoji-row button{display:flex;align-items:center;gap:7px;white-space:nowrap;padding:8px 12px;min-height:48px}#category-emoji-preview{font-size:24px}#category-emoji-picker{margin-top:12px;padding:12px;background:var(--card-alt);border-radius:14px;border:1px solid var(--border-dark)}#category-emoji-picker[hidden]{display:none!important}#category-emoji-group{width:100%;padding:8px;margin-bottom:10px}#category-emoji-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(44px,1fr));gap:5px;max-height:190px;overflow:auto;padding:3px}#category-emoji-grid button{min-width:44px;min-height:44px;border:1px solid transparent;border-radius:10px;background:var(--card-bg);font-size:25px;line-height:1.2}#category-emoji-grid button:hover,#category-emoji-grid button[aria-pressed="true"]{background:var(--bg-saving);border-color:#619d83}#category-emoji-grid button:focus-visible,#category-emoji-toggle:focus-visible{outline:2px solid #619d83;outline-offset:2px}#category-emoji-status{font-size:11px;color:var(--text-muted);margin-top:8px}#category-modal .modal-sheet{overflow-y:auto;max-height:calc(100dvh - 24px)}@media(max-width:360px){.category-emoji-row{flex-wrap:wrap}.category-emoji-row input{flex-basis:100%}.category-emoji-row button{width:100%;justify-content:center}}
 </style>
 <style>@media(min-width:1101px){#dashboard-page .modern-widgets>div:has(#calendar-container){grid-column:1 / -1!important;}}</style>
+<style id="report-insights-style">
+.report-insights{padding:24px!important}.report-head{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}.report-eyebrow{font-size:10px;letter-spacing:2px;color:var(--text-muted)}.report-head h2{font-size:24px;font-weight:750;margin:6px 0}.report-head p,.report-note{font-size:12px;line-height:1.8;color:var(--text-muted)}.report-head label{display:grid;gap:6px;font-size:12px}.report-head input,.report-head select{padding:10px;min-width:0;width:100%}.report-note{margin:12px 0}.report-comparison{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.report-metric{padding:18px;background:var(--card-alt);border-radius:16px;min-width:0}.report-metric h3{font-size:13px;font-weight:600}.report-metric strong{display:block;font-size:clamp(22px,3vw,30px);margin:10px 0;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}.report-metric small{display:block;font-size:11px;color:var(--text-muted);line-height:1.7}.report-change{font-size:12px;margin-bottom:7px;line-height:1.7}.report-increase{margin:24px 0;padding:20px 0;border-top:1px solid var(--border-dark);border-bottom:1px solid var(--border-dark)}.report-insights h3{font-size:16px;font-weight:650}.report-increase-row{display:flex;justify-content:space-between;gap:14px;background:var(--card-alt);padding:14px;border-radius:12px;margin-top:8px;font-size:13px}.report-increase-row span{overflow-wrap:anywhere;min-width:0}.report-increase-row small{display:block;color:var(--text-muted);font-size:11px;margin-top:5px}.report-increase-row b{white-space:nowrap}.report-trend-chart{position:relative;height:300px}.report-table{font-size:12px;margin-top:12px}.report-table summary{cursor:pointer;min-height:44px;padding:12px 0}.report-table-scroll{overflow:auto}.report-table table{width:100%;border-collapse:collapse}.report-table th,.report-table td{padding:10px 8px;text-align:right;border-bottom:1px solid var(--border-dark);white-space:nowrap}.report-table th:first-child,.report-table td:first-child{text-align:left}@media(max-width:767px){.report-insights{padding:16px!important}.report-comparison{grid-template-columns:1fr}.report-metric strong{font-size:28px}.report-head h2{font-size:21px}.report-trend-chart{height:260px}.report-head>label{width:100%}}
+</style>
 </head>
 <body>
     <!-- App Wrapper (Handles Desktop Sidebar vs Mobile Layout) -->
@@ -10095,6 +10098,17 @@ body:has(#tax-page.active) .modern-toolbar>div:last-child{display:none!important
 
                 <!-- 🌟 ANALYTICS PAGE 🌟 -->
                 <div id="analytics-page" class="page space-y-6">
+<section id="report-insights" class="retro-panel report-insights">
+<div class="report-head"><div><span class="report-eyebrow">MONEY INSIGHTS</span><h2>เข้าใจเงินของคุณในแต่ละรอบ</h2><p>ใช้รอบบัญชีตามวันตัดรอบที่ตั้งไว้ • ไม่รวมรายการหลังวันนี้</p></div><label>รอบเริ่มในเดือน<input type="month" id="report-cycle" class="retro-input"></label></div>
+<p id="report-period-note" class="report-note"></p><div id="report-comparison" class="report-comparison"></div>
+<div class="report-increase"><h3>หมวดที่ใช้จ่ายเพิ่มมากที่สุด 3 อันดับ</h3><p class="report-note">จัดอันดับตามจำนวนบาทที่เพิ่มขึ้นในช่วงเปรียบเทียบเดียวกัน</p><div id="report-increase-list"></div></div>
+<div class="report-head"><div><h3>แนวโน้มย้อนหลัง</h3><p>รายรับ รายจ่าย และออมรวมสุทธิ แยกตามรอบบัญชี</p></div><label>ช่วงย้อนหลัง<select id="report-trend-length" class="retro-input"><option value="6">6 เดือน</option><option value="12">12 เดือน</option></select></label></div>
+<p class="report-note">รอบที่ยังไม่จบใช้ยอดถึงวันนี้ • ช่องว่างหมายถึงไม่มีรายการที่บันทึก ไม่ใช่ยืนยันว่าไม่มีรายรับหรือรายจ่าย • ออมรวมสุทธิ = เงินออม + การลงทุน + ทุนสำรอง โดยหักยอดถอนของทั้ง 3 ประเภท</p>
+<div class="report-trend-chart"><canvas id="report-trend-chart" role="img" aria-label="แนวโน้มรายรับ รายจ่าย และออมรวมสุทธิ มีตัวเลขในตารางด้านล่าง"></canvas></div>
+<details class="report-table"><summary>ดูตัวเลขรายรอบ</summary><div class="report-table-scroll"><table><thead><tr><th>ช่วงวันที่</th><th>รายรับ</th><th>รายจ่าย</th><th>ออมรวมสุทธิ</th></tr></thead><tbody id="report-trend-table"></tbody></table></div></details>
+</section>
+<p class="report-note">รายงานรายละเอียดด้านล่างใช้เดือน/ปีปฏิทินตามตัวกรองของส่วนนี้</p>
+
                     <!-- Top Filters -->
                     <div class="retro-panel p-4 m-0 flex flex-wrap gap-4 items-center bg-[var(--card-alt)] border-[var(--border-dark)]">
                         <span class="font-black text-[var(--text-main)] mr-2"><i class="ph-fill ph-funnel"></i> ตัวกรองรายงาน:</span>
@@ -11477,6 +11491,7 @@ body:has(#tax-page.active) .modern-toolbar>div:last-child{display:none!important
         };
 
         const renderAnalytics = () => {
+            renderReportInsights();
             const modeSelect = $('analytics-mode-select');
             const yearSel = $('analytics-year-select');
             const monthSel = $('analytics-month-select');
@@ -12279,6 +12294,49 @@ body:has(#tax-page.active) .modern-toolbar>div:last-child{display:none!important
         emojiInput.addEventListener('input',()=>{syncCategoryEmoji();if(!emojiPicker.hidden)renderCategoryEmojis();});
         $('category-emoji-grid').addEventListener('click',e=>{const button=e.target.closest('button[data-emoji]');if(!button)return;emojiInput.value=button.dataset.emoji;emojiInput.dispatchEvent(new Event('input',{bubbles:true}));$('category-emoji-status').textContent='เลือก '+button.getAttribute('aria-label')+' แล้ว';emojiPicker.hidden=true;emojiToggle.setAttribute('aria-expanded','false');emojiToggle.focus();});
         emojiPicker.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();e.stopPropagation();resetCategoryEmojiPicker();emojiToggle.focus();}});
+
+
+        let reportTrendChart=null;
+        const reportDayNumber=d=>Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())/86400000;
+        const reportAddDays=(d,n)=>new Date(d.getFullYear(),d.getMonth(),d.getDate()+n);
+        const reportTotals=(rows,start,end)=>{
+            const result={income:0,expense:0,saving:0,count:0,categories:new Map()};
+            for(const t of rows){const d=getLocalDate(t.Date);if(!d || d<start || d>=end)continue;const a=Number(t.Amount);if(!Number.isFinite(a))continue;
+                if(!['Income','Expense','Saving','Investment','FreeCashFlow'].includes(t.Type))continue;result.count++;
+                if(t.Type==='Income')result.income+=a;
+                if(t.Type==='Expense'){result.expense+=a;const name=t.Category||'ไม่ระบุหมวด';result.categories.set(name,(result.categories.get(name)||0)+a);}
+                if(['Saving','Investment','FreeCashFlow'].includes(t.Type))result.saving+=t.IsDeduct?-a:a;
+            }return result;
+        };
+        const reportCompare=(rows,anchor,today)=>{
+            const current=getDateRange(anchor),previous=getDateRange(new Date(anchor.getFullYear(),anchor.getMonth()-1,1));
+            const tomorrow=reportAddDays(today,1),future=current.startDate>=tomorrow,partial=!future&&tomorrow<current.endDate;
+            let end=future?current.startDate:partial?tomorrow:current.endDate,previousEnd=previous.endDate;
+            if(partial){const days=Math.min(reportDayNumber(end)-reportDayNumber(current.startDate),reportDayNumber(previous.endDate)-reportDayNumber(previous.startDate));end=reportAddDays(current.startDate,days);previousEnd=reportAddDays(previous.startDate,days);}
+            return {current,previous,end,previousEnd,future,partial,now:reportTotals(rows,current.startDate,end),before:reportTotals(rows,previous.startDate,previousEnd)};
+        };
+        const reportRange=(a,b)=>a.toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'2-digit'})+' – '+reportAddDays(b,-1).toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'2-digit'});
+        const reportChange=(now,before)=>{const delta=now-before;return (delta>0?'+':'')+formatMoney(delta)+' บาท'+(before>0?' ('+(delta>0?'+':'')+(delta/before*100).toFixed(1)+'%)':before===0?(now===0?' (เท่าเดิม)':' (ฐานเดิมเป็นศูนย์ จึงไม่คำนวณ %)'):' (ฐานเดิมติดลบ จึงไม่คำนวณ %)');};
+        const renderReportInsights=()=>{
+            const input=$('report-cycle');if(!input.value)input.value=state.currentDate.getFullYear()+'-'+String(state.currentDate.getMonth()+1).padStart(2,'0');
+            const [y,m]=input.value.split('-').map(Number);if(!y||!m)return;
+            const anchor=new Date(y,m-1,1),today=new Date();today.setHours(0,0,0,0);
+            const r=reportCompare(state.allTransactions,anchor,today);
+            $('report-period-note').textContent=r.future?'รอบนี้ยังไม่เริ่ม จึงยังไม่เปรียบเทียบยอดจริง':(r.partial?'รอบยังไม่จบ: เทียบจำนวนวันเท่ากัน':'รอบจบแล้ว: เทียบยอดเต็มรอบ (จำนวนวันอาจต่างกัน)')+' • '+reportRange(r.current.startDate,r.end)+' เทียบ '+reportRange(r.previous.startDate,r.previousEnd);
+            $('report-comparison').innerHTML=[['income','รายรับ'],['expense','รายจ่าย'],['saving','ออมรวมสุทธิ']].map(([key,title])=>`<div class="report-metric"><h3>${title}</h3><strong>${r.future||!r.now.count?'—':formatMoney(r.now[key])}</strong><div class="report-change">${r.future?'ยังไม่เริ่มรอบ':!r.now.count?'ยังไม่มีรายการในช่วงนี้':!r.before.count?'ไม่มีข้อมูลรอบก่อนให้เปรียบเทียบ':reportChange(r.now[key],r.before[key])}</div><small>รอบก่อน: ${r.before.count?formatMoney(r.before[key])+' บาท':'ไม่มีรายการที่บันทึก'}</small>${key==='saving'?'<small>เงินออม + ลงทุน + ทุนสำรอง − ยอดถอน</small>':''}</div>`).join('');
+            const increases=[...r.now.categories].map(([name,value])=>({name,value,previous:r.before.categories.get(name)||0,delta:value-(r.before.categories.get(name)||0)})).filter(x=>x.delta>0).sort((a,b)=>b.delta-a.delta||a.name.localeCompare(b.name,'th')).slice(0,3);
+            $('report-increase-list').innerHTML=r.future?'<p class="report-note">ยังไม่เริ่มรอบ</p>':!r.now.count||!r.before.count?'<p class="report-note">ข้อมูลยังไม่พอสำหรับเปรียบเทียบสองรอบ</p>':!increases.length?'<p class="report-note">ไม่มีหมวดรายจ่ายที่เพิ่มขึ้นในช่วงเปรียบเทียบนี้</p>':increases.map((x,i)=>`<div class="report-increase-row"><span>${i+1}. ${escapeHtml(x.name)}<small>${formatMoney(x.previous)} → ${formatMoney(x.value)} บาท${x.previous===0?' • ไม่มียอดรายจ่ายหมวดนี้ในรอบก่อน':''}</small></span><b>+${formatMoney(x.delta)} ฿</b></div>`).join('');
+            const length=Number($('report-trend-length').value),points=[];
+            for(let i=length-1;i>=0;i--){const date=new Date(y,m-1-i,1),range=getDateRange(date),end=new Date(Math.min(range.endDate,reportAddDays(today,1))),future=range.startDate>=end,partial=!future&&end<range.endDate,totals=reportTotals(state.allTransactions,range.startDate,end);points.push({label:date.toLocaleDateString('th-TH',{month:'short',year:'2-digit'})+(partial?' *':''),range,partial,future,totals});}
+            const number=(p,k)=>p.future||!p.totals.count?null:p.totals[k];
+            $('report-trend-table').innerHTML=points.map(p=>`<tr><td>${reportRange(p.range.startDate,p.range.endDate)}${p.partial?' (ถึงวันนี้)':p.future?' (ยังไม่เริ่ม)':''}</td>${['income','expense','saving'].map(k=>`<td>${number(p,k)===null?'—':formatMoney(number(p,k))}</td>`).join('')}</tr>`).join('');
+            if(reportTrendChart){reportTrendChart.destroy();reportTrendChart=null;}
+            if(typeof Chart==='undefined')return;
+            const color=getComputedStyle(document.documentElement).getPropertyValue('--text-main').trim();
+            reportTrendChart=new Chart($('report-trend-chart'),{type:'line',data:{labels:points.map(p=>p.label),datasets:[['income','รายรับ','#3d9b7b'],['expense','รายจ่าย','#ed7587'],['saving','ออมรวมสุทธิ','#8196dc']].map(([key,label,borderColor])=>({label,data:points.map(p=>number(p,key)),borderColor,backgroundColor:borderColor,borderWidth:2.5,pointRadius:3,pointHoverRadius:5,tension:.25,spanGaps:false}))},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{position:'bottom',labels:{color,usePointStyle:true,boxWidth:8,padding:18}},tooltip:{callbacks:{label:c=>c.dataset.label+': '+formatMoney(c.parsed.y)+' บาท'}}},scales:{x:{ticks:{color,maxRotation:0,autoSkip:true},grid:{display:false}},y:{beginAtZero:true,ticks:{color,callback:n=>Number(n).toLocaleString('th-TH')},grid:{color:'#89988a25'}}}}});
+        };
+        $('report-cycle').addEventListener('change',renderReportInsights);
+        $('report-trend-length').addEventListener('change',renderReportInsights);
 
         init(true);
     });
