@@ -10616,7 +10616,7 @@ body:has(#tax-page.active) .modern-toolbar>div:last-child{display:none!important
             if (cached) {
                 try {
                     const data = JSON.parse(cached);
-                    state.allTransactions = normalizeTransactions(data.allTransactions || data.transactions || []);
+                    state.allTransactions = normalizeTransactions((data.allTransactions || data.transactions || []).filter(t=>!String(t?.ID ?? '').startsWith('tmp-'))).map(({_pending, ...t})=>t);
                     state.categories = (data.categories || []).filter(c=>c.Name && ['Income','Expense','Saving','Investment','FreeCashFlow'].includes(c.Type));
                     state.goals = data.goals || [];
                     state.fixedCosts = data.fixedCosts || [];
@@ -10739,14 +10739,22 @@ body:has(#tax-page.active) .modern-toolbar>div:last-child{display:none!important
                 } finally {clearTimeout(timer);}
             }
         };
-        const apiCall = (action, data = {}) => {
+        // Writes are queued and sent one at a time so rapid saves never race each other on the sheet.
+        let writeQueue=Promise.resolve(), pendingWrites=0;
+        const apiCall = (action, data = {}, { dedupe = true } = {}) => {
             const key=JSON.stringify({action,...data});
-            if(activeWrites.has(key)) return activeWrites.get(key);
+            if(dedupe && activeWrites.has(key)) return activeWrites.get(key);
             // Invalidate any read already in flight before sending a write.
-            dataEpoch++;
-            const pending=requestJSON(action,data).then(result=>{dataEpoch++;return result;}).catch(e=>{showToast(e.message,'error',7000);throw e;}).finally(()=>activeWrites.delete(key));
-            activeWrites.set(key,pending);return pending;
+            dataEpoch++;pendingWrites++;
+            const pending=writeQueue.then(()=>requestJSON(action,data)).then(result=>{dataEpoch++;return result;}).catch(e=>{showToast(e.message,'error',7000);throw e;}).finally(()=>{pendingWrites--;if(activeWrites.get(key)===pending) activeWrites.delete(key);});
+            writeQueue=pending.catch(()=>{});
+            if(dedupe) activeWrites.set(key,pending);
+            return pending;
         };
+        // Refresh from the server without blocking the UI, once every queued write has finished.
+        const syncInBackground = () => { if(pendingWrites===0) init(true).catch(()=>{}); };
+        const commitLocal = () => { saveToLocalCache(state); routeToActivePage(); };
+        window.addEventListener('beforeunload', e => { if(pendingWrites>0) { e.preventDefault(); e.returnValue=''; } });
 
         const vibrate = (pattern = 15) => { if (navigator.vibrate) navigator.vibrate(pattern); };
         document.body.addEventListener('click', (e) => { const clickable = e.target.closest('button, .retro-btn, .nav-btn, .transaction-item, .retro-card, .calendar-day'); if (clickable) vibrate(15); });
@@ -10762,9 +10770,12 @@ body:has(#tax-page.active) .modern-toolbar>div:last-child{display:none!important
         };
 
         const preprocessImage = (file) => {
-            return new Promise((resolve) => {
+            return new Promise((resolve, reject) => {
                 const img = new Image();
+                const url = URL.createObjectURL(file);
+                img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('ไม่สามารถอ่านไฟล์รูปนี้ได้')); };
                 img.onload = () => {
+                    URL.revokeObjectURL(url);
                     const canvas = document.createElement('canvas'); const ctx = canvas.getContext('2d');
                     const maxWidth = 1200; 
                     let width = img.width; let height = img.height;
@@ -10774,7 +10785,20 @@ body:has(#tax-page.active) .modern-toolbar>div:last-child{display:none!important
                     ctx.drawImage(img, 0, 0, width, height);
                     resolve(canvas.toDataURL('image/jpeg', 0.9));
                 };
-                img.src = URL.createObjectURL(file);
+                img.src = url;
+            });
+        };
+
+        // Tesseract.js (~ several MB) is only downloaded the first time a slip is scanned.
+        let tesseractLoader = null;
+        const loadTesseract = () => {
+            if (window.Tesseract) return Promise.resolve();
+            return tesseractLoader ||= new Promise((resolve, reject) => {
+                const script = document.createElement('script');
+                script.src = 'https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';
+                script.onload = resolve;
+                script.onerror = () => { tesseractLoader = null; script.remove(); reject(new Error('โหลดระบบสแกนสลิปไม่สำเร็จ')); };
+                document.head.appendChild(script);
             });
         };
 
@@ -10783,6 +10807,7 @@ body:has(#tax-page.active) .modern-toolbar>div:last-child{display:none!important
             showToast('กำลังประมวลผลภาพ... กรุณารอสักครู่', 'info'); ui.loading.classList.remove('hidden');
             try {
                 const processedImage = await preprocessImage(file);
+                await loadTesseract();
                 const worker = await Tesseract.createWorker('tha+eng');
                 const { data: { text } } = await worker.recognize(processedImage);
                 await worker.terminate();
@@ -11137,17 +11162,19 @@ body:has(#tax-page.active) .modern-toolbar>div:last-child{display:none!important
             const signs = { 'Income': '+', 'Expense': '-', 'Saving': '', 'Investment': '', 'FreeCashFlow': '' };
             const classTypeMap = { 'Income': colors.income, 'Expense': colors.expense, 'Saving': colors.saving, 'Investment': colors.investment, 'FreeCashFlow': colors.fcf };
             
+            const catByName = new Map(state.categories.map(c => [c.Name, c]));
             ui.lists.trans.innerHTML = sorted.map(t => {
-                const cat = state.categories.find(c => c.Name === t.Category) || { Emoji: '📄' };
+                const cat = catByName.get(t.Category) || { Emoji: '📄' };
                 const date = getLocalDate(t.Date); const isSelected = state.selectedTransactionIds.has(t.ID);
                 const deductLabel = t.IsDeduct ? '<span class="text-[10px] font-bold text-red-500 bg-red-100/10 px-1.5 py-0.5 border border-red-500 rounded ml-2 uppercase">ถอน</span>' : '';
+                const pendingLabel = t._pending ? '<span class="text-[10px] font-bold text-[#4361EE] ml-2 inline-flex items-center gap-1"><i class="ph-bold ph-circle-notch animate-spin"></i>กำลังบันทึก</span>' : '';
                 
-                return `<div class="retro-card p-3 md:p-4 flex items-center justify-between transaction-item cursor-pointer mb-2.5 bg-[var(--card-bg)] ${isSelected ? 'border-[#4361EE] bg-blue-50/10 shadow-[0px_0px_0px_2px_#4361EE]' : 'hover:bg-[var(--card-alt)]'}" data-id="${escapeHtml(t.ID)}">
+                return `<div class="retro-card p-3 md:p-4 flex items-center justify-between transaction-item cursor-pointer mb-2.5 bg-[var(--card-bg)] ${t._pending ? 'opacity-60' : ''} ${isSelected ? 'border-[#4361EE] bg-blue-50/10 shadow-[0px_0px_0px_2px_#4361EE]' : 'hover:bg-[var(--card-alt)]'}" data-id="${escapeHtml(t.ID)}">
                     <div class="flex items-center gap-3 md:gap-4">
                         ${state.isSelectMode ? `<div class="w-5 h-5 rounded border-2 ${isSelected ? 'bg-[#4361EE] border-[#4361EE]' : 'border-[var(--border-dark)] bg-[var(--card-bg)]'} flex items-center justify-center shrink-0"><i class="ph-bold ph-check text-white text-xs ${isSelected ? '' : 'hidden'}"></i></div>` : ''}
                         <div class="text-2xl w-12 h-12 rounded-xl bg-[var(--card-alt)] border-2 border-[var(--border-dark)] flex items-center justify-center shadow-[1px_1px_0px_0px_var(--shadow-color)] shrink-0">${escapeHtml(cat.Emoji)}</div>
                         <div class="min-w-0">
-                            <p class="font-bold text-[var(--text-main)] flex items-center text-sm md:text-base truncate">${escapeHtml(t.Category)} ${deductLabel}</p>
+                            <p class="font-bold text-[var(--text-main)] flex items-center text-sm md:text-base truncate">${escapeHtml(t.Category)} ${deductLabel}${pendingLabel}</p>
                             <p class="text-[10px] md:text-xs font-bold text-[var(--text-muted)] uppercase truncate mt-0.5">${date.getDate()} ${date.toLocaleString('th-TH',{month:'short'})} • ${escapeHtml(t.Description || '-')}</p>
                         </div>
                     </div>
@@ -11231,6 +11258,7 @@ body:has(#tax-page.active) .modern-toolbar>div:last-child{display:none!important
         const handleTransactionClick = (e) => {
             const card = e.target.closest('.transaction-item'); if(!card) return; const id = card.dataset.id;
             if(state.isSelectMode) {
+                if (String(id).startsWith('tmp-')) return showToast('รายการนี้กำลังบันทึก กรุณารอสักครู่', 'info');
                 state.selectedTransactionIds.has(id) ? state.selectedTransactionIds.delete(id) : state.selectedTransactionIds.add(id);
                 card.classList.toggle('border-[#4361EE]'); card.classList.toggle('shadow-[0px_0px_0px_2px_#4361EE]'); card.classList.toggle('bg-blue-50/10');
                 const check = card.querySelector('.ph-check'); if(check) check.classList.toggle('hidden');
@@ -11243,6 +11271,7 @@ body:has(#tax-page.active) .modern-toolbar>div:last-child{display:none!important
                 const t = state.allTransactions.find(tr => tr.ID == id);
                 // FIX 6: ป้องกัน crash เมื่อ transaction ไม่เจอ (เช่น ยังไม่ sync หรือข้อมูล stale)
                 if (!t) { showToast('ไม่พบรายการ กรุณารีเฟรชข้อมูล', 'error'); return; }
+                if (t._pending || String(t.ID).startsWith('tmp-')) { showToast('รายการนี้กำลังบันทึก กรุณารอสักครู่', 'info'); return; }
                 $('transaction-action-details').innerHTML = `<p class="font-black text-xl text-[var(--text-main)]">${escapeHtml(t.Category)}</p><p class="font-bold text-[#4361EE] font-mono-num text-2xl my-1">${formatMoney(t.Amount)} ฿</p><p class="text-xs font-bold text-[var(--text-muted)] mt-1">${escapeHtml(t.Description || '-')}</p>`;
                 modalControls['transaction-action-modal'].open(); modalControls['day-details-modal'].close(); modalControls['summary-details-modal'].close();
             }
@@ -11336,7 +11365,7 @@ body:has(#tax-page.active) .modern-toolbar>div:last-child{display:none!important
                 try {
                     await apiCall('deleteCategory', { name }); 
                     showToast('ลบหมวดหมู่แล้ว'); 
-                    await init(true, true); 
+                    ui.loading.classList.add('hidden'); syncInBackground(); 
                 } catch(e) { ui.loading.classList.add('hidden'); }
             } 
         };
@@ -11352,7 +11381,7 @@ body:has(#tax-page.active) .modern-toolbar>div:last-child{display:none!important
                 // ถ้ามี origName แสดงว่าเป็นการอัปเดต ถ้าไม่มีคือการสร้างใหม่
                 await apiCall(origName ? 'updateCategory' : 'addCategory', { originalName: origName, data });
                 showToast(origName ? 'แก้ไขหมวดหมู่สำเร็จ' : 'เพิ่มหมวดหมู่สำเร็จ'); 
-                await init(true, true);
+                ui.loading.classList.add('hidden'); syncInBackground();
             } catch(e) { ui.loading.classList.add('hidden'); }
         });
 
@@ -11393,7 +11422,7 @@ body:has(#tax-page.active) .modern-toolbar>div:last-child{display:none!important
             try {
                 await apiCall('updateGoal', { originalName: $('goal-edit-form').dataset.originalName, data }); 
                 showToast('แก้ไขเป้าหมายสำเร็จ'); 
-                await init(true, true);
+                ui.loading.classList.add('hidden'); syncInBackground();
             } catch(err) { 
                 ui.loading.classList.add('hidden'); 
                 showToast('เกิดข้อผิดพลาดในการแก้ไขเป้าหมาย', 'error');
@@ -11408,7 +11437,7 @@ body:has(#tax-page.active) .modern-toolbar>div:last-child{display:none!important
             try {
                 await apiCall('saveGoal', { data }); 
                 showToast('สร้างเป้าหมายแล้ว'); 
-                await init(true, true);
+                ui.loading.classList.add('hidden'); syncInBackground();
             } catch(e) { ui.loading.classList.add('hidden'); }
         };
         
@@ -11418,7 +11447,7 @@ body:has(#tax-page.active) .modern-toolbar>div:last-child{display:none!important
                 try {
                     await apiCall('deleteGoal', { name }); 
                     showToast('ลบแล้ว'); 
-                    await init(true, true); 
+                    ui.loading.classList.add('hidden'); syncInBackground(); 
                 } catch(e) { ui.loading.classList.add('hidden'); }
             } 
         };
@@ -11432,7 +11461,7 @@ body:has(#tax-page.active) .modern-toolbar>div:last-child{display:none!important
             try {
                 await apiCall('addFixedCost', { data }); 
                 showToast('เพิ่มแล้ว'); 
-                await init(true, true);
+                ui.loading.classList.add('hidden'); syncInBackground();
             } catch(e) { ui.loading.classList.add('hidden'); }
         };
         
@@ -11442,7 +11471,7 @@ body:has(#tax-page.active) .modern-toolbar>div:last-child{display:none!important
                 try {
                     await apiCall('deleteFixedCost', { desc }); 
                     showToast('ลบแล้ว'); 
-                    await init(true, true); 
+                    ui.loading.classList.add('hidden'); syncInBackground(); 
                 } catch(e) { ui.loading.classList.add('hidden'); }
             } 
         };
@@ -11457,7 +11486,7 @@ body:has(#tax-page.active) .modern-toolbar>div:last-child{display:none!important
             try {
                 await apiCall('addBatchTransactions', { data }); 
                 showToast('เพิ่มรายการทีละหลายเดือนแล้ว'); 
-                await init(true, true);
+                ui.loading.classList.add('hidden'); syncInBackground();
             } catch(e) { ui.loading.classList.add('hidden'); }
         };
 
@@ -11649,7 +11678,7 @@ body:has(#tax-page.active) .modern-toolbar>div:last-child{display:none!important
             if(!cacheLoaded) { cacheLoaded=true;hasData=loadFromLocalCache();if(hasData) routeToActivePage(); }
             if(refreshTask) {
                 if(refreshEpoch===dataEpoch) return refreshTask;
-                await refreshTask;return init(true,true);
+                await refreshTask;return init(true,forceRefresh);
             }
             const epoch=dataEpoch;refreshEpoch=epoch;
             if(!hasData || forceRefresh) ui.loading.classList.remove('hidden');
@@ -12040,43 +12069,58 @@ body:has(#tax-page.active) .modern-toolbar>div:last-child{display:none!important
                 }
             }
 
+            // Guard against double-tap submits while the sheet is closing.
+            ui.submitTransBtn.disabled = true; setTimeout(() => { ui.submitTransBtn.disabled = false; }, 800);
             modalControls['transaction-modal'].close();
-            
-            try {
-                ui.submitTransBtn.disabled = true;
-                // โชว์ Loading ชั่วคราวเพื่อรอส่งข้อมูลกลับเซิร์ฟเวอร์
-                ui.loading.classList.remove('hidden');
 
-                if (!id && useSavingGoal && selectedGoalName) {
-                    // ✅ บันทึกเฉพาะการถอนเงินออม — ไม่บันทึกเป็นรายจ่าย
-                    // เงินส่วนนี้ออมไว้แล้ว ไม่ควรนับซ้ำเป็นรายจ่าย
-                    const withdrawData = {
-                        Type: 'Saving',
-                        Category: selectedGoalName,
-                        Amount: data.Amount,
-                        Date: data.Date,
-                        Description: `ถอนใช้: ${data.Category}${data.Description ? ' - ' + data.Description : ''}`,
-                        IsDeduct: true,
-                        Mood: ''
-                    };
-                    await apiCall('addTransaction', { data: withdrawData });
-                    // Keep the goal and its remaining balance/history after withdrawal.
-                    showToast(`🎯 บันทึกการใช้เงินออม "${selectedGoalName}" เรียบร้อย — ไม่นับเป็นรายจ่าย`);
-                } else {
-                    // บันทึกรายการปกติ
-                    await apiCall(id ? 'updateTransaction' : 'addTransaction', { data: { ...data, ID: id || undefined } });
-                    showToast(id ? 'แก้ไขรายการสำเร็จ' : 'บันทึกรายการสำเร็จ');
-                }
-                
-                // ดาวน์โหลดข้อมูลใหม่ทั้งหมดกลับมาและเซฟลง Cache อัตโนมัติ (Force Refresh)
-                await init(true, true);
-            } catch(e) { 
-                showToast(e.message || 'บันทึกไม่สำเร็จ กรุณาโหลดข้อมูลล่าสุดก่อนลองใหม่', 'error'); 
-            } finally {
-                ui.submitTransBtn.disabled = false;
-                ui.loading.classList.add('hidden');
+            const isGoalWithdraw = !id && useSavingGoal && !!selectedGoalName;
+            const record = isGoalWithdraw
+                // ✅ บันทึกเฉพาะการถอนเงินออม — ไม่บันทึกเป็นรายจ่าย (เงินส่วนนี้ออมไว้แล้ว ไม่ควรนับซ้ำ)
+                ? { Type: 'Saving', Category: selectedGoalName, Amount: data.Amount, Date: data.Date, Description: `ถอนใช้: ${data.Category}${data.Description ? ' - ' + data.Description : ''}`, IsDeduct: true, Mood: '' }
+                : { ...data, ID: id || undefined };
+            const successMsg = isGoalWithdraw
+                ? `🎯 บันทึกการใช้เงินออม "${selectedGoalName}" เรียบร้อย — ไม่นับเป็นรายจ่าย`
+                : (id ? 'แก้ไขรายการสำเร็จ' : 'บันทึกรายการสำเร็จ');
+
+            // Optimistic update: show the change immediately, confirm with the server in the background.
+            const localId = id || `tmp-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+            const previous = id ? state.allTransactions.find(t => t.ID == id) : null;
+            const optimistic = { ...previous, ...record, ID: localId, _pending: true };
+            state.allTransactions = id ? state.allTransactions.map(t => t.ID == id ? optimistic : t) : [...state.allTransactions, optimistic];
+            commitLocal();
+            showToast('กำลังบันทึก...', 'info', 1500);
+
+            try {
+                await apiCall(id ? 'updateTransaction' : 'addTransaction', { data: record }, { dedupe: !!id });
+                const row = state.allTransactions.find(t => t.ID === localId && t._pending);
+                if (row) delete row._pending;
+                commitLocal();
+                showToast(successMsg);
+                syncInBackground();
+            } catch(e) {
+                // Roll back only this change, then reopen the form so nothing the user typed is lost.
+                state.allTransactions = id ? state.allTransactions.map(t => t.ID == id && previous ? previous : t) : state.allTransactions.filter(t => t.ID !== localId);
+                commitLocal();
+                showToast(`${e.message || 'บันทึกไม่สำเร็จ'} — ข้อมูลยังอยู่ในฟอร์ม`, 'error', 7000);
+                restoreTransactionForm(data, id, isGoalWithdraw ? selectedGoalName : null);
+                syncInBackground();
             }
         });
+
+        // Refill the transaction form after a failed save so the user can retry with one tap.
+        const restoreTransactionForm = (data, id, goalName) => {
+            $('transaction-id').value = id || ''; $('modal-title').textContent = id ? 'แก้ไขรายการ' : 'เพิ่มรายการใหม่';
+            $('transaction-type').value = data.Type; $('transaction-type').dispatchEvent(new Event('change'));
+            if (![...$('transaction-category').options].some(o => o.value === data.Category)) $('transaction-category').add(new Option(data.Category, data.Category));
+            $('transaction-category').value = data.Category;
+            $('transaction-amount').value = data.Amount; $('transaction-date').value = String(data.Date).slice(0, 10);
+            $('transaction-description').value = data.Description || ''; $('transaction-mood').value = data.Mood || '';
+            if (['Investment', 'FreeCashFlow'].includes(data.Type) || data.IsDeduct) ui.deductContainer?.classList.remove('hidden');
+            if (ui.isDeduct) ui.isDeduct.checked = !!data.IsDeduct;
+            if (goalName && $('use-saving-toggle')) { $('use-saving-toggle').checked = true; $('use-saving-toggle').dispatchEvent(new Event('change')); $('saving-goal-select').value = goalName; }
+            ui.submitTransBtn.disabled = false;
+            modalControls['transaction-modal'].open();
+        };
 
         $('transaction-action-edit-btn').addEventListener('click', () => {
             modalControls['transaction-action-modal'].close(); const t = state.allTransactions.find(t => t.ID == state.selectedTransactionId);
@@ -12103,16 +12147,18 @@ body:has(#tax-page.active) .modern-toolbar>div:last-child{display:none!important
             
             newBtn.addEventListener('click', async () => { 
                 modalControls['confirm-modal'].close(); 
-                ui.loading.classList.remove('hidden');
-                
+                const delId = state.selectedTransactionId;
+                const removed = state.allTransactions.find(t => t.ID == delId);
+                state.allTransactions = state.allTransactions.filter(t => t.ID != delId);
+                commitLocal();
                 try {
-                    await apiCall('deleteTransaction', { id: state.selectedTransactionId }); 
+                    await apiCall('deleteTransaction', { id: delId }); 
                     showToast('ลบรายการสำเร็จ'); 
-                    await init(true, true); // Force Sync
+                    syncInBackground();
                 } catch(e) { 
-                    showToast('ลบไม่สำเร็จ กรุณาลองใหม่', 'error');
-                } finally {
-                    ui.loading.classList.add('hidden');
+                    if (removed && !state.allTransactions.some(t => t.ID == delId)) { state.allTransactions = [...state.allTransactions, removed]; commitLocal(); }
+                    showToast(`ลบไม่สำเร็จ: ${e.message || 'กรุณาลองใหม่'}`, 'error', 7000);
+                    syncInBackground();
                 }
             }); 
         });
@@ -12120,27 +12166,32 @@ body:has(#tax-page.active) .modern-toolbar>div:last-child{display:none!important
         $('transaction-action-duplicate-btn').addEventListener('click', async () => { 
             modalControls['transaction-action-modal'].close(); 
             const t = state.allTransactions.find(t => t.ID == state.selectedTransactionId); 
-            const data = { ...t, ID: null, Date: `${new Date().toISOString().split('T')[0]}T12:00:00` }; 
-            
-            ui.loading.classList.remove('hidden');
+            if (!t) return showToast('ไม่พบข้อมูลรายการ', 'error');
+            const { ID, _pending, ...rest } = t;
+            const data = { ...rest, Date: `${formatDateToInput(new Date())}T12:00:00` }; 
+            const localId = `tmp-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+            state.allTransactions = [...state.allTransactions, { ...data, ID: localId, _pending: true }];
+            commitLocal();
             try {
-                await apiCall('addTransaction', { data }); 
+                await apiCall('addTransaction', { data }, { dedupe: false }); 
+                const row = state.allTransactions.find(r => r.ID === localId);
+                if (row) delete row._pending;
+                commitLocal();
                 showToast('ทำรายการซ้ำสำเร็จ');
-                await init(true, true);
+                syncInBackground();
             } catch(e) {
-                showToast('เกิดข้อผิดพลาดในการทำซ้ำ', 'error');
-            } finally {
-                ui.submitTransBtn.disabled = false;
-                ui.loading.classList.add('hidden');
+                state.allTransactions = state.allTransactions.filter(r => r.ID !== localId);
+                commitLocal();
+                showToast(`ทำรายการซ้ำไม่สำเร็จ: ${e.message || ''}`, 'error', 7000);
             }
         });
         
         $('select-transactions-btn').addEventListener('click', () => { state.isSelectMode = !state.isSelectMode; $('bulk-edit-bar').classList.toggle('hidden', !state.isSelectMode); $('bottom-nav-bar').classList.toggle('hidden', state.isSelectMode && window.innerWidth < 768); state.selectedTransactionIds.clear(); setText('bulk-edit-count', '0 รายการ'); routeToActivePage(); });
         $('cancel-bulk-edit-btn').addEventListener('click', () => { state.isSelectMode = false; $('bulk-edit-bar').classList.add('hidden'); $('bottom-nav-bar').classList.remove('hidden'); routeToActivePage(); });
         
-        if (ui.bulkDeleteBtn) { ui.bulkDeleteBtn.addEventListener('click', () => { const count = state.selectedTransactionIds.size; if (count === 0) return; setText('confirm-modal-message', `ต้องการลบ ${count} รายการที่เลือกหรือไม่?`); modalControls['confirm-modal'].open(); const confirmBtn = $('confirm-modal-confirm-btn'); const newBtn = confirmBtn.cloneNode(true); confirmBtn.parentNode.replaceChild(newBtn, confirmBtn); newBtn.addEventListener('click', async () => { modalControls['confirm-modal'].close(); ui.loading.classList.remove('hidden'); try { await apiCall('bulkDeleteTransactions', { ids: Array.from(state.selectedTransactionIds) }); showToast(`ลบ ${count} รายการเรียบร้อยแล้ว`); state.isSelectMode = false; ui.bulkEditBar.classList.add('hidden'); ui.bottomNav.classList.remove('hidden'); await init(true, true); } catch(e) { ui.loading.classList.add('hidden'); showToast('เกิดข้อผิดพลาดในการลบหลายรายการ', 'error'); } }); }); }
+        if (ui.bulkDeleteBtn) { ui.bulkDeleteBtn.addEventListener('click', () => { const count = state.selectedTransactionIds.size; if (count === 0) return; setText('confirm-modal-message', `ต้องการลบ ${count} รายการที่เลือกหรือไม่?`); modalControls['confirm-modal'].open(); const confirmBtn = $('confirm-modal-confirm-btn'); const newBtn = confirmBtn.cloneNode(true); confirmBtn.parentNode.replaceChild(newBtn, confirmBtn); newBtn.addEventListener('click', async () => { modalControls['confirm-modal'].close(); ui.loading.classList.remove('hidden'); try { await apiCall('bulkDeleteTransactions', { ids: Array.from(state.selectedTransactionIds) }); showToast(`ลบ ${count} รายการเรียบร้อยแล้ว`); state.isSelectMode = false; state.selectedTransactionIds.clear(); ui.bulkEditBar.classList.add('hidden'); ui.bottomNav.classList.remove('hidden'); ui.loading.classList.add('hidden'); syncInBackground(); } catch(e) { ui.loading.classList.add('hidden'); showToast('เกิดข้อผิดพลาดในการลบหลายรายการ', 'error'); } }); }); }
         if (ui.bulkEditBtn) { ui.bulkEditBtn.addEventListener('click', () => { const count = state.selectedTransactionIds.size; if (count === 0) return; $('bulk-edit-form').reset(); $('bulk-edit-category').innerHTML='<option value="">-- ไม่เปลี่ยนแปลง --</option>'; const typeSel = $('bulk-edit-type'); typeSel.innerHTML = '<option value="">-- ไม่เปลี่ยนแปลง --</option>' + [['Expense','รายจ่าย'],['Income','รายรับ'],['Saving','ออม'],['Investment','ลงทุน'],['FreeCashFlow','ทุนสำรอง']].map(t=>`<option value="${t[0]}">${t[1]}</option>`).join(''); typeSel.onchange = (e) => { const catSel = $('bulk-edit-category'); if (!e.target.value) { catSel.innerHTML = '<option value="">-- ไม่เปลี่ยนแปลง --</option>'; return; } const cats = e.target.value === 'Saving' ? state.goals.map(g => ({Name: g.GoalName, Emoji: '🎯'})) : state.categories.filter(c => c.Type === e.target.value); catSel.innerHTML = '<option value="">-- ไม่เปลี่ยนแปลง --</option>' + cats.map(c => `<option value="${escapeHtml(c.Name)}">${escapeHtml(c.Emoji)} ${escapeHtml(c.Name)}</option>`).join(''); }; setText('bulk-edit-modal-title', `แก้ไข ${count} รายการ`); modalControls['bulk-edit-modal'].open(); }); }
-        if (ui.bulkEditForm) { ui.bulkEditForm.addEventListener('submit', async (e) => { e.preventDefault(); const updates = {}; const type = $('bulk-edit-type').value; const category = $('bulk-edit-category').value; const desc = $('bulk-edit-description').value; if(type && !category) { showToast('กรุณาเลือกหมวดหมู่ให้ตรงกับประเภทใหม่', 'error'); return; } if (type) updates.Type = type; if (category) updates.Category = category; if (desc) updates.Description = desc; if (Object.keys(updates).length === 0) { showToast('ยังไม่ได้ระบุข้อมูลที่จะแก้ไข', 'error'); return; } modalControls['bulk-edit-modal'].close(); ui.loading.classList.remove('hidden'); try { await apiCall('bulkUpdateTransactions', { ids: Array.from(state.selectedTransactionIds), updates }); showToast('แก้ไขข้อมูลเรียบร้อยแล้ว'); state.isSelectMode = false; ui.bulkEditBar.classList.add('hidden'); ui.bottomNav.classList.remove('hidden'); await init(true, true); } catch(e) { ui.loading.classList.add('hidden'); showToast('แก้ไขรายการไม่สำเร็จ', 'error'); } }); }
+        if (ui.bulkEditForm) { ui.bulkEditForm.addEventListener('submit', async (e) => { e.preventDefault(); const updates = {}; const type = $('bulk-edit-type').value; const category = $('bulk-edit-category').value; const desc = $('bulk-edit-description').value; if(type && !category) { showToast('กรุณาเลือกหมวดหมู่ให้ตรงกับประเภทใหม่', 'error'); return; } if (type) updates.Type = type; if (category) updates.Category = category; if (desc) updates.Description = desc; if (Object.keys(updates).length === 0) { showToast('ยังไม่ได้ระบุข้อมูลที่จะแก้ไข', 'error'); return; } modalControls['bulk-edit-modal'].close(); ui.loading.classList.remove('hidden'); try { await apiCall('bulkUpdateTransactions', { ids: Array.from(state.selectedTransactionIds), updates }); showToast('แก้ไขข้อมูลเรียบร้อยแล้ว'); state.isSelectMode = false; state.selectedTransactionIds.clear(); ui.bulkEditBar.classList.add('hidden'); ui.bottomNav.classList.remove('hidden'); ui.loading.classList.add('hidden'); syncInBackground(); } catch(e) { ui.loading.classList.add('hidden'); showToast('แก้ไขรายการไม่สำเร็จ', 'error'); } }); }
 
         if (ui.filterDateStart) ui.filterDateStart.addEventListener('change', () => { routeToActivePage(); });
         if (ui.filterDateEnd) ui.filterDateEnd.addEventListener('change', () => { routeToActivePage(); });
