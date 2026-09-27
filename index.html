@@ -11714,6 +11714,12 @@ body:has(#tax-page.active) .modern-toolbar>div:last-child{display:none!important
             });
         }
 
+        // Every live recognizer, so the mic can be released from anywhere (save, close form, leave app).
+        const activeRecognitions = new Set();
+        const stopVoiceInput = () => { activeRecognitions.forEach(r => { try { r.abort(); } catch(e) {} }); };
+        document.addEventListener('visibilitychange', () => { if (document.hidden) stopVoiceInput(); });
+        window.addEventListener('pagehide', stopVoiceInput);
+
         const setupVoiceButton = (btnId) => {
             const btn = $(btnId);
             if (!btn) return;
@@ -11724,7 +11730,11 @@ body:has(#tax-page.active) .modern-toolbar>div:last-child{display:none!important
                 recognition.continuous = false;
                 recognition.interimResults = false;
 
+                let safetyTimer = null;
                 recognition.onstart = () => {
+                    activeRecognitions.add(recognition);
+                    // Hard limit so the mic can never stay open if the browser misses the end of speech.
+                    clearTimeout(safetyTimer); safetyTimer = setTimeout(() => { try { recognition.stop(); } catch(e) {} }, 10000);
                     showToast('🎙️ กำลังฟัง... พูดรายการและราคาได้เลย', 'success');
                     btn.classList.replace('bg-[#00F5D4]', 'bg-[#EF476F]');
                     btn.classList.replace('text-[#1E1E24]', 'text-white');
@@ -11732,6 +11742,8 @@ body:has(#tax-page.active) .modern-toolbar>div:last-child{display:none!important
                 };
 
                 recognition.onresult = (event) => {
+                    // Got what we need: release the microphone right away instead of waiting for the browser.
+                    try { recognition.abort(); } catch(e) {}
                     const text = event.results[0][0].transcript;
                     const match = text.match(/[\d,]+(\.\d+)?/);
                     const detectedAmount = match ? parseFloat(match[0].replace(/,/g, '')) : null;
@@ -11755,12 +11767,22 @@ body:has(#tax-page.active) .modern-toolbar>div:last-child{display:none!important
                     vibrate(15);
                 };
 
-                recognition.onerror = (event) => { showToast('ไม่ได้ยินเสียง ลองพิมพ์เอาแทนนะครับ', 'error'); };
+                recognition.onerror = (event) => {
+                    if (event.error === 'aborted') return;
+                    showToast(event.error === 'not-allowed' || event.error === 'service-not-allowed' ? 'ไม่ได้รับอนุญาตให้ใช้ไมโครโฟน' : 'ไม่ได้ยินเสียง ลองพิมพ์เอาแทนนะครับ', 'error');
+                };
                 recognition.onend = () => {
+                    clearTimeout(safetyTimer);
+                    activeRecognitions.delete(recognition);
                     btn.classList.replace('bg-[#EF476F]', 'bg-[#00F5D4]');
                     btn.classList.replace('text-white', 'text-[#1E1E24]');
                 };
-                btn.addEventListener('click', () => recognition.start());
+                // Tap again while listening to stop; starting twice would throw InvalidStateError.
+                btn.addEventListener('click', () => {
+                    if (activeRecognitions.has(recognition)) { try { recognition.stop(); } catch(e) {} return; }
+                    stopVoiceInput();
+                    try { recognition.start(); } catch(e) { try { recognition.abort(); } catch(_) {} showToast('ไมโครโฟนยังไม่พร้อม ลองกดอีกครั้ง', 'error'); }
+                });
             } else {
                 btn.addEventListener('click', () => showToast('เบราว์เซอร์/มือถือนี้ ไม่รองรับการพิมพ์ด้วยเสียง', 'error'));
             }
@@ -11768,6 +11790,7 @@ body:has(#tax-page.active) .modern-toolbar>div:last-child{display:none!important
 
         setupVoiceButton('voice-add-btn');
         setupVoiceButton('modal-voice-add-btn');
+        $('transaction-modal')?.querySelectorAll('.modal-backdrop, .modal-cancel-btn').forEach(el => el.addEventListener('click', stopVoiceInput));
 
         // FIX 11: null-check ก่อน attach event ป้องกัน crash เมื่อ element ไม่มีใน DOM
         if (ui.receiptUploader) ui.receiptUploader.addEventListener('change', handleScanReceipt); 
@@ -12038,7 +12061,7 @@ body:has(#tax-page.active) .modern-toolbar>div:last-child{display:none!important
         $('saving-goal-select').addEventListener('change', updateGoalBalanceDisplay);
         
         $('transaction-form').addEventListener('submit', async (e) => {
-            e.preventDefault(); 
+            e.preventDefault(); stopVoiceInput();
             if(ui.submitTransBtn.disabled) return;
             const id = $('transaction-id').value; 
             const isDeduct = ui.isDeduct ? ui.isDeduct.checked : false;
