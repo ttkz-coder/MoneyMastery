@@ -10106,6 +10106,12 @@ button[class*="bg-[#00F5D4]"],button[class*="bg-[#06D6A0]"]{background:var(--rp-
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important;scroll-behavior:auto!important;}}
 
 </style>
+<style id="voice-status-style">
+#voice-add-btn.is-listening, #modal-voice-add-btn.is-listening {
+    background: #c92b4e !important; color: #fff !important;
+    border-color: #ffd5df !important; box-shadow: 0 0 0 3px rgba(201,43,78,.23) !important;
+}
+</style>
 </head>
 <body>
     <!-- App Wrapper (Handles Desktop Sidebar vs Mobile Layout) -->
@@ -10976,6 +10982,7 @@ button[class*="bg-[#00F5D4]"],button[class*="bg-[#06D6A0]"]{background:var(--rp-
                 }));
             };
             const close = () => {
+                if (id === 'transaction-modal') { stopTransactionVoice(); transactionDraftVersion++; }
                 isOpen=false;
                 const current = ++generation;
                 if(closeTimer !== null) clearTimeout(closeTimer);
@@ -11103,36 +11110,54 @@ button[class*="bg-[#00F5D4]"],button[class*="bg-[#06D6A0]"]{background:var(--rp-
         };
 
         const preprocessImage = (file) => {
-            return new Promise((resolve) => {
+            return new Promise((resolve, reject) => {
                 const img = new Image();
-                img.onload = () => {
-                    const canvas = document.createElement('canvas'); const ctx = canvas.getContext('2d');
-                    const maxWidth = 1200; 
-                    let width = img.width; let height = img.height;
-                    if (width > maxWidth) { height = (maxWidth / width) * height; width = maxWidth; }
-                    canvas.width = width; canvas.height = height; 
-                    ctx.filter = 'grayscale(100%) contrast(1.5) brightness(1.1)';
-                    ctx.drawImage(img, 0, 0, width, height);
-                    resolve(canvas.toDataURL('image/jpeg', 0.9));
+                let objectUrl = null, settled = false, timeout;
+                const finish = (error, value) => {
+                    if (settled) return;
+                    settled = true;
+                    clearTimeout(timeout);
+                    img.onload = img.onerror = null;
+                    if (objectUrl) URL.revokeObjectURL(objectUrl);
+                    if (error) reject(error); else resolve(value);
                 };
-                img.src = URL.createObjectURL(file);
+                img.onerror = () => finish(new Error('เปิดรูปภาพไม่ได้ กรุณาเลือกไฟล์รูปอื่น'));
+                img.onload = () => {
+                    try {
+                        const canvas = document.createElement('canvas'), ctx = canvas.getContext('2d');
+                        if (!ctx || !img.width || !img.height) throw new Error('รูปภาพไม่สมบูรณ์');
+                        const scale = Math.min(1, 1200 / img.width, 4096 / img.height);
+                        canvas.width = Math.max(1, Math.round(img.width * scale));
+                        canvas.height = Math.max(1, Math.round(img.height * scale));
+                        ctx.filter = 'grayscale(100%) contrast(1.5) brightness(1.1)';
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                        finish(null, canvas.toDataURL('image/jpeg', 0.9));
+                    } catch (error) { finish(error); }
+                };
+                timeout = setTimeout(() => finish(new Error('โหลดรูปภาพนานเกินไป กรุณาเลือกรูปใหม่')), 15000);
+                try { objectUrl = URL.createObjectURL(file); img.src = objectUrl; }
+                catch (error) { finish(error); }
             });
         };
 
+
         const handleScanReceipt = async (event) => {
-            const file = event.target.files[0]; if (!file) return;
+            const file = event.target.files?.[0]; if (!file) return;
+            if (handleScanReceipt.busy) return showToast('กำลังอ่านสลิป กรุณารอสักครู่', 'info');
+            handleScanReceipt.busy = true;
+            stopTransactionVoice();
+            let worker = null;
             const scanVersion=transactionDraftVersion,keepDraft=modalControls['transaction-modal'].isOpen===true;
             showToast('กำลังประมวลผลภาพ... กรุณารอสักครู่', 'info'); ui.loading.classList.remove('hidden');
             try {
                 const processedImage = await preprocessImage(file);
-                const worker = await Tesseract.createWorker('tha+eng');
+                worker = await Tesseract.createWorker('tha+eng');
                 const { data: { text } } = await worker.recognize(processedImage);
-                await worker.terminate();
 
                 const amountKeywords = ['จำนวนเงิน', 'ยอดเงิน', 'ยอดสุทธิ', 'รวมทั้งสิ้น', 'Amount', 'Total', 'THB', 'Baht', 'โอนเงินสำเร็จ']; 
                 let detectedAmount = null;
                 const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
-                const moneyRegex = /([0-9]{1,3}(?:,[0-9]{3})*(?:\.[0-9]{2}))/;
+                const moneyRegex = /((?:[0-9]{1,3}(?:,[0-9]{3})+|[0-9]+)\.[0-9]{2})(?![0-9])/;
                 
                 for (let i = 0; i < lines.length; i++) {
                     const line = lines[i];
@@ -11147,7 +11172,7 @@ button[class*="bg-[#00F5D4]"],button[class*="bg-[#06D6A0]"]{background:var(--rp-
                     }
                 }
                 if (!detectedAmount) {
-                    const matches = [...text.matchAll(/([0-9]{1,3}(?:,[0-9]{3})*(?:\.[0-9]{2}))/g)];
+                    const matches = [...text.matchAll(/((?:[0-9]{1,3}(?:,[0-9]{3})+|[0-9]+)\.[0-9]{2})(?![0-9])/g)];
                     const candidates = matches.map(m => parseFloat(m[0].replace(/,/g, ''))).filter(num => num > 0 && num < 10000000);
                     if (candidates.length > 0) detectedAmount = Math.max(...candidates);
                 }
@@ -11163,6 +11188,8 @@ button[class*="bg-[#00F5D4]"],button[class*="bg-[#06D6A0]"]{background:var(--rp-
                 console.error(error); 
                 showToast('เกิดข้อผิดพลาดในการสแกนสลิป', 'error'); 
             } finally { 
+                if (worker) { try { await worker.terminate(); } catch (cleanupError) { console.error(cleanupError); } }
+                handleScanReceipt.busy = false;
                 ui.loading.classList.add('hidden'); 
                 ui.receiptUploader.value = ''; 
             }
@@ -12077,54 +12104,143 @@ button[class*="bg-[#00F5D4]"],button[class*="bg-[#06D6A0]"]{background:var(--rp-
             });
         }
 
+        // Voice input lifecycle: one session, tied to the current transaction draft.
+        let activeVoice = null;
+        const resetVoiceButton = session => {
+            clearTimeout(session.listenTimer);
+            clearTimeout(session.resultTimer);
+            session.buttons.forEach(({btn, label}) => {
+                btn.setAttribute('aria-pressed', 'false');
+                btn.setAttribute('aria-label', label);
+                btn.title = label;
+                btn.classList.remove('is-listening');
+            });
+        };
+        function stopTransactionVoice() {
+            const session = activeVoice;
+            if (!session) return;
+            activeVoice = null; // Ignore callbacks queued before abort, including late results.
+            resetVoiceButton(session);
+            try { session.recognition.abort(); }
+            catch (_) { try { session.recognition.stop(); } catch (_) {} }
+        }
+        const finishVoiceInput = session => {
+            if (activeVoice !== session || session.finishing) return;
+            session.finishing = true;
+            clearTimeout(session.listenTimer);
+            session.buttons.forEach(({btn}) => {
+                btn.setAttribute('aria-label', 'กำลังแปลงเสียง กดเพื่อยกเลิก');
+                btn.title = 'กำลังแปลงเสียง กดเพื่อยกเลิก';
+            });
+            // stop() releases audio but still allows the final transcript to arrive.
+            session.resultTimer = setTimeout(() => {
+                if (activeVoice !== session) return;
+                stopTransactionVoice();
+                showToast('ยังไม่ได้รับข้อความเสียง กรุณาลองใหม่หรือพิมพ์รายการ', 'info');
+            }, 5000);
+            try { session.recognition.stop(); }
+            catch (_) { stopTransactionVoice(); }
+        };
+        const voiceErrorMessage = code => ({
+            'not-allowed': 'ยังไม่ได้รับอนุญาตใช้ไมค์ กรุณาตรวจสิทธิ์ไมโครโฟนของเว็บไซต์',
+            'service-not-allowed': 'เบราว์เซอร์ไม่อนุญาตบริการแปลงเสียง กรุณาพิมพ์รายการแทน',
+            'audio-capture': 'เข้าถึงไมค์ไม่ได้ กรุณาตรวจไมค์หรือแอปอื่นที่กำลังใช้งาน',
+            'network': 'เชื่อมต่อบริการแปลงเสียงไม่ได้ กรุณาลองใหม่',
+            'no-speech': 'ไม่ได้ยินเสียง กรุณากดไมค์แล้วพูดอีกครั้ง',
+            'language-not-supported': 'เบราว์เซอร์นี้ไม่รองรับการแปลงเสียงภาษาไทย'
+        }[code] || 'แปลงเสียงไม่สำเร็จ กรุณาลองใหม่หรือพิมพ์รายการ');
         const setupVoiceButton = (btnId) => {
             const btn = $(btnId);
             if (!btn) return;
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if (SpeechRecognition) {
-                const recognition = new SpeechRecognition();
-                recognition.lang = 'th-TH'; 
+            const label = btnId === 'voice-add-btn' ? 'เพิ่มรายการด้วยเสียง' : 'กรอกรายการด้วยเสียง';
+            btn.type = 'button';
+            btn.setAttribute('aria-pressed', 'false');
+            btn.setAttribute('aria-label', label);
+            btn.title = label;
+            btn.addEventListener('click', () => {
+                if (activeVoice) {
+                    if (activeVoice.finishing) stopTransactionVoice();
+                    else finishVoiceInput(activeVoice);
+                    return;
+                }
+                stopTransactionVoice();
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                if (!SpeechRecognition) return showToast('เบราว์เซอร์นี้ไม่รองรับการพิมพ์ด้วยเสียง', 'error');
+                if (ui.submitTransBtn.disabled) return showToast('กรุณารอการบันทึกหรือตรวจรายการที่ขัดแย้งก่อน', 'info');
+                if (btnId === 'voice-add-btn') {
+                    openTransactionDraft();
+                    $('modal-title').textContent = 'เพิ่มรายการ (เสียง)';
+                } else if (!modalControls['transaction-modal'].isOpen) return;
+                let recognition;
+                try { recognition = new SpeechRecognition(); }
+                catch (_) { return showToast('เปิดระบบแปลงเสียงไม่ได้ กรุณาพิมพ์รายการแทน', 'error'); }
+                const buttons = ['voice-add-btn', 'modal-voice-add-btn'].map(id => ({btn: $(id), label: id === 'voice-add-btn' ? 'เพิ่มรายการด้วยเสียง' : 'กรอกรายการด้วยเสียง'})).filter(item => item.btn);
+                const session = { recognition, buttons, draftVersion: transactionDraftVersion, finishing: false };
+                activeVoice = session;
+                recognition.lang = 'th-TH';
                 recognition.continuous = false;
                 recognition.interimResults = false;
-
+                buttons.forEach(({btn}) => {
+                    btn.setAttribute('aria-pressed', 'true');
+                    btn.setAttribute('aria-label', 'กำลังฟัง กดเพื่อหยุด');
+                    btn.title = 'กำลังฟัง กดเพื่อหยุด';
+                    btn.classList.add('is-listening');
+                });
                 recognition.onstart = () => {
-                    showToast('🎙️ กำลังฟัง... พูดรายการและราคาได้เลย', 'success');
-                    btn.classList.replace('bg-[#00F5D4]', 'bg-[#EF476F]');
-                    btn.classList.replace('text-[#1E1E24]', 'text-white');
+                    if (activeVoice !== session) {
+                        try { recognition.abort(); } catch (_) {}
+                        return;
+                    }
+                    showToast('🎙️ กำลังฟัง... พูดรายการและราคา กดไมค์อีกครั้งเพื่อหยุด', 'info');
                     vibrate([50, 50]);
                 };
-
-                recognition.onresult = (event) => {
-                    const text = event.results[0][0].transcript;
-                    const match = text.match(/[\d,]+(\.\d+)?/);
-                    const detectedAmount = match ? parseFloat(match[0].replace(/,/g, '')) : null;
-                    let detectedDesc = text;
-                    if (match) detectedDesc = text.replace(match[0], '').replace(/บาท/g, '').replace(/ราคา/g, '').trim();
-
-                    if (btnId === 'voice-add-btn') {
-                        openTransactionDraft();$('modal-title').textContent = 'เพิ่มรายการ (เสียง)';
+                recognition.onspeechend = () => finishVoiceInput(session);
+                recognition.onresult = event => {
+                    if (activeVoice !== session) return;
+                    if (session.draftVersion !== transactionDraftVersion || !modalControls['transaction-modal'].isOpen) {
+                        stopTransactionVoice();
+                        return;
                     }
-
-                    if (detectedAmount) $('transaction-amount').value = detectedAmount;
+                    const result = event.results?.[event.resultIndex || 0];
+                    if (!result || result.isFinal === false) return;
+                    const text = String(result[0]?.transcript || '').trim();
+                    stopTransactionVoice(); // Final text is captured; no more audio is needed.
+                    if (!text) return showToast('ไม่ได้รับข้อความเสียง กรุณาลองใหม่', 'info');
+                    const match = text.match(/[\d,]+(\.\d+)?/);
+                    const detectedAmount = match ? Number(match[0].replace(/,/g, '')) : null;
+                    const detectedDesc = match ? text.replace(match[0], '').replace(/บาท/g, '').replace(/ราคา/g, '').trim() : text;
+                    if (Number.isFinite(detectedAmount) && detectedAmount > 0) $('transaction-amount').value = detectedAmount;
                     if (detectedDesc) $('transaction-description').value = detectedDesc;
-                    
-                    showToast(`ได้ยินว่า: "${text}"`, 'success');
+                    showToast(`ได้ยินว่า: "${text}" — ตรวจสอบรายการก่อนบันทึก`, 'success');
                     vibrate(15);
                 };
-
-                recognition.onerror = (event) => { showToast('ไม่ได้ยินเสียง ลองพิมพ์เอาแทนนะครับ', 'error'); };
-                recognition.onend = () => {
-                    btn.classList.replace('bg-[#EF476F]', 'bg-[#00F5D4]');
-                    btn.classList.replace('text-white', 'text-[#1E1E24]');
+                recognition.onerror = event => {
+                    if (activeVoice !== session) return;
+                    stopTransactionVoice();
+                    if (event.error !== 'aborted') showToast(voiceErrorMessage(event.error), 'error');
                 };
-                btn.addEventListener('click', () => recognition.start());
-            } else {
-                btn.addEventListener('click', () => showToast('เบราว์เซอร์/มือถือนี้ ไม่รองรับการพิมพ์ด้วยเสียง', 'error'));
-            }
+                recognition.onend = () => {
+                    if (activeVoice !== session) return;
+                    activeVoice = null;
+                    resetVoiceButton(session);
+                };
+                session.listenTimer = setTimeout(() => finishVoiceInput(session), 30000);
+                try { recognition.start(); }
+                catch (error) {
+                    stopTransactionVoice();
+                    showToast(voiceErrorMessage(error.name === 'NotAllowedError' ? 'not-allowed' : error.name), 'error');
+                }
+            });
         };
-
         setupVoiceButton('voice-add-btn');
         setupVoiceButton('modal-voice-add-btn');
+        // Invalid native inputs prevent submit; stop on invalid/click as well as submit.
+        $('transaction-form').addEventListener('invalid', stopTransactionVoice, true);
+        ui.submitTransBtn.addEventListener('click', stopTransactionVoice);
+        ['transaction-amount', 'transaction-description'].forEach(id => $(id).addEventListener('input', stopTransactionVoice));
+        document.addEventListener('visibilitychange', () => { if (document.hidden) stopTransactionVoice(); });
+        window.addEventListener('pagehide', stopTransactionVoice);
+
 
         // FIX 11: null-check ก่อน attach event ป้องกัน crash เมื่อ element ไม่มีใน DOM
         if (ui.receiptUploader) ui.receiptUploader.addEventListener('change', handleScanReceipt); 
@@ -12133,6 +12249,7 @@ button[class*="bg-[#00F5D4]"],button[class*="bg-[#06D6A0]"]{background:var(--rp-
         if (modalScanBtn) modalScanBtn.addEventListener('click', () => ui.receiptUploader.click());
 
         $$('.nav-btn').forEach(btn => btn.addEventListener('click', (e) => { 
+            stopTransactionVoice();
             const target = e.currentTarget.dataset.page; 
             $$('.page').forEach(p => p.classList.remove('active')); 
             $(target).classList.add('active'); 
@@ -12165,6 +12282,7 @@ button[class*="bg-[#00F5D4]"],button[class*="bg-[#06D6A0]"]{background:var(--rp-
             if(linked){$('use-saving-toggle').checked=false;$('use-saving-goal-container').classList.add('hidden');$('saving-goal-selector').classList.add('hidden');$('autocategorize-badge').classList.add('hidden');}
         };
         const openTransactionDraft=(draft={})=>{
+            stopTransactionVoice();
             transactionDraftVersion++;
             const form=$('transaction-form');form.reset();$('transaction-id').value='';$('transaction-revision').value='';setTransactionConflict(false);
             $('modal-title').textContent=draft.FixedCostID?'บันทึกจ่ายบิล':draft.Type==='Saving'?'ออมเพิ่ม':'เพิ่มรายการใหม่';
@@ -12420,6 +12538,7 @@ button[class*="bg-[#00F5D4]"],button[class*="bg-[#06D6A0]"]{background:var(--rp-
         $('saving-goal-select').addEventListener('change', updateGoalBalanceDisplay);
         
         let transactionConflict=false;
+        let transactionSavePending=false;
         const setTransactionConflict=value=>{
             transactionConflict=value;
             if(!value){
@@ -12428,11 +12547,14 @@ button[class*="bg-[#00F5D4]"],button[class*="bg-[#06D6A0]"]{background:var(--rp-
                 if($('transaction-type'))$('transaction-type').disabled=false;if($('transaction-category'))$('transaction-category').disabled=false;
             }
             $('transaction-conflict-notice').hidden=!value;
-            ui.submitTransBtn.disabled=value;
+            ui.submitTransBtn.disabled=value || transactionSavePending;
         };
         $('transaction-form').addEventListener('submit', async (e) => {
-            e.preventDefault(); 
-            if(transactionConflict || ui.submitTransBtn.disabled) return;
+            e.preventDefault();
+            stopTransactionVoice();
+            if(transactionConflict || transactionSavePending || ui.submitTransBtn.disabled) return;
+            transactionDraftVersion++;
+            const submittedVersion=transactionDraftVersion;
             const id = $('transaction-id').value;
             const fixedCostId=$('transaction-fixed-id')?.value || '',billMonth=$('transaction-bill-month')?.value || '';
             if((fixedCostId || billMonth) && serverCapabilities.billPayments!==true)return showToast('กรุณาอัปเดต GAS และโหลดข้อมูลล่าสุดก่อนใช้การจ่ายบิล','error');
@@ -12469,6 +12591,7 @@ button[class*="bg-[#00F5D4]"],button[class*="bg-[#06D6A0]"]{background:var(--rp-
             }
 
             try {
+                transactionSavePending = true;
                 ui.submitTransBtn.disabled = true;
                 // โชว์ Loading ชั่วคราวเพื่อรอส่งข้อมูลกลับเซิร์ฟเวอร์
                 ui.loading.classList.remove('hidden');
@@ -12494,20 +12617,27 @@ button[class*="bg-[#00F5D4]"],button[class*="bg-[#06D6A0]"]{background:var(--rp-
                     showToast(id ? 'แก้ไขรายการสำเร็จ' : fixedCostId?'บันทึกจ่ายบิลแล้ว':'บันทึกรายการสำเร็จ');
                 }
                 
-                modalControls['transaction-modal'].close();
+                if (submittedVersion === transactionDraftVersion) modalControls['transaction-modal'].close();
                 // Confirmed writes refresh the garden and bill status.
                 const refreshed=await init(true,true);
                 if(refreshed && savingGoal)celebrateGoalSaving(savingGoal.GoalName,savingBefore);
             } catch(e) { 
                 showToast(e.message || 'บันทึกไม่สำเร็จ กรุณาโหลดข้อมูลล่าสุดก่อนลองใหม่', 'error');
+                if (submittedVersion !== transactionDraftVersion) {
+                    if (['BILL_ALREADY_PAID','REVISION_CONFLICT','REVISION_REQUIRED'].includes(e.code)) await init(true,true);
+                    return; // An older response must not close, reopen, or lock another draft.
+                }
                 if(e.code==='BILL_ALREADY_PAID' && fixedCostId){
                     modalControls['transaction-modal'].close();
-                    const refreshed=await init(true,true);if(refreshed)window.showBillDetails(fixedCostId,billMonth);
+                    const closedVersion=transactionDraftVersion;
+                    const refreshed=await init(true,true);
+                    if(refreshed && closedVersion===transactionDraftVersion)window.showBillDetails(fixedCostId,billMonth);
                 } else {
                     if(['REVISION_CONFLICT','REVISION_REQUIRED'].includes(e.code)) { setTransactionConflict(true);await init(true,true); }
-                    modalControls['transaction-modal'].open();
+                    if(submittedVersion===transactionDraftVersion)modalControls['transaction-modal'].open();
                 } 
             } finally {
+                transactionSavePending = false;
                 ui.submitTransBtn.disabled = transactionConflict;
                 ui.loading.classList.add('hidden');
             }
@@ -12516,6 +12646,7 @@ button[class*="bg-[#00F5D4]"],button[class*="bg-[#06D6A0]"]{background:var(--rp-
         const openTransactionEditor = id => {
             const t = state.allTransactions.find(t => t.ID == id);
             if (t) {
+                stopTransactionVoice();
                 transactionDraftVersion++;
                 setTransactionConflict(false);
                 const form = $('transaction-form'); form.reset(); $('modal-title').textContent = 'แก้ไขรายการ'; $('transaction-id').value = t.ID; $('transaction-revision').value = t.Revision;
