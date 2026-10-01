@@ -10024,6 +10024,88 @@ button[class*="bg-[#00F5D4]"],button[class*="bg-[#06D6A0]"]{background:var(--rp-
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important;}}
 
 </style>
+<style id="liquid-glass-style">
+/* Liquid Glass enhancement. Opaque surfaces remain the default fallback. */
+:root{
+ --lg-pane:rgba(255,255,255,.84);--lg-nav:rgba(255,255,255,.95);--lg-modal:rgba(255,255,255,.96);
+ --lg-edge:rgba(255,255,255,.90);--lg-outline:rgba(133,154,206,.36);--lg-shine:rgba(255,255,255,.48);
+ --lg-shadow:0 12px 32px rgba(45,61,113,.09),inset 0 1px 0 rgba(255,255,255,.95),inset 0 -1px 0 rgba(126,144,197,.10);
+ --lg-modal-shadow:0 28px 80px rgba(27,37,84,.26),inset 0 1px 0 rgba(255,255,255,.95);
+ --lg-hover-shadow:0 16px 38px rgba(57,81,158,.14),inset 0 1px 0 rgba(255,255,255,1);
+ --lg-background:radial-gradient(ellipse at 12% 5%,rgba(104,148,255,.24),transparent 43%),radial-gradient(ellipse at 90% 45%,rgba(163,131,255,.18),transparent 42%),radial-gradient(ellipse at 24% 92%,rgba(115,191,228,.13),transparent 42%);
+}
+:root.dark{
+ --lg-pane:rgba(24,26,40,.90);--lg-nav:rgba(18,22,39,.92);--lg-modal:rgba(24,26,40,.97);
+ --lg-edge:rgba(171,194,255,.23);--lg-outline:rgba(145,166,233,.21);--lg-shine:rgba(182,202,255,.055);
+ --lg-shadow:0 12px 32px rgba(0,0,0,.20),inset 0 1px 0 rgba(205,220,255,.13),inset 0 -1px 0 rgba(130,146,255,.055);
+ --lg-modal-shadow:0 28px 90px rgba(0,0,0,.48),inset 0 1px 0 rgba(217,228,255,.18);
+ --lg-hover-shadow:0 16px 38px rgba(0,0,0,.25),0 0 20px rgba(112,128,255,.05),inset 0 1px 0 rgba(205,220,255,.20);
+ --lg-background:radial-gradient(ellipse at 8% 4%,rgba(67,103,224,.17),transparent 43%),radial-gradient(ellipse at 93% 38%,rgba(122,72,211,.13),transparent 44%),radial-gradient(ellipse at 20% 90%,rgba(32,124,148,.09),transparent 42%);
+}
+#app-wrapper{background-image:var(--lg-background)!important;}
+/* Sheen and depth are cheap paint effects even without backdrop-filter support. */
+.retro-panel,.garden-card,.tax-card,.bill-panel,.goal-detail-summary{
+ border-color:var(--lg-outline)!important;border-top-color:var(--lg-edge)!important;box-shadow:var(--lg-shadow)!important;
+ background-image:linear-gradient(135deg,var(--lg-shine),transparent 36%)!important;
+}
+#bottom-nav-bar,.modern-toolbar,#app>header{
+ border-color:var(--lg-outline)!important;border-top-color:var(--lg-edge)!important;box-shadow:var(--lg-shadow)!important;
+ background-image:linear-gradient(130deg,var(--lg-shine),transparent 42%)!important;
+}
+#dashboard-page .modern-summary>div:nth-child(n){border-color:var(--lg-outline)!important;border-top-color:var(--lg-edge)!important;box-shadow:var(--lg-shadow)!important;}
+#dashboard-page .modern-summary>div:first-child{border-color:var(--lg-outline)!important;border-top-color:var(--lg-edge)!important;background-image:linear-gradient(125deg,var(--lg-shine),transparent 43%),radial-gradient(ellipse at 90% 30%,rgba(87,123,255,.13),transparent 62%)!important;}
+#dashboard-page .modern-summary>div:not(:first-child){background-image:linear-gradient(135deg,var(--lg-shine),transparent 42%)!important;}
+.modal-sheet{border-color:var(--lg-outline)!important;border-top-color:var(--lg-edge)!important;box-shadow:var(--lg-modal-shadow)!important;background-image:linear-gradient(145deg,var(--lg-shine),transparent 32%)!important;}
+#toast{box-shadow:var(--lg-modal-shadow)!important;border-top-color:var(--lg-edge)!important;}
+#bottom-nav-bar .nav-btn.active{box-shadow:0 5px 16px rgba(74,59,210,.22),inset 0 1px 0 rgba(255,255,255,.28),inset 0 -1px 0 rgba(32,27,91,.18)!important;}
+#bottom-nav-bar #nav-add-btn,#submit-transaction-btn,#confirm-modal-confirm-btn,.bill-primary{
+ box-shadow:0 7px 20px rgba(83,63,225,.25),inset 0 1px 0 rgba(255,255,255,.32),inset 0 -1px 0 rgba(29,27,103,.20)!important;
+}
+.rp-stat-icon,.modern-brand-mark{box-shadow:0 6px 16px rgba(0,0,0,.12),inset 0 1px 0 rgba(255,255,255,.25)!important;}
+.retro-input,.tax-field input,.tax-field select,.tax-import select{box-shadow:inset 0 1px 2px rgba(0,0,0,.04)!important;}
+.retro-input:focus,.tax-field input:focus,.tax-field select:focus,.tax-import select:focus{box-shadow:0 0 0 4px rgba(82,117,239,.10)!important;}
+/* Limit live blur to structural surfaces; nested rows, fields and charts stay unfiltered. */
+@supports ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
+ #bottom-nav-bar{background-color:var(--lg-nav)!important;-webkit-backdrop-filter:blur(18px) saturate(135%);backdrop-filter:blur(18px) saturate(135%);}
+ .modern-toolbar,#app>header{background-color:var(--lg-nav)!important;-webkit-backdrop-filter:blur(16px) saturate(125%);backdrop-filter:blur(16px) saturate(125%);}
+ .modal-sheet{background-color:var(--lg-modal)!important;-webkit-backdrop-filter:blur(18px) saturate(120%);backdrop-filter:blur(18px) saturate(120%);}
+ .modal-backdrop{background:rgba(6,8,23,.66);-webkit-backdrop-filter:none;backdrop-filter:none;}
+ #dashboard-page .modern-summary>div:nth-child(n),.retro-panel,.garden-card,.tax-card,.bill-panel{background-color:var(--lg-pane)!important;}
+ /* Tax hero retains its primary gradient and white text. */
+ .tax-card.tax-hero{background-color:#2343b4!important;}
+ @media(min-width:768px){
+  #dashboard-page .modern-summary>div:nth-child(n),#dashboard-page .modern-widgets>.retro-panel,.garden-card,.bill-panel,.report-insights,.tax-card{
+   -webkit-backdrop-filter:blur(8px) saturate(115%);backdrop-filter:blur(8px) saturate(115%);
+  }
+ }
+ @media(max-width:767px){
+  #bottom-nav-bar,.modern-toolbar,#app>header{-webkit-backdrop-filter:blur(10px) saturate(120%);backdrop-filter:blur(10px) saturate(120%);}
+  .modal-sheet{-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);}
+ }
+}
+/* The text panel inside the tax hero remains a high-opacity surface. */
+.tax-card.tax-hero{background-image:linear-gradient(120deg,#2343b4,#6234b5)!important;border-color:rgba(164,181,255,.35)!important;}
+.tax-review-status{background:rgba(13,22,76,.34)!important;}
+@media(hover:hover) and (pointer:fine){
+ #dashboard-page .modern-summary>div:not(:first-child):hover,.garden-card:hover{box-shadow:var(--lg-hover-shadow)!important;border-color:var(--rp-accent)!important;}
+ .bill-button:hover:not(:disabled),.goal-save-btn:hover{box-shadow:inset 0 1px 0 var(--lg-edge),0 4px 12px rgba(78,102,170,.09);}
+}
+/* Respect transparency/contrast preferences and use solid surfaces if blur is unavailable. */
+@media(prefers-reduced-transparency:reduce),(prefers-contrast:more){
+ #app-wrapper{background-image:none!important;}
+ #bottom-nav-bar{background:var(--rp-nav)!important;}
+ .modern-toolbar,#app>header,#dashboard-page .modern-summary>div:nth-child(n),.retro-panel,.garden-card,.tax-card,.bill-panel,.modal-sheet,.goal-detail-summary{
+  background-color:var(--card-bg)!important;background-image:none!important;
+ }
+ #bottom-nav-bar,.modern-toolbar,#app>header,#dashboard-page .modern-summary>div:nth-child(n),.retro-panel,.garden-card,.tax-card,.bill-panel,.modal-sheet{
+  -webkit-backdrop-filter:none!important;backdrop-filter:none!important;border-color:var(--border-dark)!important;
+ }
+ .tax-card.tax-hero{background:#2343b4!important;color:#fff!important;}
+ .modal-backdrop{-webkit-backdrop-filter:none!important;backdrop-filter:none!important;}
+}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important;scroll-behavior:auto!important;}}
+
+</style>
 </head>
 <body>
     <!-- App Wrapper (Handles Desktop Sidebar vs Mobile Layout) -->
