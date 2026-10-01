@@ -9857,6 +9857,25 @@ body:has(#tax-page.active) .modern-toolbar>div:last-child{display:none!important
 <style id="report-insights-style">
 .report-insights{padding:24px!important}.report-head{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}.report-eyebrow{font-size:10px;letter-spacing:2px;color:var(--text-muted)}.report-head h2{font-size:24px;font-weight:750;margin:6px 0}.report-head p,.report-note{font-size:12px;line-height:1.8;color:var(--text-muted)}.report-head label{display:grid;gap:6px;font-size:12px}.report-head input,.report-head select{padding:10px;min-width:0;width:100%}.report-note{margin:12px 0}.report-comparison{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.report-metric{padding:18px;background:var(--card-alt);border-radius:16px;min-width:0}.report-metric h3{font-size:13px;font-weight:600}.report-metric strong{display:block;font-size:clamp(22px,3vw,30px);margin:10px 0;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}.report-metric small{display:block;font-size:11px;color:var(--text-muted);line-height:1.7}.report-change{font-size:12px;margin-bottom:7px;line-height:1.7}.report-increase{margin:24px 0;padding:20px 0;border-top:1px solid var(--border-dark);border-bottom:1px solid var(--border-dark)}.report-insights h3{font-size:16px;font-weight:650}.report-increase-row{display:flex;justify-content:space-between;gap:14px;background:var(--card-alt);padding:14px;border-radius:12px;margin-top:8px;font-size:13px}.report-increase-row span{overflow-wrap:anywhere;min-width:0}.report-increase-row small{display:block;color:var(--text-muted);font-size:11px;margin-top:5px}.report-increase-row b{white-space:nowrap}.report-trend-chart{position:relative;height:300px}.report-table{font-size:12px;margin-top:12px}.report-table summary{cursor:pointer;min-height:44px;padding:12px 0}.report-table-scroll{overflow:auto}.report-table table{width:100%;border-collapse:collapse}.report-table th,.report-table td{padding:10px 8px;text-align:right;border-bottom:1px solid var(--border-dark);white-space:nowrap}.report-table th:first-child,.report-table td:first-child{text-align:left}@media(max-width:767px){.report-insights{padding:16px!important}.report-comparison{grid-template-columns:1fr}.report-metric strong{font-size:28px}.report-head h2{font-size:21px}.report-trend-chart{height:260px}.report-head>label{width:100%}}
 </style>
+<style id="bills-style">
+.bill-panel{background:var(--card-bg);color:var(--text-main);border:1px solid var(--border-dark);border-radius:18px;padding:20px;margin-bottom:20px;min-width:0;}.bill-panel[hidden]{display:none;}
+.bill-heading{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:8px;}.bill-heading h2{font-size:16px;font-weight:800;}.bill-heading p,.bill-note{font-size:12px;color:var(--text-muted);line-height:1.6;margin:6px 0 12px;}
+.bill-row{display:flex;justify-content:space-between;gap:12px;padding:14px 0;border-top:1px solid var(--border-dark);min-width:0;}.bill-row-copy{min-width:0;flex:1;}.bill-row strong,.bill-row small{display:block;overflow-wrap:anywhere;}.bill-row strong{font-size:14px;}.bill-row small,.bill-candidate small{font-size:12px;color:var(--text-muted);margin:4px 0;}.bill-row-action{display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:flex-end;}.bill-row-action b{font-variant-numeric:tabular-nums;font-size:14px;}
+.bill-status{display:inline-block;font-size:11px;font-weight:700;color:var(--text-main);background:var(--card-alt);padding:4px 8px;border-radius:8px;}.bill-overdue{color:#d33b55;background:#f24c6a15;}.bill-paid{color:#238654;background:#27925b15;}.bill-scheduled{color:var(--text-muted);}
+.bill-button{min-height:44px;padding:10px 14px;border:1px solid var(--border-dark);border-radius:11px;color:var(--text-main);background:var(--card-alt);font:inherit;font-size:12px;font-weight:700;cursor:pointer;}.bill-button:hover{filter:brightness(.96);}.bill-button:disabled{opacity:.5;cursor:default;}.bill-button:focus-visible{outline:3px solid #27925b;outline-offset:3px;}.bill-primary{background:#27925b;color:#fff;border-color:#27925b;}.bill-secondary{background:var(--card-bg);}.bill-full{width:100%;margin-top:12px;}
+.bill-detail,.bill-match{padding:16px;background:var(--card-alt);border-radius:14px;margin:12px 0;font-size:13px;line-height:1.6;overflow-wrap:anywhere;}.bill-detail h3{font-size:24px;font-weight:800;margin:10px 0;}.bill-detail h3 small{font-size:12px;color:var(--text-muted);}.bill-candidate{display:flex;justify-content:space-between;align-items:center;gap:12px;border-top:1px solid var(--border-dark);padding:12px 0;}.bill-candidate>div{min-width:0;}.bill-candidate small{display:block;overflow-wrap:anywhere;}.bill-draft-note{padding:12px;border-radius:10px;background:var(--card-alt);color:var(--text-main);font-size:12px;line-height:1.6;}
+@media(max-width:767px){.bill-panel{padding:16px;margin-bottom:16px;}.bill-row{gap:8px;}.bill-row-action{flex:0 1 125px;gap:6px;}.bill-row-action .bill-button{width:100%;}.bill-heading .bill-button{flex-shrink:0;}.bill-candidate .bill-button{flex-shrink:0;}}
+</style>
+<style id="goal-actions-style">
+.goal-detail-summary{padding:16px;background:var(--card-bg);color:var(--text-main);border:2px solid var(--border-dark);border-radius:14px;margin-bottom:14px;}
+.goal-detail-total{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:13px;font-weight:700;}
+.goal-detail-total strong{font-size:20px;font-variant-numeric:tabular-nums;}.goal-detail-total small{font-size:12px;color:var(--text-muted);}
+.goal-detail-track{height:10px;background:var(--card-alt);border:1px solid var(--border-dark);border-radius:8px;overflow:hidden;margin-top:12px;}.goal-detail-track div{height:100%;background:#27925b;}
+.goal-detail-progress{text-align:right;font-size:12px;color:var(--text-muted);margin:4px 0;}.goal-detail-remaining{font-size:14px;font-weight:800;margin:10px 0 6px;}
+.goal-detail-note{font-size:12px;color:var(--text-muted);margin:6px 0 12px;line-height:1.5;}.goal-pace{padding:12px;background:var(--card-alt);border-radius:10px;margin:12px 0;font-size:12px;line-height:1.6;}.goal-pace strong{display:block;font-size:16px;}
+.goal-save-heading{font-weight:800;font-size:14px;margin:16px 0 8px;}.goal-save-actions{display:flex;flex-wrap:wrap;gap:8px;}
+.goal-save-btn{min-height:44px;flex:1 1 85px;padding:10px 12px;background:var(--card-alt);color:var(--text-main);border:2px solid var(--border-dark);border-radius:10px;font:inherit;font-size:13px;font-weight:800;cursor:pointer;}.goal-save-btn:hover{background:var(--card-bg);}.goal-save-btn:focus-visible{outline:3px solid #27925b;outline-offset:3px;}
+</style>
 </head>
 <body>
     <!-- App Wrapper (Handles Desktop Sidebar vs Mobile Layout) -->
@@ -9966,6 +9985,10 @@ body:has(#tax-page.active) .modern-toolbar>div:last-child{display:none!important
             </div>
 
             <main class="px-4 md:px-8 max-w-7xl mx-auto">
+                <div id="sync-status" role="status" aria-live="polite" class="mb-4 flex flex-wrap items-center justify-between gap-2 text-xs text-[var(--text-muted)]">
+                    <span id="sync-status-text">กำลังโหลดข้อมูลล่าสุด…</span>
+                    <button type="button" id="retry-pending-write-btn" hidden class="retro-btn px-3 py-2 text-xs">ตรวจสอบรายการที่รอยืนยัน</button>
+                </div>
                 
                 <!-- 🌟 DASHBOARD PAGE 🌟 -->
                 <div id="dashboard-page" class="page active space-y-6">
@@ -10008,6 +10031,8 @@ body:has(#tax-page.active) .modern-toolbar>div:last-child{display:none!important
                             <p id="summary-investment-monthly" class="font-black text-lg md:text-xl text-[#8338EC] font-mono-num drop-shadow-[1px_1px_0_var(--shadow-color)]">0.00</p>
                         </div>
                     </div>
+
+                    <section id="upcoming-bills" class="bill-panel" aria-label="บิลในรอบบัญชี" hidden></section>
 
                     <!-- Widgets Grid Section -->
                     <div class="modern-widgets grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 lg:gap-6 flex flex-col md:grid">
@@ -10279,7 +10304,12 @@ body:has(#tax-page.active) .modern-toolbar>div:last-child{display:none!important
                     </div>
                 </div>
                 <form id="transaction-form" class="space-y-4">
-                    <input type="hidden" id="transaction-id"><input type="hidden" id="transaction-mood">
+                    <input type="hidden" id="transaction-id"><input type="hidden" id="transaction-revision"><input type="hidden" id="transaction-mood"><input type="hidden" id="transaction-fixed-id"><input type="hidden" id="transaction-bill-month">
+                    <p id="transaction-bill-note" class="bill-draft-note" hidden></p>
+                    <div id="transaction-conflict-notice" hidden role="alert" class="p-3 rounded-xl bg-[var(--card-alt)] text-sm text-[var(--text-main)] space-y-2">
+                        <p>รายการนี้ถูกเปลี่ยนจากที่อื่นแล้ว ร่างที่กรอกยังอยู่ กรุณาเก็บข้อความที่ต้องการก่อนโหลดรายการล่าสุดมาแก้ไขต่อ</p>
+                        <button type="button" id="reload-transaction-draft-btn" class="retro-btn px-3 py-2 text-xs">โหลดรายการล่าสุดและแทนที่ร่างนี้</button>
+                    </div>
                     <div class="grid grid-cols-2 gap-3">
                         <div><label class="text-xs font-bold text-retro-muted ml-1 uppercase">ประเภท</label><select id="transaction-type" class="retro-input w-full p-3 mt-1 font-bold"></select></div>
                         <div><label class="text-xs font-bold text-retro-muted ml-1 uppercase">วันที่</label><input type="date" id="transaction-date" class="retro-input w-full p-3 mt-1 font-bold font-mono-num"></div>
@@ -10509,7 +10539,7 @@ body:has(#tax-page.active) .modern-toolbar>div:last-child{display:none!important
 
     <script>
     document.addEventListener('DOMContentLoaded', () => {
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyA3a4hYP6xI26qGjdl-u3GpnINlOUVS7AVIJosaqZZGe4svLB33NwRa42k8KMKJDi6/exec"; 
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzvuCSrqmcsLXOrIP8Fa9ncEUUmh6wPLWZO4jwoaTPrEP5rcFomkw1rjAIXUJNft58X/exec"; 
         const CACHE_KEY = 'money_mastery_v3:' + SCRIPT_URL;
         
         // -------------------------------------------------------------
@@ -10544,7 +10574,7 @@ body:has(#tax-page.active) .modern-toolbar>div:last-child{display:none!important
             const populated=(Array.isArray(rows)?rows:[]).filter(t=>t && Object.values(t).some(v=>v!=='' && v!=null));
             const valid=populated.filter(t=>getLocalDate(t.Date) && Number.isFinite(Number(t.Amount)) && Number(t.Amount)>0 && ['Income','Expense','Saving','Investment','FreeCashFlow'].includes(t.Type));
             if(valid.length!==populated.length) showToast(`พบข้อมูลรายการไม่ถูกต้อง ${populated.length-valid.length} รายการ กรุณาตรวจชีต Transactions`, 'error', 8000);
-            return valid.map(t=>({...t, ID:String(t.ID ?? ''), Category:String(t.Category ?? ''), Description:String(t.Description ?? ''), Amount:Number(t.Amount), IsDeduct:t.IsDeduct===true || t.IsDeduct===1 || String(t.IsDeduct).toLowerCase()==='true'}));
+            return valid.map(t=>({...t, ID:String(t.ID ?? ''), Revision:Number.isInteger(Number(t.Revision)) && Number(t.Revision)>=0 ? Number(t.Revision) : 0, Category:String(t.Category ?? ''), Description:String(t.Description ?? ''), Amount:Number(t.Amount), IsDeduct:t.IsDeduct===true || t.IsDeduct===1 || String(t.IsDeduct).toLowerCase()==='true'}));
         };
 
         const colors = {
@@ -10580,7 +10610,7 @@ body:has(#tax-page.active) .modern-toolbar>div:last-child{display:none!important
         // -------------------------------------------------------------
         // 2. State & UI Initialization
         // -------------------------------------------------------------
-        let state = { isInitialLoad: true, currentDate: getInitialCycleDate(getCutoffDay()), allTransactions: [], categories: [], goals: [], fixedCosts: [], budgets: [], charts: {}, analyticsCache: {}, selectedTransactionId: null, isSelectMode: false, selectedTransactionIds: new Set(), activeSettingsPage: null, pickerYear: new Date().getFullYear() };
+        let state = { isInitialLoad: true, currentDate: getInitialCycleDate(getCutoffDay()), allTransactions: [], categories: [], goals: [], fixedCosts: [], budgets: [], charts: {}, analyticsCache: {}, selectedTransactionId: null, isSelectMode: false, selectedTransactionIds: new Set(), selectedTransactionRevisions: new Map(), activeSettingsPage: null, pickerYear: new Date().getFullYear() };
         
         const ui = {
             app: $('app'), loading: $('loading-spinner'), toast: $('toast'), toastIcon: $('toast-icon'),
@@ -10606,7 +10636,8 @@ body:has(#tax-page.active) .modern-toolbar>div:last-child{display:none!important
                 categories: data.categories || [],
                 goals: data.goals || [],
                 fixedCosts: data.fixedCosts || [],
-                budgets: data.budgets || []
+                budgets: data.budgets || [],
+                lastSyncAt: data.lastSyncAt || 0
             };
             try { localStorage.setItem(CACHE_KEY, JSON.stringify(cacheData)); } catch(e) { console.warn('Cache unavailable', e); }
         };
@@ -10616,11 +10647,12 @@ body:has(#tax-page.active) .modern-toolbar>div:last-child{display:none!important
             if (cached) {
                 try {
                     const data = JSON.parse(cached);
-                    state.allTransactions = normalizeTransactions((data.allTransactions || data.transactions || []).filter(t=>!String(t?.ID ?? '').startsWith('tmp-'))).map(({_pending, ...t})=>t);
+                    state.allTransactions = normalizeTransactions(data.allTransactions || data.transactions || []);
                     state.categories = (data.categories || []).filter(c=>c.Name && ['Income','Expense','Saving','Investment','FreeCashFlow'].includes(c.Type));
                     state.goals = data.goals || [];
                     state.fixedCosts = data.fixedCosts || [];
                     state.budgets = data.budgets || [];
+                    state.lastSyncAt = Number(data.lastSyncAt) || 0;
                     return true;
                 } catch(e) { return false; }
             }
@@ -10696,19 +10728,32 @@ body:has(#tax-page.active) .modern-toolbar>div:last-child{display:none!important
         const modalControls = {};
         const setupModal = (id) => {
             const el = $(id); if (!el) return;
-            const backdrop = el.querySelector('.modal-backdrop'); 
+            const backdrop = el.querySelector('.modal-backdrop');
             const sheet = el.querySelector('.modal-sheet') || el.querySelector('.retro-panel');
-            
-            const open = () => { 
-                el.classList.remove('hidden'); 
-                requestAnimationFrame(() => { requestAnimationFrame(() => { backdrop.classList.add('open'); if(sheet && sheet.classList.contains('modal-sheet')) sheet.classList.add('open'); }); });
+            let closeTimer = null, generation = 0, isOpen=false;
+            const open = () => {
+                isOpen=true;
+                const current = ++generation;
+                if(closeTimer !== null) { clearTimeout(closeTimer); closeTimer = null; }
+                el.classList.remove('hidden');
+                requestAnimationFrame(() => requestAnimationFrame(() => {
+                    if(current !== generation) return;
+                    backdrop.classList.add('open');
+                    if(sheet && sheet.classList.contains('modal-sheet')) sheet.classList.add('open');
+                }));
             };
-            const close = () => { 
-                backdrop.classList.remove('open'); 
-                if(sheet && sheet.classList.contains('modal-sheet')) sheet.classList.remove('open'); 
-                setTimeout(() => el.classList.add('hidden'), 350); 
+            const close = () => {
+                isOpen=false;
+                const current = ++generation;
+                if(closeTimer !== null) clearTimeout(closeTimer);
+                backdrop.classList.remove('open');
+                if(sheet && sheet.classList.contains('modal-sheet')) sheet.classList.remove('open');
+                closeTimer = setTimeout(() => {
+                    if(current === generation) el.classList.add('hidden');
+                    closeTimer = null;
+                },350);
             };
-            modalControls[id] = { open, close };
+            modalControls[id] = { open, close, get isOpen(){return isOpen;} };
             backdrop.addEventListener('click', close);
             el.querySelectorAll('.modal-cancel-btn').forEach(btn => btn.addEventListener('click', close));
         };
@@ -10718,7 +10763,51 @@ body:has(#tax-page.active) .modern-toolbar>div:last-child{display:none!important
         // 5. API & Utils
         // -------------------------------------------------------------
         let dataEpoch=0;
+        let serverCapabilities={};
+        let serverApiVersion=0, syncPhase='loading';
         const activeWrites=new Map();
+        // Each unresolved request owns a separate durable key, including across tabs.
+        const PENDING_WRITE_KEY=CACHE_KEY+':pending-write-v2';
+        const PENDING_WRITE_PREFIX=PENDING_WRITE_KEY+':';
+        const readPendingWrites=()=>{
+            const keys=[];
+            for(let i=0;i<localStorage.length;i++) {
+                const key=localStorage.key(i);
+                if(key===PENDING_WRITE_KEY || key?.startsWith(PENDING_WRITE_PREFIX)) keys.push(key);
+            }
+            const records=keys.map(key=>{
+                const raw=localStorage.getItem(key);if(!raw) return null;
+                const record=JSON.parse(raw);
+                if(!record || typeof record.requestId!=='string' || !/^[A-Za-z0-9_-]{8,128}$/.test(record.requestId) || typeof record.action!=='string' || typeof record.key!=='string' || !record.data || typeof record.data!=='object' || record.key!==JSON.stringify({action:record.action,...record.data}))
+                    throw new Error('ข้อมูลรายการที่รอยืนยันไม่สมบูรณ์ กรุณาเก็บข้อมูลในเบราว์เซอร์ไว้และตรวจสอบก่อนบันทึกต่อ');
+                return record;
+            }).filter(Boolean);
+            return records.sort((a,b)=>(a.createdAt||0)-(b.createdAt||0));
+        };
+        let pendingWrites=[],pendingWrite=null,pendingStorageError='';
+        const updatePendingWrites=()=>{pendingWrites=readPendingWrites();pendingWrite=pendingWrites[0]||null;};
+        try { updatePendingWrites(); } catch(e) { pendingStorageError=e.message; }
+        const renderSyncState=()=>{
+            const el=$('sync-status-text'),btn=$('retry-pending-write-btn');
+            if(!el) return;
+            const stamp=state.lastSyncAt ? new Date(state.lastSyncAt).toLocaleString('th-TH',{dateStyle:'short',timeStyle:'short'}) : '';
+            el.textContent=pendingStorageError ? 'ตรวจสอบข้อมูลรายการที่รอยืนยันก่อนบันทึกต่อ' : pendingWrite ? (activeWrites.size ? 'กำลังยืนยันผลการบันทึก…' : 'มี '+pendingWrites.length+' รายการที่ยังยืนยันผลไม่ได้ ระบบเก็บรหัสคำขอไว้แล้ว') :
+                syncPhase==='syncing' || syncPhase==='loading' ? 'กำลังโหลดข้อมูลล่าสุด…' : syncPhase==='stale' ? 'กำลังแสดงข้อมูลที่เก็บไว้'+(stamp?' • ล่าสุด '+stamp:'') :
+                serverApiVersion!==2 ? 'กรุณาอัปเดต GAS ฉบับใหม่ก่อนบันทึกข้อมูล' : 'ซิงก์ล่าสุด '+stamp;
+            if(btn) { btn.hidden=!pendingWrite;btn.disabled=activeWrites.size>0 || serverApiVersion!==2; }
+        };
+        const newRequestId=()=>{
+            if(typeof crypto==='undefined' || typeof crypto.getRandomValues!=='function') throw new Error('เบราว์เซอร์ไม่รองรับรหัสคำขอ กรุณาใช้เบราว์เซอร์รุ่นปัจจุบัน');
+            return 'MM_'+Array.from(crypto.getRandomValues(new Uint8Array(16)),b=>b.toString(16).padStart(2,'0')).join('');
+        };
+        const clearConfirmedWrite=record=>{
+            try {
+                localStorage.removeItem(PENDING_WRITE_PREFIX+record.requestId);
+                const legacy=localStorage.getItem(PENDING_WRITE_KEY);
+                if(legacy && JSON.parse(legacy).requestId===record.requestId) localStorage.removeItem(PENDING_WRITE_KEY);
+                updatePendingWrites();
+            } catch(e) { pendingWrite=record; }
+        };
         const requestJSON = async (action, data={}, readOnly=false) => {
             for(let attempt=0;attempt<(readOnly?2:1);attempt++) {
                 const controller=new AbortController();
@@ -10728,33 +10817,44 @@ body:has(#tax-page.active) .modern-toolbar>div:last-child{display:none!important
                     const res=await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({action,...data}),signal:controller.signal});
                     if(!res.ok) { const e=new Error('เซิร์ฟเวอร์ตอบกลับ HTTP '+res.status);e.retryable=res.status===429||res.status>=500;throw e; }
                     let json;try { json=await res.json(); } catch(e) { throw new Error('คำตอบจากเซิร์ฟเวอร์ไม่ใช่ JSON กรุณาตรวจ URL และสิทธิ์ Deployment'); }
-                    if(json.status!=='success') throw new Error(json.message || 'เซิร์ฟเวอร์ทำรายการไม่สำเร็จ');
+                    if(!json || json.status!=='success') {
+                        const e=new Error(json?.message || 'เซิร์ฟเวอร์ทำรายการไม่สำเร็จ');
+                        e.code=json?.code;e.outcomeKnown=json?.outcomeKnown===true;throw e;
+                    }
                     return json.data;
                 } catch(e) {
                     if(readOnly && attempt===0 && navigator.onLine && (e.retryable || e.name==='AbortError' || e instanceof TypeError)) {
                         await new Promise(resolve=>setTimeout(resolve,600));continue;
                     }
-                    if(e.name==='AbortError'||e instanceof TypeError) throw new Error(readOnly?'โหลดข้อมูลไม่สำเร็จ กรุณาลองใหม่':'ยังยืนยันผลการบันทึกไม่ได้ กรุณาโหลดข้อมูลล่าสุดก่อนบันทึกซ้ำ');
+                    if(e.name==='AbortError'||e instanceof TypeError) throw new Error(readOnly?'โหลดข้อมูลไม่สำเร็จ กรุณาลองใหม่':'ยังยืนยันผลการบันทึกไม่ได้ ใช้ปุ่มตรวจสอบรายการที่รอยืนยันเพื่อส่งคำขอเดิม');
                     throw e;
                 } finally {clearTimeout(timer);}
             }
         };
-        // Writes are queued and sent one at a time so rapid saves never race each other on the sheet.
-        let writeQueue=Promise.resolve(), pendingWrites=0;
-        const apiCall = (action, data = {}, { dedupe = true } = {}) => {
+        const apiCall = (action, data = {}) => {
             const key=JSON.stringify({action,...data});
-            if(dedupe && activeWrites.has(key)) return activeWrites.get(key);
-            // Invalidate any read already in flight before sending a write.
-            dataEpoch++;pendingWrites++;
-            const pending=writeQueue.then(()=>requestJSON(action,data)).then(result=>{dataEpoch++;return result;}).catch(e=>{showToast(e.message,'error',7000);throw e;}).finally(()=>{pendingWrites--;if(activeWrites.get(key)===pending) activeWrites.delete(key);});
-            writeQueue=pending.catch(()=>{});
-            if(dedupe) activeWrites.set(key,pending);
-            return pending;
+            if(activeWrites.has(key)) return activeWrites.get(key);
+            let record;
+            try {
+                if(serverApiVersion!==2) throw new Error('กรุณาอัปเดต GAS ฉบับใหม่และโหลดข้อมูลล่าสุดก่อนบันทึก');
+                if((action==='linkFixedCostPayment' || data.data?.FixedCostID || data.data?.BillMonth) && serverCapabilities.billPayments!==true) throw new Error('กรุณาอัปเดต GAS และโหลดข้อมูลล่าสุดก่อนใช้การจ่ายบิล');
+                if(pendingStorageError) throw new Error(pendingStorageError);
+                updatePendingWrites();
+                const matching=pendingWrites.find(r=>r.key===key);
+                if(pendingWrites.length && !matching) throw new Error('กรุณาตรวจสอบรายการที่รอยืนยันให้เสร็จก่อนบันทึกรายการอื่น');
+                record=matching || {key,action,data:JSON.parse(JSON.stringify(data)),requestId:newRequestId(),createdAt:Date.now()};
+                localStorage.setItem(PENDING_WRITE_PREFIX+record.requestId,JSON.stringify(record));
+                updatePendingWrites();
+            } catch(e) { showToast(e.message,'error',7000);renderSyncState();return Promise.reject(e); }
+            dataEpoch++;
+            const pending=requestJSON(action,{...record.data,requestId:record.requestId}).then(result=>{
+                dataEpoch++;clearConfirmedWrite(record);return result;
+            }).catch(e=>{
+                if(e.outcomeKnown) clearConfirmedWrite(record);
+                showToast(e.message,'error',7000);throw e;
+            }).finally(()=>{activeWrites.delete(key);renderSyncState();});
+            activeWrites.set(key,pending);renderSyncState();return pending;
         };
-        // Refresh from the server without blocking the UI, once every queued write has finished.
-        const syncInBackground = () => { if(pendingWrites===0) init(true).catch(()=>{}); };
-        const commitLocal = () => { saveToLocalCache(state); routeToActivePage(); };
-        window.addEventListener('beforeunload', e => { if(pendingWrites>0) { e.preventDefault(); e.returnValue=''; } });
 
         const vibrate = (pattern = 15) => { if (navigator.vibrate) navigator.vibrate(pattern); };
         document.body.addEventListener('click', (e) => { const clickable = e.target.closest('button, .retro-btn, .nav-btn, .transaction-item, .retro-card, .calendar-day'); if (clickable) vibrate(15); });
@@ -10770,12 +10870,9 @@ body:has(#tax-page.active) .modern-toolbar>div:last-child{display:none!important
         };
 
         const preprocessImage = (file) => {
-            return new Promise((resolve, reject) => {
+            return new Promise((resolve) => {
                 const img = new Image();
-                const url = URL.createObjectURL(file);
-                img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('ไม่สามารถอ่านไฟล์รูปนี้ได้')); };
                 img.onload = () => {
-                    URL.revokeObjectURL(url);
                     const canvas = document.createElement('canvas'); const ctx = canvas.getContext('2d');
                     const maxWidth = 1200; 
                     let width = img.width; let height = img.height;
@@ -10785,29 +10882,16 @@ body:has(#tax-page.active) .modern-toolbar>div:last-child{display:none!important
                     ctx.drawImage(img, 0, 0, width, height);
                     resolve(canvas.toDataURL('image/jpeg', 0.9));
                 };
-                img.src = url;
-            });
-        };
-
-        // Tesseract.js (~ several MB) is only downloaded the first time a slip is scanned.
-        let tesseractLoader = null;
-        const loadTesseract = () => {
-            if (window.Tesseract) return Promise.resolve();
-            return tesseractLoader ||= new Promise((resolve, reject) => {
-                const script = document.createElement('script');
-                script.src = 'https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';
-                script.onload = resolve;
-                script.onerror = () => { tesseractLoader = null; script.remove(); reject(new Error('โหลดระบบสแกนสลิปไม่สำเร็จ')); };
-                document.head.appendChild(script);
+                img.src = URL.createObjectURL(file);
             });
         };
 
         const handleScanReceipt = async (event) => {
             const file = event.target.files[0]; if (!file) return;
+            const scanVersion=transactionDraftVersion,keepDraft=modalControls['transaction-modal'].isOpen===true;
             showToast('กำลังประมวลผลภาพ... กรุณารอสักครู่', 'info'); ui.loading.classList.remove('hidden');
             try {
                 const processedImage = await preprocessImage(file);
-                await loadTesseract();
                 const worker = await Tesseract.createWorker('tha+eng');
                 const { data: { text } } = await worker.recognize(processedImage);
                 await worker.terminate();
@@ -10835,10 +10919,10 @@ body:has(#tax-page.active) .modern-toolbar>div:last-child{display:none!important
                     if (candidates.length > 0) detectedAmount = Math.max(...candidates);
                 }
 
-                modalControls['transaction-modal'].open(); $('transaction-id').value = '';
+                if(scanVersion!==transactionDraftVersion || (keepDraft && !modalControls['transaction-modal'].isOpen))return showToast('ร่างเปลี่ยนแล้ว กรุณาสแกนใหม่ในรายการที่ต้องการ','info');
+                if(!keepDraft)openTransactionDraft();else modalControls['transaction-modal'].open();
                 if (detectedAmount) ui.inputs.transAmount.value = detectedAmount;
-                ui.inputs.transDate.value = formatDateToInput(new Date()); 
-                ui.inputs.transDesc.value = "สแกนจากสลิป";
+                if(!keepDraft){ui.inputs.transDate.value = formatDateToInput(new Date());ui.inputs.transDesc.value = "สแกนจากสลิป";}
                 
                 showToast(detectedAmount ? 'ดึงยอดเงินจากสลิปสำเร็จ!' : 'อ่านยอดเงินไม่ได้ กรุณากรอกเอง', detectedAmount ? 'success' : 'error');
                 if (detectedAmount) vibrate([20, 50, 20]);
@@ -10853,9 +10937,16 @@ body:has(#tax-page.active) .modern-toolbar>div:last-child{display:none!important
 
         const getDateRange = (date) => { const cutoff = getCutoffDay(); const y = date.getFullYear(), m = date.getMonth(); return { startDate: new Date(y, m, cutoff), endDate: new Date(y, m + 1, cutoff) }; };
         
+        // Explicit global month changes update both report periods. Refresh preserves choices.
+        const syncReportPeriod = () => {
+            const value = state.currentDate.getFullYear() + '-' + String(state.currentDate.getMonth() + 1).padStart(2, '0');
+            ['report-cycle', 'analytics-month-select'].forEach(id => { const input = $(id); if (input) input.value = value; });
+        };
+
         const handleMonthChange = (direction) => { 
             state.currentDate.setDate(1); 
-            state.currentDate.setMonth(state.currentDate.getMonth() + direction); 
+            state.currentDate.setMonth(state.currentDate.getMonth() + direction);
+            syncReportPeriod(); 
             if (ui.filterDateStart) ui.filterDateStart.value = '';
             if (ui.filterDateEnd) ui.filterDateEnd.value = '';
             routeToActivePage();
@@ -10921,14 +11012,6 @@ body:has(#tax-page.active) .modern-toolbar>div:last-child{display:none!important
                 filterTransactions();
             } 
             else if (activePage.id === 'analytics-page') {
-                // Sync analytics month filter to current cycle month (when in monthly mode)
-                const _monthSel = $('analytics-month-select');
-                const _modeSel  = $('analytics-mode-select');
-                if (_monthSel && (!_modeSel || _modeSel.value === 'monthly')) {
-                    const _yyyy = state.currentDate.getFullYear();
-                    const _mm   = String(state.currentDate.getMonth() + 1).padStart(2, '0');
-                    _monthSel.value = `${_yyyy}-${_mm}`;
-                }
                 renderAnalytics();
             } 
             else if (activePage.id === 'settings-page') {
@@ -10966,7 +11049,7 @@ body:has(#tax-page.active) .modern-toolbar>div:last-child{display:none!important
             return '<div class="garden-grid">'+state.goals.map(goal=>{
                 const saved=totals.get(goal.GoalName)||0,target=Number(goal.TargetAmount),g=gardenProgress(saved,target);
                 const next=!g.valid?'กรุณากำหนดจำนวนเงินเป้าหมายให้มากกว่า 0':g.next?`อีก ${formatMoney(g.remaining)} บาท ถึงด่าน ${g.next}%`:'ครบเป้าหมายแล้ว ยินดีกับความตั้งใจของคุณ!';
-                return `<button type="button" class="garden-card" data-garden-stage="${g.stage}" onclick="showGoalDetails('${escAttr(goal.GoalName)}')" aria-label="${escapeHtml(goal.GoalName)} ออมแล้ว ${g.percent.toFixed(1)} เปอร์เซ็นต์ ดูประวัติเงินออม"><div class="garden-name">${escapeHtml(goal.GoalName)}</div><div class="garden-note">${goal.TargetDate && getLocalDate(goal.TargetDate)?'กำหนดเป้าหมาย: '+getLocalDate(goal.TargetDate).toLocaleDateString('th-TH'): ""}</div><div class="garden-art">${gardenTree(g.stage)}<div class="garden-stage">${names[g.stage]}</div></div><div class="garden-total">${formatMoney(saved)} ฿</div><div class="garden-note">เป้าหมาย ${g.valid?formatMoney(target):'—'} ฿ · ${g.percent.toFixed(1)}%</div><div class="garden-track"><div class="garden-fill" style="width:${g.percent}%"></div></div><div class="garden-milestones">${gardenMilestones.map(m=>`<span class="${g.valid&&g.percent>=m?'reached':''}">${g.valid&&g.percent>=m?'✓ ':''}${m}%</span>`).join('')}</div><div class="garden-next">${next}</div><div class="garden-note" style="margin:8px 0 0">แตะเพื่อดูประวัติเงินออม</div></button>`;
+                return `<button type="button" class="garden-card" data-garden-stage="${g.stage}" onclick="showGoalDetails('${escAttr(goal.GoalName)}')" aria-label="${escapeHtml(goal.GoalName)} ออมแล้ว ${g.percent.toFixed(1)} เปอร์เซ็นต์ ออมเพิ่มและดูรายละเอียด"><div class="garden-name">${escapeHtml(goal.GoalName)}</div><div class="garden-note">${goal.TargetDate && getLocalDate(goal.TargetDate)?'กำหนดเป้าหมาย: '+getLocalDate(goal.TargetDate).toLocaleDateString('th-TH'): ""}</div><div class="garden-art">${gardenTree(g.stage)}<div class="garden-stage">${names[g.stage]}</div></div><div class="garden-total">${formatMoney(saved)} ฿</div><div class="garden-note">เป้าหมาย ${g.valid?formatMoney(target):'—'} ฿ · ${g.percent.toFixed(1)}%</div><div class="garden-track"><div class="garden-fill" style="width:${g.percent}%"></div></div><div class="garden-milestones">${gardenMilestones.map(m=>`<span class="${g.valid&&g.percent>=m?'reached':''}">${g.valid&&g.percent>=m?'✓ ':''}${m}%</span>`).join('')}</div><div class="garden-next">${next}</div><div class="garden-note" style="margin:8px 0 0">แตะเพื่อออมเพิ่มและดูรายละเอียด</div></button>`;
             }).join('')+'</div>';
         };
         const renderSavingGarden = endDate => {
@@ -11015,6 +11098,7 @@ body:has(#tax-page.active) .modern-toolbar>div:last-child{display:none!important
             animateValue($('summary-investment-total'), 0, cumulativeInv, 1000);
 
             renderSavingGarden(endDate);
+            renderUpcomingBills();
             renderCalendar(cycleTrans); 
             renderExpenseChart(cycleTrans); 
             renderCategorySummary(cycleTrans); 
@@ -11036,44 +11120,71 @@ body:has(#tax-page.active) .modern-toolbar>div:last-child{display:none!important
             }).join('') : '<p class="text-center font-bold text-[var(--text-muted)] py-4 border-2 border-dashed border-[var(--border-dark)]/30 rounded bg-[var(--card-alt)]">ไม่มีรายการ</p>';
         };
 
-        window.showGoalDetails = (goalName) => {
-            const allSavings = state.allTransactions.filter(t => t.Type === 'Saving' && t.Category === goalName).sort((a, b) => getLocalDate(b.Date) - getLocalDate(a.Date));
-            const netSaved = allSavings.reduce((sum, t) => t.IsDeduct ? sum - parseFloat(t.Amount) : sum + parseFloat(t.Amount), 0);
-            const goal = state.goals.find(g => g.GoalName === goalName);
-            const targetAmount = goal ? parseFloat(goal.TargetAmount) : 0;
-            const percent = targetAmount > 0 ? Math.min((netSaved / targetAmount) * 100, 100) : 0;
-
-            setText('summary-details-modal-title', `🎯 ${goalName}`);
-            const progressBar = `<div class="mb-4 p-4 bg-retro-saving border-2 border-[#FFD166] rounded-xl shadow-[2px_2px_0_0_var(--shadow-color)]">
-                <div class="flex justify-between items-center mb-2">
-                    <span class="text-xs font-bold text-retro-muted uppercase">ยอดออมสุทธิ</span>
-                    <span class="font-black text-[#E07A5F] font-mono-num text-lg">${formatMoney(netSaved)} <span class="text-sm">/ ${formatMoney(targetAmount)} ฿</span></span>
-                </div>
-                <div class="w-full bg-[var(--card-alt)] h-3 rounded-full border-2 border-[var(--border-dark)] overflow-hidden">
-                    <div class="bg-[#FFD166] h-full transition-all border-r-2 border-[var(--border-dark)]" style="width:${percent}%"></div>
-                </div>
-                <p class="text-right text-xs font-black text-retro-muted mt-1 font-mono-num">${percent.toFixed(1)}%</p>
+        const goalSavingsPlan = function goalSavingsPlan(goal, transactions, today = new Date()) {
+          const todayDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+          const tomorrow = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
+          const rows = goal && goal.GoalName ? (Array.isArray(transactions) ? transactions : []).filter(t => {
+            const date = getLocalDate(t.Date);
+            return t.Type === 'Saving' && t.Category === goal.GoalName && date && date < tomorrow && Number.isFinite(Number(t.Amount)) && Number(t.Amount) > 0;
+          }) : [];
+          const netSaved = rows.reduce((sum, t) => sum + signedAmount(t), 0);
+          const targetAmount = Number(goal && goal.TargetAmount);
+          const validTarget = Number.isFinite(targetAmount) && targetAmount > 0;
+          const remaining = validTarget ? Math.max(0, targetAmount - netSaved) : 0;
+          const percent = validTarget ? Math.max(0, Math.min(100, netSaved / targetAmount * 100)) : 0;
+          let targetDate = getLocalDate(goal && goal.TargetDate);
+          // Reject an impossible date-only target instead of allowing Date to roll it forward.
+          if (targetDate && /^\d{4}-\d{2}-\d{2}$/.test(String(goal.TargetDate)) && formatDateToInput(targetDate) !== String(goal.TargetDate)) targetDate = null;
+          const dueDate = targetDate ? new Date(targetDate.getFullYear(), targetDate.getMonth(), targetDate.getDate()) : null;
+          const overdue = !!dueDate && dueDate < todayDate;
+          const monthsRemaining = dueDate && !overdue ? (dueDate.getFullYear() - todayDate.getFullYear()) * 12 + dueDate.getMonth() - todayDate.getMonth() + 1 : null;
+          const monthlyAmount = validTarget && monthsRemaining ? Math.ceil(remaining / monthsRemaining * 100) / 100 : null;
+          return { rows, netSaved, targetAmount, validTarget, remaining, percent, targetDate, overdue, monthsRemaining, monthlyAmount };
+        };
+        
+        window.openGoalSaving = function openGoalSaving(goalName, amount = '') {
+          const goal = state.goals.find(g => g.GoalName === goalName);
+          if (!goal) return showToast('ไม่พบเป้าหมาย กรุณาโหลดข้อมูลล่าสุด', 'error');
+          const initialAmount = amount ? Number(amount) : '';
+          if (initialAmount !== '' && (!Number.isFinite(initialAmount) || initialAmount <= 0)) return showToast('โปรดระบุยอดออมมากกว่า 0', 'error');
+          return openTransactionDraft({ Type: 'Saving', Category: goalName, Amount: initialAmount, Description: 'ออมเพิ่ม: ' + goalName, Date: formatDateToInput(new Date()), IsDeduct: false });
+        };
+        
+        window.showGoalDetails = function showGoalDetails(goalName) {
+          const goal = state.goals.find(g => g.GoalName === goalName);
+          if (!goal) return showToast('ไม่พบเป้าหมาย กรุณาโหลดข้อมูลล่าสุด', 'error');
+          const plan = goalSavingsPlan(goal, state.allTransactions);
+          const allSavings = [...plan.rows].sort((a, b) => getLocalDate(b.Date) - getLocalDate(a.Date));
+          const remainingText = !plan.validTarget ? 'กรุณากำหนดจำนวนเงินเป้าหมายมากกว่า 0' : plan.remaining === 0 ? 'ครบเป้าหมายแล้ว! ออมได้ตามที่ตั้งใจ' : 'เหลืออีก ' + formatMoney(plan.remaining) + ' บาท';
+          let pace = '';
+          if (plan.validTarget && plan.remaining > 0 && plan.overdue) {
+            pace = '<div class="goal-pace"><p>เลยวันที่เป้าหมายแล้ว</p><p>ยังเหลืออีก ' + formatMoney(plan.remaining) + ' บาท · ปรับวันเป้าหมายได้ในหน้าตั้งค่า</p></div>';
+          } else if (plan.validTarget && plan.remaining > 0 && plan.monthsRemaining) {
+            pace = '<div class="goal-pace"><p>แบ่งออมเดือนนี้ถึงเดือนเป้าหมาย (' + plan.monthsRemaining + ' เดือน)</p><strong>เดือนละประมาณ ' + formatMoney(plan.monthlyAmount) + ' บาท</strong></div>';
+          }
+          const due = plan.targetDate ? '<p class="goal-detail-note">วันเป้าหมาย: ' + plan.targetDate.toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: 'numeric' }) + '</p>' : '';
+          const actions = [100, 500, ''].map(amount => '<button type="button" class="goal-save-btn" onclick="openGoalSaving(\'' + escAttr(goalName) + '\'' + (amount ? ',' + amount : '') + ')">' + (amount ? amount + ' บาท' : 'ระบุเอง') + '</button>').join('');
+          setText('summary-details-modal-title', '🎯 ' + goalName);
+          const summary = `<section class="goal-detail-summary">
+            <div class="goal-detail-total"><span>ยอดออมถึงวันนี้</span><strong>${formatMoney(plan.netSaved)} <small>/ ${plan.validTarget ? formatMoney(plan.targetAmount) : '—'} ฿</small></strong></div>
+            <div class="goal-detail-track"><div style="width:${plan.percent}%"></div></div>
+            <p class="goal-detail-progress">${plan.percent.toFixed(1)}%</p>
+            <p class="goal-detail-remaining">${remainingText}</p>${due}${pace}
+            <div class="goal-save-heading">ออมเพิ่ม</div><div class="goal-save-actions">${actions}</div>
+          </section><p class="goal-detail-note">ประวัติเงินออมถึงวันนี้ · ไม่รวมรายการล่วงหน้า</p>`;
+          $('summary-details-list').innerHTML = summary + (allSavings.length ? allSavings.map(t => {
+            const date = getLocalDate(t.Date), isWithdrawal = t.IsDeduct;
+            const amountColor = isWithdrawal ? 'text-[#EF476F]' : 'text-[#E07A5F]';
+            const badge = isWithdrawal
+              ? '<span class="text-[10px] font-bold text-white bg-[#EF476F] px-1.5 py-0.5 rounded ml-1 uppercase">ถอนใช้</span>'
+              : '<span class="text-[10px] font-bold text-[#1E1E24] bg-[#FFD166] px-1.5 py-0.5 rounded ml-1 uppercase">ออม</span>';
+            return `<div class="retro-card p-3 flex items-center justify-between transaction-item cursor-pointer hover:bg-[var(--card-bg)] bg-[var(--card-alt)] mb-2 border-[var(--border-dark)]/50 border" data-id="${escapeHtml(t.ID)}">
+              <div class="flex items-center gap-3"><div class="text-xl w-10 h-10 rounded-lg bg-[var(--card-bg)] border-2 border-[var(--border-dark)] flex items-center justify-center shadow-[1px_1px_0_0_var(--shadow-color)]">${isWithdrawal ? '💸' : '🎯'}</div>
+                <div><p class="font-bold text-[var(--text-main)] text-sm flex items-center">${escapeHtml(t.Category)}${badge}</p><p class="text-[10px] font-bold text-[var(--text-muted)] uppercase">${date.getDate()} ${date.toLocaleString('th-TH', { month: 'short', year: '2-digit' })} ${escapeHtml(t.Description ? '• ' + t.Description : '')}</p></div>
+              </div><span class="font-black font-mono-num ${amountColor}">${isWithdrawal ? '-' : '+'}${formatMoney(t.Amount)}</span>
             </div>`;
-            $('summary-details-list').innerHTML = progressBar + (allSavings.length ? allSavings.map(t => {
-                const date = getLocalDate(t.Date);
-                const isWithdrawal = t.IsDeduct;
-                const amountColor = isWithdrawal ? 'text-[#EF476F]' : 'text-[#E07A5F]';
-                const sign = isWithdrawal ? '-' : '+';
-                const badge = isWithdrawal 
-                    ? '<span class="text-[10px] font-bold text-white bg-[#EF476F] px-1.5 py-0.5 rounded ml-1 uppercase">ถอนใช้</span>'
-                    : '<span class="text-[10px] font-bold text-[#1E1E24] bg-[#FFD166] px-1.5 py-0.5 rounded ml-1 uppercase">ออม</span>';
-                return `<div class="retro-card p-3 flex items-center justify-between transaction-item cursor-pointer hover:bg-[var(--card-bg)] bg-[var(--card-alt)] mb-2 border-[var(--border-dark)]/50 border" data-id="${escapeHtml(t.ID)}">
-                    <div class="flex items-center gap-3">
-                        <div class="text-xl w-10 h-10 rounded-lg bg-[var(--card-bg)] border-2 border-[var(--border-dark)] flex items-center justify-center shadow-[1px_1px_0_0_var(--shadow-color)]">${isWithdrawal ? '💸' : '🎯'}</div>
-                        <div>
-                            <p class="font-bold text-[var(--text-main)] text-sm flex items-center">${escapeHtml(t.Category)}${badge}</p>
-                            <p class="text-[10px] font-bold text-[var(--text-muted)] uppercase">${date.getDate()} ${date.toLocaleString('th-TH', { month: 'short', year: '2-digit' })} ${escapeHtml(t.Description ? '• ' + t.Description : '')}</p>
-                        </div>
-                    </div>
-                    <span class="font-black font-mono-num ${amountColor}">${sign}${formatMoney(t.Amount)}</span>
-                </div>`;
-            }).join('') : '<p class="text-center font-bold text-[var(--text-muted)] py-4 border-2 border-dashed border-[var(--border-dark)]/30 rounded bg-[var(--card-alt)]">ไม่มีรายการ</p>');
-            modalControls['summary-details-modal'].open();
+          }).join('') : '<p class="text-center font-bold text-[var(--text-muted)] py-4 border-2 border-dashed border-[var(--border-dark)]/30 rounded bg-[var(--card-alt)]">ยังไม่มีรายการเงินออมถึงวันนี้</p>');
+          modalControls['summary-details-modal'].open();
         };
 
         window.showYearlyInvestmentDetails = (category, periodStr) => {
@@ -11100,12 +11211,12 @@ body:has(#tax-page.active) .modern-toolbar>div:last-child{display:none!important
             let trans = [];
             if (mode === 'yearly') {
                 const year = parseInt($('analytics-year-select').value);
-                trans = state.allTransactions.filter(t => ['Investment', 'FreeCashFlow'].includes(t.Type) && getLocalDate(t.Date).getFullYear() === year);
+                trans = state.allTransactions.filter(t => ['Saving', 'Investment', 'FreeCashFlow'].includes(t.Type) && getLocalDate(t.Date).getFullYear() === year);
             } else {
                 const [y, m] = $('analytics-month-select').value.split('-');
                 trans = state.allTransactions.filter(t => {
                     const d = getLocalDate(t.Date);
-                    return ['Investment', 'FreeCashFlow'].includes(t.Type) && d.getFullYear() === parseInt(y) && d.getMonth() === (parseInt(m)-1);
+                    return ['Saving', 'Investment', 'FreeCashFlow'].includes(t.Type) && d.getFullYear() === parseInt(y) && d.getMonth() === (parseInt(m)-1);
                 });
             }
             trans.sort((a, b) => getLocalDate(b.Date) - getLocalDate(a.Date));
@@ -11162,19 +11273,17 @@ body:has(#tax-page.active) .modern-toolbar>div:last-child{display:none!important
             const signs = { 'Income': '+', 'Expense': '-', 'Saving': '', 'Investment': '', 'FreeCashFlow': '' };
             const classTypeMap = { 'Income': colors.income, 'Expense': colors.expense, 'Saving': colors.saving, 'Investment': colors.investment, 'FreeCashFlow': colors.fcf };
             
-            const catByName = new Map(state.categories.map(c => [c.Name, c]));
             ui.lists.trans.innerHTML = sorted.map(t => {
-                const cat = catByName.get(t.Category) || { Emoji: '📄' };
+                const cat = state.categories.find(c => c.Name === t.Category) || { Emoji: '📄' };
                 const date = getLocalDate(t.Date); const isSelected = state.selectedTransactionIds.has(t.ID);
                 const deductLabel = t.IsDeduct ? '<span class="text-[10px] font-bold text-red-500 bg-red-100/10 px-1.5 py-0.5 border border-red-500 rounded ml-2 uppercase">ถอน</span>' : '';
-                const pendingLabel = t._pending ? '<span class="text-[10px] font-bold text-[#4361EE] ml-2 inline-flex items-center gap-1"><i class="ph-bold ph-circle-notch animate-spin"></i>กำลังบันทึก</span>' : '';
                 
-                return `<div class="retro-card p-3 md:p-4 flex items-center justify-between transaction-item cursor-pointer mb-2.5 bg-[var(--card-bg)] ${t._pending ? 'opacity-60' : ''} ${isSelected ? 'border-[#4361EE] bg-blue-50/10 shadow-[0px_0px_0px_2px_#4361EE]' : 'hover:bg-[var(--card-alt)]'}" data-id="${escapeHtml(t.ID)}">
+                return `<div class="retro-card p-3 md:p-4 flex items-center justify-between transaction-item cursor-pointer mb-2.5 bg-[var(--card-bg)] ${isSelected ? 'border-[#4361EE] bg-blue-50/10 shadow-[0px_0px_0px_2px_#4361EE]' : 'hover:bg-[var(--card-alt)]'}" data-id="${escapeHtml(t.ID)}">
                     <div class="flex items-center gap-3 md:gap-4">
                         ${state.isSelectMode ? `<div class="w-5 h-5 rounded border-2 ${isSelected ? 'bg-[#4361EE] border-[#4361EE]' : 'border-[var(--border-dark)] bg-[var(--card-bg)]'} flex items-center justify-center shrink-0"><i class="ph-bold ph-check text-white text-xs ${isSelected ? '' : 'hidden'}"></i></div>` : ''}
                         <div class="text-2xl w-12 h-12 rounded-xl bg-[var(--card-alt)] border-2 border-[var(--border-dark)] flex items-center justify-center shadow-[1px_1px_0px_0px_var(--shadow-color)] shrink-0">${escapeHtml(cat.Emoji)}</div>
                         <div class="min-w-0">
-                            <p class="font-bold text-[var(--text-main)] flex items-center text-sm md:text-base truncate">${escapeHtml(t.Category)} ${deductLabel}${pendingLabel}</p>
+                            <p class="font-bold text-[var(--text-main)] flex items-center text-sm md:text-base truncate">${escapeHtml(t.Category)} ${deductLabel}</p>
                             <p class="text-[10px] md:text-xs font-bold text-[var(--text-muted)] uppercase truncate mt-0.5">${date.getDate()} ${date.toLocaleString('th-TH',{month:'short'})} • ${escapeHtml(t.Description || '-')}</p>
                         </div>
                     </div>
@@ -11232,7 +11341,8 @@ body:has(#tax-page.active) .modern-toolbar>div:last-child{display:none!important
         });
 
         $('summary-card-investment-cumulative').addEventListener('click', () => {
-             const invests = state.allTransactions.filter(t => t.Type === 'Investment' && getLocalDate(t.Date) <= new Date());
+             const { endDate } = getDateRange(state.currentDate);
+             const invests = state.allTransactions.filter(t => t.Type === 'Investment' && getLocalDate(t.Date) < endDate);
              const grouped = invests.reduce((acc, t) => { acc[t.Category] = (acc[t.Category] || 0) + (t.IsDeduct ? -parseFloat(t.Amount) : parseFloat(t.Amount)); return acc; }, Object.create(null));
              setText('summary-details-modal-title', "พอร์ตลงทุนรวม");
              $('summary-details-list').innerHTML = Object.keys(grouped).length ? Object.entries(grouped).sort(([,a],[,b]) => b-a).map(([name, amount]) => {
@@ -11258,8 +11368,8 @@ body:has(#tax-page.active) .modern-toolbar>div:last-child{display:none!important
         const handleTransactionClick = (e) => {
             const card = e.target.closest('.transaction-item'); if(!card) return; const id = card.dataset.id;
             if(state.isSelectMode) {
-                if (String(id).startsWith('tmp-')) return showToast('รายการนี้กำลังบันทึก กรุณารอสักครู่', 'info');
-                state.selectedTransactionIds.has(id) ? state.selectedTransactionIds.delete(id) : state.selectedTransactionIds.add(id);
+                if(state.selectedTransactionIds.has(id)) { state.selectedTransactionIds.delete(id);state.selectedTransactionRevisions.delete(id); }
+                else { const row=state.allTransactions.find(t=>t.ID===id);if(!row) return;state.selectedTransactionIds.add(id);state.selectedTransactionRevisions.set(id,row.Revision); }
                 card.classList.toggle('border-[#4361EE]'); card.classList.toggle('shadow-[0px_0px_0px_2px_#4361EE]'); card.classList.toggle('bg-blue-50/10');
                 const check = card.querySelector('.ph-check'); if(check) check.classList.toggle('hidden');
                 const box = card.querySelector('div.w-5'); if(box) { box.classList.toggle('bg-[#4361EE]'); box.classList.toggle('border-[#4361EE]'); box.classList.toggle('border-[var(--border-dark)]'); box.classList.toggle('bg-[var(--card-bg)]');}
@@ -11271,7 +11381,7 @@ body:has(#tax-page.active) .modern-toolbar>div:last-child{display:none!important
                 const t = state.allTransactions.find(tr => tr.ID == id);
                 // FIX 6: ป้องกัน crash เมื่อ transaction ไม่เจอ (เช่น ยังไม่ sync หรือข้อมูล stale)
                 if (!t) { showToast('ไม่พบรายการ กรุณารีเฟรชข้อมูล', 'error'); return; }
-                if (t._pending || String(t.ID).startsWith('tmp-')) { showToast('รายการนี้กำลังบันทึก กรุณารอสักครู่', 'info'); return; }
+                state.selectedTransactionRevision=t.Revision;
                 $('transaction-action-details').innerHTML = `<p class="font-black text-xl text-[var(--text-main)]">${escapeHtml(t.Category)}</p><p class="font-bold text-[#4361EE] font-mono-num text-2xl my-1">${formatMoney(t.Amount)} ฿</p><p class="text-xs font-bold text-[var(--text-muted)] mt-1">${escapeHtml(t.Description || '-')}</p>`;
                 modalControls['transaction-action-modal'].open(); modalControls['day-details-modal'].close(); modalControls['summary-details-modal'].close();
             }
@@ -11329,7 +11439,7 @@ body:has(#tax-page.active) .modern-toolbar>div:last-child{display:none!important
                         </div>
                     </div>`).join('') + `<div class="mt-5 border-t-2 border-[var(--border-dark)] pt-5"><h4 class="font-black text-sm mb-3">สร้างเป้าหมายใหม่</h4><input id="new-goal-name" class="retro-input w-full p-3 mb-3 font-bold" placeholder="ชื่อเป้าหมาย"><input type="number" id="new-goal-amount" class="retro-input w-full p-3 mb-3 font-mono-num font-bold" placeholder="จำนวนเงิน (บาท)"><input type="date" id="new-goal-date" class="retro-input w-full p-3 mb-4 font-mono-num font-bold"><button class="retro-btn w-full bg-[#FFD166] text-[#1E1E24] py-3.5 rounded-xl font-black uppercase shadow-[3px_3px_0_0_var(--shadow-color)]" onclick="addNewGoal()">บันทึกเป้าหมาย</button></div>`;
             } else if(state.activeSettingsPage === 'fixed') {
-                 content.innerHTML = state.fixedCosts.map(f => `<div class="retro-card bg-[var(--card-bg)] p-3 flex justify-between mb-2 border border-[var(--border-dark)]/30"><div><p class="font-bold text-[var(--text-main)]">${escapeHtml(f.Description)}</p><p class="text-[10px] font-bold text-[var(--text-muted)] uppercase font-mono-num">${formatMoney(f.Amount)} (วันที่ ${escapeHtml(f.DayOfMonth)})</p></div><button class="retro-btn bg-[#EF476F] text-white text-xs px-3 py-1.5 rounded-lg h-fit shadow-[2px_2px_0_0_var(--shadow-color)]" onclick="deleteFixed('${escAttr(f.Description)}')">ลบ</button></div>`).join('') + `<div class="mt-5 border-t-2 border-[var(--border-dark)] pt-5"><h4 class="font-black text-sm mb-3">เพิ่มรายจ่ายคงที่</h4><input id="new-fixed-desc" class="retro-input w-full p-3 mb-3 font-bold" placeholder="รายการ (เช่น ค่าเน็ต, ค่าห้อง)"><input type="number" id="new-fixed-amount" class="retro-input w-full p-3 mb-3 font-mono-num font-bold" placeholder="จำนวนเงิน (บาท)"><input type="number" id="new-fixed-day" class="retro-input w-full p-3 mb-3 font-mono-num font-bold" placeholder="วันที่ต้องจ่าย (1-31)"><select id="new-fixed-cat" class="retro-input w-full p-3 mb-4 font-bold"></select><button class="retro-btn w-full bg-[#EF476F] text-white py-3.5 rounded-xl font-black uppercase shadow-[3px_3px_0_0_var(--shadow-color)]" onclick="addNewFixed()">บันทึกรายการ</button></div>`;
+                 content.innerHTML = '<button type="button" class="bill-button bill-secondary bill-full" onclick="showBills()">ดูบิลในรอบนี้</button><p class="bill-note">รายการรายจ่ายจะเป็นบิลรายเดือน · วันที่ 29–31 จะปรับเป็นวันสุดท้ายในเดือนสั้น</p>' + state.fixedCosts.map(f => `<div class="retro-card bg-[var(--card-bg)] p-3 flex justify-between mb-2 border border-[var(--border-dark)]/30"><div><p class="font-bold text-[var(--text-main)]">${escapeHtml(f.Description)}</p><p class="text-[10px] font-bold text-[var(--text-muted)] uppercase font-mono-num">${formatMoney(f.Amount)} (วันที่ ${escapeHtml(f.DayOfMonth)})</p></div><button class="retro-btn bg-[#EF476F] text-white text-xs px-3 py-1.5 rounded-lg h-fit shadow-[2px_2px_0_0_var(--shadow-color)]" onclick="deleteFixed('${escAttr(f.Description)}')">ลบ</button></div>`).join('') + `<div class="mt-5 border-t-2 border-[var(--border-dark)] pt-5"><h4 class="font-black text-sm mb-3">เพิ่มรายจ่ายคงที่</h4><input id="new-fixed-desc" class="retro-input w-full p-3 mb-3 font-bold" placeholder="รายการ (เช่น ค่าเน็ต, ค่าห้อง)"><input type="number" id="new-fixed-amount" class="retro-input w-full p-3 mb-3 font-mono-num font-bold" placeholder="จำนวนเงิน (บาท)"><input type="number" id="new-fixed-day" class="retro-input w-full p-3 mb-3 font-mono-num font-bold" placeholder="วันที่ต้องจ่าย (1-31)"><select id="new-fixed-cat" class="retro-input w-full p-3 mb-4 font-bold"></select><button class="retro-btn w-full bg-[#EF476F] text-white py-3.5 rounded-xl font-black uppercase shadow-[3px_3px_0_0_var(--shadow-color)]" onclick="addNewFixed()">บันทึกรายการ</button></div>`;
                  setTimeout(() => { const sel = $('new-fixed-cat'); if(sel) sel.innerHTML = state.categories.filter(c=>c.Type==='Expense').map(c=>`<option value="${escapeHtml(c.Name)}">${escapeHtml(c.Name)}</option>`).join(''); }, 0);
             } else if(state.activeSettingsPage === 'batch') {
                 const currentYear = new Date().getFullYear(); const yearOptions = Array.from({length: 7}, (_, i) => currentYear + i).map(y => `<option value="${y}">${y}</option>`).join('');
@@ -11365,7 +11475,7 @@ body:has(#tax-page.active) .modern-toolbar>div:last-child{display:none!important
                 try {
                     await apiCall('deleteCategory', { name }); 
                     showToast('ลบหมวดหมู่แล้ว'); 
-                    ui.loading.classList.add('hidden'); syncInBackground(); 
+                    await init(true, true); 
                 } catch(e) { ui.loading.classList.add('hidden'); }
             } 
         };
@@ -11381,7 +11491,7 @@ body:has(#tax-page.active) .modern-toolbar>div:last-child{display:none!important
                 // ถ้ามี origName แสดงว่าเป็นการอัปเดต ถ้าไม่มีคือการสร้างใหม่
                 await apiCall(origName ? 'updateCategory' : 'addCategory', { originalName: origName, data });
                 showToast(origName ? 'แก้ไขหมวดหมู่สำเร็จ' : 'เพิ่มหมวดหมู่สำเร็จ'); 
-                ui.loading.classList.add('hidden'); syncInBackground();
+                await init(true, true);
             } catch(e) { ui.loading.classList.add('hidden'); }
         });
 
@@ -11422,7 +11532,7 @@ body:has(#tax-page.active) .modern-toolbar>div:last-child{display:none!important
             try {
                 await apiCall('updateGoal', { originalName: $('goal-edit-form').dataset.originalName, data }); 
                 showToast('แก้ไขเป้าหมายสำเร็จ'); 
-                ui.loading.classList.add('hidden'); syncInBackground();
+                await init(true, true);
             } catch(err) { 
                 ui.loading.classList.add('hidden'); 
                 showToast('เกิดข้อผิดพลาดในการแก้ไขเป้าหมาย', 'error');
@@ -11437,7 +11547,7 @@ body:has(#tax-page.active) .modern-toolbar>div:last-child{display:none!important
             try {
                 await apiCall('saveGoal', { data }); 
                 showToast('สร้างเป้าหมายแล้ว'); 
-                ui.loading.classList.add('hidden'); syncInBackground();
+                await init(true, true);
             } catch(e) { ui.loading.classList.add('hidden'); }
         };
         
@@ -11447,7 +11557,7 @@ body:has(#tax-page.active) .modern-toolbar>div:last-child{display:none!important
                 try {
                     await apiCall('deleteGoal', { name }); 
                     showToast('ลบแล้ว'); 
-                    ui.loading.classList.add('hidden'); syncInBackground(); 
+                    await init(true, true); 
                 } catch(e) { ui.loading.classList.add('hidden'); }
             } 
         };
@@ -11461,7 +11571,7 @@ body:has(#tax-page.active) .modern-toolbar>div:last-child{display:none!important
             try {
                 await apiCall('addFixedCost', { data }); 
                 showToast('เพิ่มแล้ว'); 
-                ui.loading.classList.add('hidden'); syncInBackground();
+                await init(true, true);
             } catch(e) { ui.loading.classList.add('hidden'); }
         };
         
@@ -11471,7 +11581,7 @@ body:has(#tax-page.active) .modern-toolbar>div:last-child{display:none!important
                 try {
                     await apiCall('deleteFixedCost', { desc }); 
                     showToast('ลบแล้ว'); 
-                    ui.loading.classList.add('hidden'); syncInBackground(); 
+                    await init(true, true); 
                 } catch(e) { ui.loading.classList.add('hidden'); }
             } 
         };
@@ -11486,7 +11596,7 @@ body:has(#tax-page.active) .modern-toolbar>div:last-child{display:none!important
             try {
                 await apiCall('addBatchTransactions', { data }); 
                 showToast('เพิ่มรายการทีละหลายเดือนแล้ว'); 
-                ui.loading.classList.add('hidden'); syncInBackground();
+                await init(true, true);
             } catch(e) { ui.loading.classList.add('hidden'); }
         };
 
@@ -11519,22 +11629,26 @@ body:has(#tax-page.active) .modern-toolbar>div:last-child{display:none!important
             state.charts.expense=new Chart(canvas,{type:'doughnut',plugins:[center],data:{labels:rows.map(r=>r[0]),datasets:[{data:rows.map(r=>r[1]),backgroundColor:rows.map((_,i)=>chartPalette[i%chartPalette.length]),borderWidth:0,spacing:3,hoverOffset:5,borderRadius:5}]},options:{responsive:true,maintainAspectRatio:false,cutout:'76%',animation:{duration:350},plugins:{legend:{display:false,labels:{}},tooltip:{...chartTooltip,callbacks:{label:ctx=>`${formatMoney(ctx.parsed)} ฿ · ${(ctx.parsed/total*100).toFixed(1)}%`}}}}});
         };
 
+        let analyticsFiltersBound = false;
         const renderAnalytics = () => {
             renderReportInsights();
             const modeSelect = $('analytics-mode-select');
             const yearSel = $('analytics-year-select');
             const monthSel = $('analytics-month-select');
             
-            if (yearSel && yearSel.options.length === 0) {
-                const years = new Set(state.allTransactions.map(t => getLocalDate(t.Date).getFullYear())); 
+            if (yearSel) {
+                const selectedYear = yearSel.value;
+                const years = new Set(state.allTransactions.map(t => getLocalDate(t.Date).getFullYear()));
                 years.add(new Date().getFullYear());
+                if (/^\d{4}$/.test(selectedYear)) years.add(Number(selectedYear));
                 yearSel.innerHTML = [...years].sort((a, b) => b - a).map(y => `<option value="${y}">${y}</option>`).join('');
-                yearSel.value = new Date().getFullYear();
-
-                const yyyy = state.currentDate.getFullYear();
-                const mm = String(state.currentDate.getMonth() + 1).padStart(2, '0');
-                monthSel.value = `${yyyy}-${mm}`;
-
+                yearSel.value = years.has(Number(selectedYear)) ? selectedYear : String(new Date().getFullYear());
+            }
+            if (monthSel && !monthSel.value) {
+                monthSel.value = state.currentDate.getFullYear() + '-' + String(state.currentDate.getMonth() + 1).padStart(2, '0');
+            }
+            if (!analyticsFiltersBound && modeSelect && yearSel && monthSel) {
+                analyticsFiltersBound = true;
                 modeSelect.addEventListener('change', (e) => {
                     if (e.target.value === 'yearly') {
                         yearSel.classList.remove('hidden'); monthSel.classList.add('hidden');
@@ -11660,7 +11774,7 @@ body:has(#tax-page.active) .modern-toolbar>div:last-child{display:none!important
             }
             
             const inc = incomeData.reduce((s,v)=>s+v,0); 
-            const sav = filteredTrans.filter(t=>['Investment','FreeCashFlow'].includes(t.Type)).reduce((s,t)=> t.IsDeduct ? s - parseFloat(t.Amount) : s + parseFloat(t.Amount),0);
+            const sav = filteredTrans.filter(t=>['Saving','Investment','FreeCashFlow'].includes(t.Type)).reduce((s,t)=>s+signedAmount(t),0);
             const rate = inc > 0 ? (sav/inc)*100 : 0; 
             const healthEl = $('financial-health-checkup');
             if(healthEl) healthEl.innerHTML = `<div class="bg-[var(--card-bg)] border-2 border-[#118AB2] rounded-xl p-4 shadow-[4px_4px_0_0_#118AB2] cursor-pointer hover:bg-[var(--card-alt)] transition-colors" onclick="showYearlySavingsDetails('${periodLabelForModal}')"><p class="text-xs font-bold text-[var(--text-muted)] uppercase">อัตราการออม</p><div class="flex items-end gap-2 mt-1"><span class="text-4xl font-black font-mono-num tracking-tighter ${rate>=20?'text-[#06D6A0]':rate>=10?'text-[#FFD166]':'text-[#EF476F]'}">${rate.toFixed(1)}%</span><span class="text-[10px] font-bold text-[var(--text-main)] mb-1.5 uppercase bg-[var(--card-alt)] px-2 py-0.5 border border-[var(--border-dark)] rounded-md">เป้า: 20%</span></div><div class="w-full bg-[var(--card-alt)] h-4 border-2 border-[#118AB2] rounded-full mt-4 overflow-hidden"><div class="h-full transition-all duration-1000 ${rate>=20?'bg-[#06D6A0]':'bg-[#FFD166]'}" style="width:${Math.max(0,Math.min(rate,100))}%"></div></div></div>`;
@@ -11674,31 +11788,46 @@ body:has(#tax-page.active) .modern-toolbar>div:last-child{display:none!important
 
         let cacheLoaded=false, hasData=false, refreshTask=null, refreshEpoch=-1;
         const init = async (full = true, forceRefresh = false) => {
-            if(!full) { routeToActivePage();return; }
+            if(!full) { routeToActivePage();return true; }
             if(!cacheLoaded) { cacheLoaded=true;hasData=loadFromLocalCache();if(hasData) routeToActivePage(); }
             if(refreshTask) {
                 if(refreshEpoch===dataEpoch) return refreshTask;
-                await refreshTask;return init(true,forceRefresh);
+                await refreshTask;return init(true,true);
             }
-            const epoch=dataEpoch;refreshEpoch=epoch;
+            const epoch=dataEpoch;refreshEpoch=epoch;syncPhase='syncing';renderSyncState();
             if(!hasData || forceRefresh) ui.loading.classList.remove('hidden');
             refreshTask=(async()=>{
                 try {
                     const data=await requestJSON('getInitialData',{},true);
-                    if(epoch!==dataEpoch) return; // A write superseded this snapshot.
+                    if(epoch!==dataEpoch) {syncPhase='stale';return false;} // A write superseded this snapshot.
                     if(!data || !['transactions','categories','goals','fixedCosts','budgets'].every(k=>Array.isArray(data[k]))) throw new Error('โครงสร้างข้อมูลจากเซิร์ฟเวอร์ไม่ถูกต้อง');
                     clearDateCache();
                     state.allTransactions=normalizeTransactions(data.transactions);
                     state.categories=data.categories.filter(c=>c && c.Name && ['Income','Expense','Saving','Investment','FreeCashFlow'].includes(c.Type));
                     state.goals=data.goals;state.fixedCosts=data.fixedCosts;state.budgets=data.budgets;
-                    hasData=true;saveToLocalCache(state);routeToActivePage();
+                    serverCapabilities=data.capabilities || {};serverApiVersion=Number(data.apiVersion)||0;state.lastSyncAt=Date.now();syncPhase='current';
+                    hasData=true;saveToLocalCache(state);routeToActivePage();return true;
                 } catch(e) {
-                    showToast(hasData?'โหลดข้อมูลล่าสุดไม่สำเร็จ กำลังแสดงข้อมูลที่เก็บไว้':e.message,'error',7000);
-                } finally {ui.loading.classList.add('hidden');refreshTask=null;}
+                    syncPhase='stale';showToast(hasData?'โหลดข้อมูลล่าสุดไม่สำเร็จ กำลังแสดงข้อมูลที่เก็บไว้':e.message,'error',7000);return false;
+                } finally {ui.loading.classList.add('hidden');refreshTask=null;renderSyncState();}
             })();
             return refreshTask;
         };
         window.addEventListener('online',()=>init(true));
+        $('retry-pending-write-btn')?.addEventListener('click',async()=>{
+            const record=pendingWrite;if(!record) return;
+            ui.loading.classList.remove('hidden');
+            try { await apiCall(record.action,record.data);showToast('ยืนยันผลรายการแล้ว');await init(true,true); }
+            catch(e) { showToast(e.message,'error',7000); }
+            finally { ui.loading.classList.add('hidden'); }
+        });
+        window.addEventListener('storage',e=>{
+            if(e.key===null || e.key===PENDING_WRITE_KEY || e.key.startsWith(PENDING_WRITE_PREFIX)) {
+                try { updatePendingWrites();pendingStorageError=''; } catch(error) { pendingStorageError=error.message; }
+                renderSyncState();
+            }
+        });
+        renderSyncState();
         ui.transactionSearchInput.addEventListener('input',debounce(()=>routeToActivePage(),200));
 
         if (ui.prevMonthBtn) ui.prevMonthBtn.addEventListener('click', () => handleMonthChange(-1));
@@ -11708,6 +11837,7 @@ body:has(#tax-page.active) .modern-toolbar>div:last-child{display:none!important
                 if(!e.target.value) return;
                 const [year, month] = e.target.value.split('-');
                 state.currentDate = new Date(year, parseInt(month) - 1, 1);
+                syncReportPeriod();
                 if (ui.filterDateStart) ui.filterDateStart.value = '';
                 if (ui.filterDateEnd) ui.filterDateEnd.value = '';
                 routeToActivePage();
@@ -11739,13 +11869,7 @@ body:has(#tax-page.active) .modern-toolbar>div:last-child{display:none!important
                     if (match) detectedDesc = text.replace(match[0], '').replace(/บาท/g, '').replace(/ราคา/g, '').trim();
 
                     if (btnId === 'voice-add-btn') {
-                        modalControls['transaction-modal'].open(); 
-                        $('transaction-form').reset();
-                        $('transaction-id').value = '';
-                        $('modal-title').textContent = 'เพิ่มรายการ (เสียง)';
-                        $('transaction-type').value = 'Expense'; 
-                        $('transaction-type').dispatchEvent(new Event('change'));
-                        $('transaction-date').value = formatDateToInput(new Date());
+                        openTransactionDraft();$('modal-title').textContent = 'เพิ่มรายการ (เสียง)';
                     }
 
                     if (detectedAmount) $('transaction-amount').value = detectedAmount;
@@ -11795,18 +11919,37 @@ body:has(#tax-page.active) .modern-toolbar>div:last-child{display:none!important
             window.scrollTo({top: 0, behavior: 'smooth'});
         }));
         
-        $('nav-add-btn').addEventListener('click', () => { 
-            const form = $('transaction-form'); form.reset(); $('transaction-id').value = ''; $('modal-title').textContent = 'เพิ่มรายการใหม่'; 
-            $('transaction-type').innerHTML = [['Expense','รายจ่าย'],['Income','รายรับ'],['Saving','ออม'],['Investment','ลงทุน'],['FreeCashFlow','ทุนสำรอง']].map(t=>`<option value="${t[0]}">${t[1]}</option>`).join(''); 
-            $('transaction-type').dispatchEvent(new Event('change')); $('transaction-date').value = formatDateToInput(new Date());
-            if(ui.isDeduct) ui.isDeduct.checked = false; if(ui.deductContainer) ui.deductContainer.classList.add('hidden');
-            const useSavingToggle = $('use-saving-toggle'); if(useSavingToggle) useSavingToggle.checked = false;
-            $('saving-goal-selector').classList.add('hidden');
-            const badgeEl = $('autocategorize-badge'); if(badgeEl) badgeEl.classList.add('hidden');
-            const suggestEl = $('autocomplete-suggestions'); if(suggestEl) suggestEl.classList.add('hidden');
-            modalControls['transaction-modal'].open(); 
-        });
-        
+        // Transaction draft helpers
+        let transactionDraftVersion=0;
+        const setBillDraft=(fixedCostId='',billMonth='',editing=false)=>{
+            const linked=!!fixedCostId && !!billMonth;
+            $('transaction-fixed-id').value=linked?fixedCostId:'';
+            $('transaction-bill-month').value=linked?billMonth:'';
+            $('transaction-type').disabled=linked;
+            $('transaction-category').disabled=linked&&!editing;
+            const note=$('transaction-bill-note');note.hidden=!linked;
+            note.textContent=linked?'เชื่อมกับบิลเดือน '+billMonth+' · กรอกยอดและวันที่จ่ายจริงได้':'';
+            if(linked){$('use-saving-toggle').checked=false;$('use-saving-goal-container').classList.add('hidden');$('saving-goal-selector').classList.add('hidden');$('autocategorize-badge').classList.add('hidden');}
+        };
+        const openTransactionDraft=(draft={})=>{
+            transactionDraftVersion++;
+            const form=$('transaction-form');form.reset();$('transaction-id').value='';$('transaction-revision').value='';setTransactionConflict(false);
+            $('modal-title').textContent=draft.FixedCostID?'บันทึกจ่ายบิล':draft.Type==='Saving'?'ออมเพิ่ม':'เพิ่มรายการใหม่';
+            $('transaction-type').innerHTML=[['Expense','รายจ่าย'],['Income','รายรับ'],['Saving','ออม'],['Investment','ลงทุน'],['FreeCashFlow','ทุนสำรอง']].map(t=>`<option value="${t[0]}">${t[1]}</option>`).join('');
+            $('transaction-type').value=draft.Type||'Expense';$('transaction-type').dispatchEvent(new Event('change'));
+            if(draft.Category)$('transaction-category').value=draft.Category;
+            $('transaction-amount').value=draft.Amount??'';$('transaction-date').value=draft.Date||formatDateToInput(new Date());
+            $('transaction-description').value=draft.Description||'';$('transaction-mood').value=draft.Mood||'';
+            if(ui.isDeduct)ui.isDeduct.checked=!!draft.IsDeduct;
+            $('use-saving-toggle').checked=false;$('saving-goal-selector').classList.add('hidden');
+            $('autocategorize-badge').classList.add('hidden');$('autocomplete-suggestions').classList.add('hidden');
+            setBillDraft(draft.FixedCostID,draft.BillMonth);
+            modalControls['summary-details-modal'].close();modalControls['transaction-modal'].open();
+            $('transaction-amount').focus();
+        };
+        // End transaction draft helpers
+        $('nav-add-btn').addEventListener('click',()=>openTransactionDraft());
+
         $('transaction-type').addEventListener('change', (e) => {
             const type = e.target.value; 
             const cats = type === 'Saving' ? state.goals.map(g => ({Name: g.GoalName, Emoji: '🎯'})) : state.categories.filter(c => c.Type === type);
@@ -11894,6 +12037,7 @@ body:has(#tax-page.active) .modern-toolbar>div:last-child{display:none!important
             };
 
             const showChips = () => {
+                if($('transaction-fixed-id').value){suggestionsEl.classList.add('hidden');return;}
                 const currentType = $('transaction-type')?.value;
                 const recent = [...new Map(
                     state.allTransactions
@@ -11915,6 +12059,7 @@ body:has(#tax-page.active) .modern-toolbar>div:last-child{display:none!important
 
                 suggestionsEl.querySelectorAll('.autocomplete-chip').forEach(chip => {
                     chip.addEventListener('click', () => {
+                        if($('transaction-fixed-id').value)return;
                         descInput.value = chip.dataset.desc;
                         suggestionsEl.classList.add('hidden');
                         badgeEl.classList.add('hidden');
@@ -11925,6 +12070,7 @@ body:has(#tax-page.active) .modern-toolbar>div:last-child{display:none!important
                             typeEl.dispatchEvent(new Event('change'));
                         }
                         setTimeout(() => {
+                            if($('transaction-fixed-id').value)return;
                             const catEl = $('transaction-category');
                             if (catEl) {
                                 const opt = [...catEl.options].find(o => o.value === chip.dataset.cat);
@@ -11938,6 +12084,7 @@ body:has(#tax-page.active) .modern-toolbar>div:last-child{display:none!important
 
             descInput.addEventListener('focus', () => { dismissedForThisInput = false; showChips(); });
             descInput.addEventListener('input', debounce(() => {
+                if($('transaction-fixed-id').value){suggestionsEl.classList.add('hidden');badgeEl.classList.add('hidden');return;}
                 const query = descInput.value.trim();
                 suggestionsEl.classList.add('hidden');
 
@@ -11959,13 +12106,14 @@ body:has(#tax-page.active) .modern-toolbar>div:last-child{display:none!important
             descInput.addEventListener('blur', () => { setTimeout(() => suggestionsEl.classList.add('hidden'), 150); });
 
             applyBtn.addEventListener('click', () => {
-                if (!suggestedCategory) return;
+                if (!suggestedCategory || $('transaction-fixed-id').value) return;
                 const typeEl = $('transaction-type');
                 if (typeEl && suggestedType && suggestedType !== typeEl.value) {
                     typeEl.value = suggestedType;
                     typeEl.dispatchEvent(new Event('change'));
                 }
                 setTimeout(() => {
+                    if($('transaction-fixed-id').value)return;
                     const catEl = $('transaction-category');
                     if (catEl) {
                         const opt = [...catEl.options].find(o => o.value === suggestedCategory);
@@ -11983,6 +12131,7 @@ body:has(#tax-page.active) .modern-toolbar>div:last-child{display:none!important
         })();
         
         $('use-saving-toggle').addEventListener('change', (e) => {
+            if($('transaction-fixed-id').value){e.target.checked=false;return;}
             const selector = $('saving-goal-selector');
             if (e.target.checked) {
                 const goalSel = $('saving-goal-select');
@@ -12037,22 +12186,39 @@ body:has(#tax-page.active) .modern-toolbar>div:last-child{display:none!important
         };
         $('saving-goal-select').addEventListener('change', updateGoalBalanceDisplay);
         
+        let transactionConflict=false;
+        const setTransactionConflict=value=>{
+            transactionConflict=value;
+            if(!value){
+                const fixed=$('transaction-fixed-id'),month=$('transaction-bill-month'),note=$('transaction-bill-note');
+                if(fixed)fixed.value='';if(month)month.value='';if(note){note.hidden=true;note.textContent='';}
+                if($('transaction-type'))$('transaction-type').disabled=false;if($('transaction-category'))$('transaction-category').disabled=false;
+            }
+            $('transaction-conflict-notice').hidden=!value;
+            ui.submitTransBtn.disabled=value;
+        };
         $('transaction-form').addEventListener('submit', async (e) => {
             e.preventDefault(); 
-            if(ui.submitTransBtn.disabled) return;
-            const id = $('transaction-id').value; 
+            if(transactionConflict || ui.submitTransBtn.disabled) return;
+            const id = $('transaction-id').value;
+            const fixedCostId=$('transaction-fixed-id')?.value || '',billMonth=$('transaction-bill-month')?.value || '';
+            if((fixedCostId || billMonth) && serverCapabilities.billPayments!==true)return showToast('กรุณาอัปเดต GAS และโหลดข้อมูลล่าสุดก่อนใช้การจ่ายบิล','error');
             const isDeduct = ui.isDeduct ? ui.isDeduct.checked : false;
             const data = { 
                 ID: id, Type: $('transaction-type').value, Category: $('transaction-category').value, 
                 Amount: parseFloat($('transaction-amount').value), 
                 Date: `${$('transaction-date').value}T12:00:00`, 
                 Description: $('transaction-description').value, 
-                Mood: $('transaction-mood').value, IsDeduct: isDeduct 
+                Mood: $('transaction-mood').value, IsDeduct: isDeduct,
+                ...(id ? {expectedRevision:Number($('transaction-revision').value)} : {}),
+                ...(fixedCostId && billMonth ? {FixedCostID:fixedCostId,BillMonth:billMonth} : {}) 
             };
 
             if(!Number.isFinite(data.Amount) || data.Amount<=0 || !$('transaction-date').value || !data.Category) return showToast('กรุณาระบุวันที่ หมวดหมู่ และจำนวนเงินมากกว่า 0', 'error');
             const useSavingToggle = $('use-saving-toggle');
-            const useSavingGoal = useSavingToggle && useSavingToggle.checked && data.Type === 'Expense';
+            const useSavingGoal = !fixedCostId && useSavingToggle && useSavingToggle.checked && data.Type === 'Expense';
+            const savingGoal=!id && data.Type==='Saving' && !data.IsDeduct?state.goals.find(g=>g.GoalName===data.Category):null;
+            const savingBefore=savingGoal?goalSavingsPlan(savingGoal,state.allTransactions).percent:null;
             const selectedGoalName = useSavingGoal ? $('saving-goal-select').value : null;
 
             if(useSavingGoal && !selectedGoalName) return showToast('กรุณาเลือกเป้าหมาย', 'error');
@@ -12069,75 +12235,86 @@ body:has(#tax-page.active) .modern-toolbar>div:last-child{display:none!important
                 }
             }
 
-            // Guard against double-tap submits while the sheet is closing.
-            ui.submitTransBtn.disabled = true; setTimeout(() => { ui.submitTransBtn.disabled = false; }, 800);
-            modalControls['transaction-modal'].close();
-
-            const isGoalWithdraw = !id && useSavingGoal && !!selectedGoalName;
-            const record = isGoalWithdraw
-                // ✅ บันทึกเฉพาะการถอนเงินออม — ไม่บันทึกเป็นรายจ่าย (เงินส่วนนี้ออมไว้แล้ว ไม่ควรนับซ้ำ)
-                ? { Type: 'Saving', Category: selectedGoalName, Amount: data.Amount, Date: data.Date, Description: `ถอนใช้: ${data.Category}${data.Description ? ' - ' + data.Description : ''}`, IsDeduct: true, Mood: '' }
-                : { ...data, ID: id || undefined };
-            const successMsg = isGoalWithdraw
-                ? `🎯 บันทึกการใช้เงินออม "${selectedGoalName}" เรียบร้อย — ไม่นับเป็นรายจ่าย`
-                : (id ? 'แก้ไขรายการสำเร็จ' : 'บันทึกรายการสำเร็จ');
-
-            // Optimistic update: show the change immediately, confirm with the server in the background.
-            const localId = id || `tmp-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
-            const previous = id ? state.allTransactions.find(t => t.ID == id) : null;
-            const optimistic = { ...previous, ...record, ID: localId, _pending: true };
-            state.allTransactions = id ? state.allTransactions.map(t => t.ID == id ? optimistic : t) : [...state.allTransactions, optimistic];
-            commitLocal();
-            showToast('กำลังบันทึก...', 'info', 1500);
-
             try {
-                await apiCall(id ? 'updateTransaction' : 'addTransaction', { data: record }, { dedupe: !!id });
-                const row = state.allTransactions.find(t => t.ID === localId && t._pending);
-                if (row) delete row._pending;
-                commitLocal();
-                showToast(successMsg);
-                syncInBackground();
-            } catch(e) {
-                // Roll back only this change, then reopen the form so nothing the user typed is lost.
-                state.allTransactions = id ? state.allTransactions.map(t => t.ID == id && previous ? previous : t) : state.allTransactions.filter(t => t.ID !== localId);
-                commitLocal();
-                showToast(`${e.message || 'บันทึกไม่สำเร็จ'} — ข้อมูลยังอยู่ในฟอร์ม`, 'error', 7000);
-                restoreTransactionForm(data, id, isGoalWithdraw ? selectedGoalName : null);
-                syncInBackground();
+                ui.submitTransBtn.disabled = true;
+                // โชว์ Loading ชั่วคราวเพื่อรอส่งข้อมูลกลับเซิร์ฟเวอร์
+                ui.loading.classList.remove('hidden');
+
+                if (!id && useSavingGoal && selectedGoalName) {
+                    // ✅ บันทึกเฉพาะการถอนเงินออม — ไม่บันทึกเป็นรายจ่าย
+                    // เงินส่วนนี้ออมไว้แล้ว ไม่ควรนับซ้ำเป็นรายจ่าย
+                    const withdrawData = {
+                        Type: 'Saving',
+                        Category: selectedGoalName,
+                        Amount: data.Amount,
+                        Date: data.Date,
+                        Description: `ถอนใช้: ${data.Category}${data.Description ? ' - ' + data.Description : ''}`,
+                        IsDeduct: true,
+                        Mood: ''
+                    };
+                    await apiCall('addTransaction', { data: withdrawData });
+                    // Keep the goal and its remaining balance/history after withdrawal.
+                    showToast(`🎯 บันทึกการใช้เงินออม "${selectedGoalName}" เรียบร้อย — ไม่นับเป็นรายจ่าย`);
+                } else {
+                    // บันทึกรายการปกติ
+                    await apiCall(id ? 'updateTransaction' : 'addTransaction', { data: { ...data, ID: id || undefined } });
+                    showToast(id ? 'แก้ไขรายการสำเร็จ' : fixedCostId?'บันทึกจ่ายบิลแล้ว':'บันทึกรายการสำเร็จ');
+                }
+                
+                modalControls['transaction-modal'].close();
+                // Confirmed writes refresh the garden and bill status.
+                const refreshed=await init(true,true);
+                if(refreshed && savingGoal)celebrateGoalSaving(savingGoal.GoalName,savingBefore);
+            } catch(e) { 
+                showToast(e.message || 'บันทึกไม่สำเร็จ กรุณาโหลดข้อมูลล่าสุดก่อนลองใหม่', 'error');
+                if(e.code==='BILL_ALREADY_PAID' && fixedCostId){
+                    modalControls['transaction-modal'].close();
+                    const refreshed=await init(true,true);if(refreshed)window.showBillDetails(fixedCostId,billMonth);
+                } else {
+                    if(['REVISION_CONFLICT','REVISION_REQUIRED'].includes(e.code)) { setTransactionConflict(true);await init(true,true); }
+                    modalControls['transaction-modal'].open();
+                } 
+            } finally {
+                ui.submitTransBtn.disabled = transactionConflict;
+                ui.loading.classList.add('hidden');
             }
         });
 
-        // Refill the transaction form after a failed save so the user can retry with one tap.
-        const restoreTransactionForm = (data, id, goalName) => {
-            $('transaction-id').value = id || ''; $('modal-title').textContent = id ? 'แก้ไขรายการ' : 'เพิ่มรายการใหม่';
-            $('transaction-type').value = data.Type; $('transaction-type').dispatchEvent(new Event('change'));
-            if (![...$('transaction-category').options].some(o => o.value === data.Category)) $('transaction-category').add(new Option(data.Category, data.Category));
-            $('transaction-category').value = data.Category;
-            $('transaction-amount').value = data.Amount; $('transaction-date').value = String(data.Date).slice(0, 10);
-            $('transaction-description').value = data.Description || ''; $('transaction-mood').value = data.Mood || '';
-            if (['Investment', 'FreeCashFlow'].includes(data.Type) || data.IsDeduct) ui.deductContainer?.classList.remove('hidden');
-            if (ui.isDeduct) ui.isDeduct.checked = !!data.IsDeduct;
-            if (goalName && $('use-saving-toggle')) { $('use-saving-toggle').checked = true; $('use-saving-toggle').dispatchEvent(new Event('change')); $('saving-goal-select').value = goalName; }
-            ui.submitTransBtn.disabled = false;
-            modalControls['transaction-modal'].open();
-        };
-
-        $('transaction-action-edit-btn').addEventListener('click', () => {
-            modalControls['transaction-action-modal'].close(); const t = state.allTransactions.find(t => t.ID == state.selectedTransactionId);
+        const openTransactionEditor = id => {
+            const t = state.allTransactions.find(t => t.ID == id);
             if (t) {
-                const form = $('transaction-form'); form.reset(); $('modal-title').textContent = 'แก้ไขรายการ'; $('transaction-id').value = t.ID;
+                transactionDraftVersion++;
+                setTransactionConflict(false);
+                const form = $('transaction-form'); form.reset(); $('modal-title').textContent = 'แก้ไขรายการ'; $('transaction-id').value = t.ID; $('transaction-revision').value = t.Revision;
                 $('transaction-type').innerHTML = [['Expense','รายจ่าย'],['Income','รายรับ'],['Saving','ออม'],['Investment','ลงทุน'],['FreeCashFlow','ทุนสำรอง']].map(o=>`<option value="${o[0]}">${o[1]}</option>`).join(''); 
                 $('transaction-type').value = t.Type; const cats = t.Type === 'Saving' ? state.goals.map(g => ({Name: g.GoalName, Emoji: '🎯'})) : state.categories.filter(c => c.Type === t.Type);
                 $('transaction-category').innerHTML = cats.map(c => `<option value="${escapeHtml(c.Name)}">${escapeHtml(c.Emoji)} ${escapeHtml(c.Name)}</option>`).join(''); if(!cats.some(c=>c.Name===t.Category)) $('transaction-category').add(new Option(t.Category || '(ไม่ระบุหมวดหมู่)',t.Category)); $('transaction-category').value = t.Category;
                 $('transaction-amount').value = t.Amount; $('transaction-date').value = formatDateToInput(getLocalDate(t.Date)); $('transaction-description').value = t.Description;
                 $('transaction-mood').value=t.Mood || ''; $('use-saving-goal-container').classList.add('hidden'); $('saving-goal-selector').classList.add('hidden'); ui.isDeduct.checked=t.IsDeduct;
                 if (t.Type === 'Investment' || t.Type === 'FreeCashFlow' || (t.Type === 'Saving' && t.IsDeduct)) { if(ui.deductContainer) ui.deductContainer.classList.remove('hidden'); if(ui.isDeduct) ui.isDeduct.checked = t.IsDeduct; } else { if(ui.deductContainer) ui.deductContainer.classList.add('hidden'); }
+                setBillDraft(t.FixedCostID,t.BillMonth,true);
                 modalControls['transaction-modal'].open();
             } else showToast('ไม่พบข้อมูลรายการ', 'error');
+        };
+        $('transaction-action-edit-btn').addEventListener('click', () => {
+            modalControls['transaction-action-modal'].close();
+            openTransactionEditor(state.selectedTransactionId);
+        });
+        $('reload-transaction-draft-btn').addEventListener('click',async()=>{
+            const id=$('transaction-id').value,btn=$('reload-transaction-draft-btn');
+            if(btn.disabled) return;
+            btn.disabled=true;
+            try {
+                const refreshed=await init(true,true);
+                if(!refreshed) return showToast('ยังโหลดข้อมูลล่าสุดไม่ได้ ร่างเดิมยังอยู่ กรุณาลองอีกครั้ง','error');
+                if(!state.allTransactions.some(t=>t.ID===id)) return showToast('รายการนี้ถูกลบไปแล้ว ร่างเดิมยังอยู่','error');
+                openTransactionEditor(id);
+            } finally {btn.disabled=false;}
         });
         
         $('transaction-action-delete-btn').addEventListener('click', () => { 
             modalControls['transaction-action-modal'].close(); 
+            const deleteId=state.selectedTransactionId,expectedRevision=state.selectedTransactionRevision;
             setText('confirm-modal-message', 'ต้องการลบรายการนี้ใช่หรือไม่?'); 
             modalControls['confirm-modal'].open(); 
             
@@ -12147,18 +12324,17 @@ body:has(#tax-page.active) .modern-toolbar>div:last-child{display:none!important
             
             newBtn.addEventListener('click', async () => { 
                 modalControls['confirm-modal'].close(); 
-                const delId = state.selectedTransactionId;
-                const removed = state.allTransactions.find(t => t.ID == delId);
-                state.allTransactions = state.allTransactions.filter(t => t.ID != delId);
-                commitLocal();
+                ui.loading.classList.remove('hidden');
+                
                 try {
-                    await apiCall('deleteTransaction', { id: delId }); 
+                    await apiCall('deleteTransaction', { id: deleteId, expectedRevision }); 
                     showToast('ลบรายการสำเร็จ'); 
-                    syncInBackground();
+                    await init(true, true); // Force Sync
                 } catch(e) { 
-                    if (removed && !state.allTransactions.some(t => t.ID == delId)) { state.allTransactions = [...state.allTransactions, removed]; commitLocal(); }
-                    showToast(`ลบไม่สำเร็จ: ${e.message || 'กรุณาลองใหม่'}`, 'error', 7000);
-                    syncInBackground();
+                    showToast(e.message || 'ลบไม่สำเร็จ กรุณาลองใหม่', 'error');
+                    if(['REVISION_CONFLICT','REVISION_REQUIRED'].includes(e.code)) await init(true,true);
+                } finally {
+                    ui.loading.classList.add('hidden');
                 }
             }); 
         });
@@ -12166,32 +12342,42 @@ body:has(#tax-page.active) .modern-toolbar>div:last-child{display:none!important
         $('transaction-action-duplicate-btn').addEventListener('click', async () => { 
             modalControls['transaction-action-modal'].close(); 
             const t = state.allTransactions.find(t => t.ID == state.selectedTransactionId); 
-            if (!t) return showToast('ไม่พบข้อมูลรายการ', 'error');
-            const { ID, _pending, ...rest } = t;
-            const data = { ...rest, Date: `${formatDateToInput(new Date())}T12:00:00` }; 
-            const localId = `tmp-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
-            state.allTransactions = [...state.allTransactions, { ...data, ID: localId, _pending: true }];
-            commitLocal();
+            if(!t) return showToast('ไม่พบรายการ กรุณาโหลดข้อมูลล่าสุด', 'error');
+            const data = { ...t, ID: null, Date: `${formatDateToInput(new Date())}T12:00:00` };
+            delete data.Revision; delete data.expectedRevision; delete data.Timestamp; delete data.FixedCostID; delete data.BillMonth; 
+            
+            ui.loading.classList.remove('hidden');
             try {
-                await apiCall('addTransaction', { data }, { dedupe: false }); 
-                const row = state.allTransactions.find(r => r.ID === localId);
-                if (row) delete row._pending;
-                commitLocal();
+                await apiCall('addTransaction', { data }); 
                 showToast('ทำรายการซ้ำสำเร็จ');
-                syncInBackground();
+                await init(true, true);
             } catch(e) {
-                state.allTransactions = state.allTransactions.filter(r => r.ID !== localId);
-                commitLocal();
-                showToast(`ทำรายการซ้ำไม่สำเร็จ: ${e.message || ''}`, 'error', 7000);
+                showToast('เกิดข้อผิดพลาดในการทำซ้ำ', 'error');
+            } finally {
+                ui.loading.classList.add('hidden');
             }
         });
         
-        $('select-transactions-btn').addEventListener('click', () => { state.isSelectMode = !state.isSelectMode; $('bulk-edit-bar').classList.toggle('hidden', !state.isSelectMode); $('bottom-nav-bar').classList.toggle('hidden', state.isSelectMode && window.innerWidth < 768); state.selectedTransactionIds.clear(); setText('bulk-edit-count', '0 รายการ'); routeToActivePage(); });
+        $('select-transactions-btn').addEventListener('click', () => { state.isSelectMode = !state.isSelectMode; $('bulk-edit-bar').classList.toggle('hidden', !state.isSelectMode); $('bottom-nav-bar').classList.toggle('hidden', state.isSelectMode && window.innerWidth < 768); state.selectedTransactionIds.clear();state.selectedTransactionRevisions.clear(); setText('bulk-edit-count', '0 รายการ'); routeToActivePage(); });
         $('cancel-bulk-edit-btn').addEventListener('click', () => { state.isSelectMode = false; $('bulk-edit-bar').classList.add('hidden'); $('bottom-nav-bar').classList.remove('hidden'); routeToActivePage(); });
         
-        if (ui.bulkDeleteBtn) { ui.bulkDeleteBtn.addEventListener('click', () => { const count = state.selectedTransactionIds.size; if (count === 0) return; setText('confirm-modal-message', `ต้องการลบ ${count} รายการที่เลือกหรือไม่?`); modalControls['confirm-modal'].open(); const confirmBtn = $('confirm-modal-confirm-btn'); const newBtn = confirmBtn.cloneNode(true); confirmBtn.parentNode.replaceChild(newBtn, confirmBtn); newBtn.addEventListener('click', async () => { modalControls['confirm-modal'].close(); ui.loading.classList.remove('hidden'); try { await apiCall('bulkDeleteTransactions', { ids: Array.from(state.selectedTransactionIds) }); showToast(`ลบ ${count} รายการเรียบร้อยแล้ว`); state.isSelectMode = false; state.selectedTransactionIds.clear(); ui.bulkEditBar.classList.add('hidden'); ui.bottomNav.classList.remove('hidden'); ui.loading.classList.add('hidden'); syncInBackground(); } catch(e) { ui.loading.classList.add('hidden'); showToast('เกิดข้อผิดพลาดในการลบหลายรายการ', 'error'); } }); }); }
+        const recoverBulkRevisionConflict = async () => {
+            state.selectedTransactionIds.clear();
+            state.selectedTransactionRevisions.clear();
+            state.isSelectMode = false;
+            ui.bulkEditBar.classList.add('hidden');
+            ui.bottomNav.classList.remove('hidden');
+            setText('bulk-edit-count', '0 รายการ');
+            if (ui.bulkDeleteBtn) ui.bulkDeleteBtn.disabled = true;
+            if (ui.bulkEditBtn) ui.bulkEditBtn.disabled = true;
+            routeToActivePage();
+            const refreshed = await init(true, true);
+            if (refreshed) showToast('ข้อมูลรายการเปลี่ยนแปลง กรุณาเลือกรายการจากข้อมูลล่าสุด และตรวจสอบก่อนลองอีกครั้ง', 'error', 7000);
+        };
+
+        if (ui.bulkDeleteBtn) { ui.bulkDeleteBtn.addEventListener('click', () => { const count = state.selectedTransactionIds.size; if (count === 0) return; const ids=Array.from(state.selectedTransactionIds),expectedRevisions=Object.fromEntries(ids.map(id=>[id,state.selectedTransactionRevisions.get(id)])); setText('confirm-modal-message', `ต้องการลบ ${count} รายการที่เลือกหรือไม่?`); modalControls['confirm-modal'].open(); const confirmBtn = $('confirm-modal-confirm-btn'); const newBtn = confirmBtn.cloneNode(true); confirmBtn.parentNode.replaceChild(newBtn, confirmBtn); newBtn.addEventListener('click', async () => { modalControls['confirm-modal'].close(); ui.loading.classList.remove('hidden'); try { await apiCall('bulkDeleteTransactions', { ids, expectedRevisions }); showToast(`ลบ ${count} รายการเรียบร้อยแล้ว`); state.isSelectMode = false; ui.bulkEditBar.classList.add('hidden'); ui.bottomNav.classList.remove('hidden'); await init(true, true); } catch(e) { ui.loading.classList.add('hidden'); showToast(e.message || 'เกิดข้อผิดพลาดในการลบหลายรายการ', 'error'); if(['REVISION_CONFLICT','REVISION_REQUIRED'].includes(e.code)) await recoverBulkRevisionConflict(); } }); }); }
         if (ui.bulkEditBtn) { ui.bulkEditBtn.addEventListener('click', () => { const count = state.selectedTransactionIds.size; if (count === 0) return; $('bulk-edit-form').reset(); $('bulk-edit-category').innerHTML='<option value="">-- ไม่เปลี่ยนแปลง --</option>'; const typeSel = $('bulk-edit-type'); typeSel.innerHTML = '<option value="">-- ไม่เปลี่ยนแปลง --</option>' + [['Expense','รายจ่าย'],['Income','รายรับ'],['Saving','ออม'],['Investment','ลงทุน'],['FreeCashFlow','ทุนสำรอง']].map(t=>`<option value="${t[0]}">${t[1]}</option>`).join(''); typeSel.onchange = (e) => { const catSel = $('bulk-edit-category'); if (!e.target.value) { catSel.innerHTML = '<option value="">-- ไม่เปลี่ยนแปลง --</option>'; return; } const cats = e.target.value === 'Saving' ? state.goals.map(g => ({Name: g.GoalName, Emoji: '🎯'})) : state.categories.filter(c => c.Type === e.target.value); catSel.innerHTML = '<option value="">-- ไม่เปลี่ยนแปลง --</option>' + cats.map(c => `<option value="${escapeHtml(c.Name)}">${escapeHtml(c.Emoji)} ${escapeHtml(c.Name)}</option>`).join(''); }; setText('bulk-edit-modal-title', `แก้ไข ${count} รายการ`); modalControls['bulk-edit-modal'].open(); }); }
-        if (ui.bulkEditForm) { ui.bulkEditForm.addEventListener('submit', async (e) => { e.preventDefault(); const updates = {}; const type = $('bulk-edit-type').value; const category = $('bulk-edit-category').value; const desc = $('bulk-edit-description').value; if(type && !category) { showToast('กรุณาเลือกหมวดหมู่ให้ตรงกับประเภทใหม่', 'error'); return; } if (type) updates.Type = type; if (category) updates.Category = category; if (desc) updates.Description = desc; if (Object.keys(updates).length === 0) { showToast('ยังไม่ได้ระบุข้อมูลที่จะแก้ไข', 'error'); return; } modalControls['bulk-edit-modal'].close(); ui.loading.classList.remove('hidden'); try { await apiCall('bulkUpdateTransactions', { ids: Array.from(state.selectedTransactionIds), updates }); showToast('แก้ไขข้อมูลเรียบร้อยแล้ว'); state.isSelectMode = false; state.selectedTransactionIds.clear(); ui.bulkEditBar.classList.add('hidden'); ui.bottomNav.classList.remove('hidden'); ui.loading.classList.add('hidden'); syncInBackground(); } catch(e) { ui.loading.classList.add('hidden'); showToast('แก้ไขรายการไม่สำเร็จ', 'error'); } }); }
+        if (ui.bulkEditForm) { ui.bulkEditForm.addEventListener('submit', async (e) => { e.preventDefault(); if(state.selectedTransactionIds.size===0) { showToast('กรุณาเลือกรายการจากข้อมูลล่าสุดก่อนแก้ไข', 'error');return; } const updates = {}; const type = $('bulk-edit-type').value; const category = $('bulk-edit-category').value; const desc = $('bulk-edit-description').value; if(type && !category) { showToast('กรุณาเลือกหมวดหมู่ให้ตรงกับประเภทใหม่', 'error'); return; } if (type) updates.Type = type; if (category) updates.Category = category; if (desc) updates.Description = desc; if (Object.keys(updates).length === 0) { showToast('ยังไม่ได้ระบุข้อมูลที่จะแก้ไข', 'error'); return; } modalControls['bulk-edit-modal'].close(); ui.loading.classList.remove('hidden'); try { await apiCall('bulkUpdateTransactions', { ids: Array.from(state.selectedTransactionIds), expectedRevisions:Object.fromEntries(Array.from(state.selectedTransactionIds,id=>[id,state.selectedTransactionRevisions.get(id)])), updates }); showToast('แก้ไขข้อมูลเรียบร้อยแล้ว'); state.isSelectMode = false; ui.bulkEditBar.classList.add('hidden'); ui.bottomNav.classList.remove('hidden'); await init(true, true); } catch(e) { ui.loading.classList.add('hidden'); showToast(e.message || 'แก้ไขรายการไม่สำเร็จ', 'error'); if(['REVISION_CONFLICT','REVISION_REQUIRED'].includes(e.code)) await recoverBulkRevisionConflict(); } }); }
 
         if (ui.filterDateStart) ui.filterDateStart.addEventListener('change', () => { routeToActivePage(); });
         if (ui.filterDateEnd) ui.filterDateEnd.addEventListener('change', () => { routeToActivePage(); });
@@ -12223,6 +12409,7 @@ body:has(#tax-page.active) .modern-toolbar>div:last-child{display:none!important
             try { localStorage.setItem('cutoffDay',String(day)); }
             catch(e) { return showToast('บันทึกการตั้งค่าในเบราว์เซอร์ไม่ได้', 'error'); }
             state.currentDate=getInitialCycleDate(day);
+            syncReportPeriod();
             setDefaultFilterDates(); routeToActivePage(); showToast('บันทึกวันตัดรอบแล้ว');
         });
         setDefaultFilterDates();
@@ -12346,6 +12533,98 @@ body:has(#tax-page.active) .modern-toolbar>div:last-child{display:none!important
         $('category-emoji-grid').addEventListener('click',e=>{const button=e.target.closest('button[data-emoji]');if(!button)return;emojiInput.value=button.dataset.emoji;emojiInput.dispatchEvent(new Event('input',{bubbles:true}));$('category-emoji-status').textContent='เลือก '+button.getAttribute('aria-label')+' แล้ว';emojiPicker.hidden=true;emojiToggle.setAttribute('aria-expanded','false');emojiToggle.focus();});
         emojiPicker.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();e.stopPropagation();resetCategoryEmojiPicker();emojiToggle.focus();}});
 
+
+        // Recurring bill helpers
+        const billDayNumber=d=>Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())/86400000;
+        const billMonthKey=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
+        const billOccurrences=(fixedCosts,transactions,start,end,today=new Date())=>{
+            if(!start || !end || !Number.isFinite(+start) || !Number.isFinite(+end) || end<=start) return [];
+            const bills=[];
+            for(const fixed of fixedCosts) {
+                const day=Number(fixed.DayOfMonth);
+                if((fixed.Type||'Expense')!=='Expense' || !Number.isInteger(day) || day<1 || day>31 || !Number.isFinite(Number(fixed.Amount)) || Number(fixed.Amount)<=0) continue;
+                for(let cursor=new Date(start.getFullYear(),start.getMonth(),1);cursor<end;cursor=new Date(cursor.getFullYear(),cursor.getMonth()+1,1)) {
+                    const dueDate=new Date(cursor.getFullYear(),cursor.getMonth(),Math.min(day,new Date(cursor.getFullYear(),cursor.getMonth()+1,0).getDate()),12);
+                    if(dueDate<start || dueDate>=end) continue;
+                    const id=String(fixed.ID||''),month=billMonthKey(dueDate);
+                    const payment=id?transactions.find(t=>t.Type==='Expense' && t.FixedCostID===id && t.BillMonth===month)||null:null;
+                    const candidates=payment?[]:transactions.filter(t=>{
+                        const date=getLocalDate(t.Date);
+                        return t.Type==='Expense' && !t.FixedCostID && t.Category===fixed.Category && String(t.Description||'').trim()===String(fixed.Description||'').trim() && date &&
+                            (billMonthKey(date)===month || Math.abs(billDayNumber(date)-billDayNumber(dueDate))<=7);
+                    });
+                    const paymentDate=payment&&getLocalDate(payment.Date);
+                    const status=payment?(paymentDate&&billDayNumber(paymentDate)>billDayNumber(today)?'scheduled':'paid'):'unpaid';
+                    bills.push({fixed,id,month,dueDate,days:billDayNumber(dueDate)-billDayNumber(today),payment,candidates,status});
+                }
+            }
+            return bills.sort((a,b)=>a.dueDate-b.dueDate || String(a.fixed.Description).localeCompare(String(b.fixed.Description),'th'));
+        };
+        const getCycleBills=()=>{const range=getDateRange(state.currentDate);return billOccurrences(state.fixedCosts,state.allTransactions,range.startDate,range.endDate);};
+        const billStatusText=b=>b.status==='paid'?'จ่ายแล้ว':b.status==='scheduled'?'บันทึกล่วงหน้า':b.days<0?'เลยกำหนด '+Math.abs(b.days)+' วัน':b.days===0?'ครบกำหนดวันนี้':'ครบกำหนดอีก '+b.days+' วัน';
+        const billDateLabel=d=>d.toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'numeric'});
+        const billRowHTML=b=>`<div class="bill-row"><div class="bill-row-copy"><strong>${escapeHtml(b.fixed.Description)}</strong><small>${billDateLabel(b.dueDate)} · ${escapeHtml(b.fixed.Category)}</small><span class="bill-status ${b.status==='paid'?'bill-paid':b.status==='scheduled'?'bill-scheduled':b.days<0?'bill-overdue':''}">${billStatusText(b)}</span></div><div class="bill-row-action"><b>${formatMoney(b.payment?b.payment.Amount:b.fixed.Amount)} ฿</b><button type="button" class="bill-button" ${!b.id?'disabled':''} onclick="showBillDetails('${escAttr(b.id)}','${escAttr(b.month)}')">${b.payment?'ดูรายการ':'ดู / จ่ายบิล'}</button></div></div>`;
+        const renderUpcomingBills=()=>{
+            const panel=$('upcoming-bills');if(!panel)return;
+            const bills=getCycleBills();panel.hidden=bills.length===0;
+            if(!bills.length) {panel.innerHTML='';return;}
+            const remaining=bills.filter(b=>!b.payment),scheduled=bills.filter(b=>b.status==='scheduled'),paid=bills.filter(b=>b.status==='paid');
+            const visible=[...remaining,...scheduled].slice(0,3),sum=remaining.reduce((total,b)=>total+Number(b.fixed.Amount),0);
+            const summary=[remaining.length?'ยังไม่บันทึกจ่าย '+remaining.length+' บิล · '+formatMoney(sum)+' บาท':'',scheduled.length?'บันทึกล่วงหน้า '+scheduled.length+' บิล':'',paid.length?'จ่ายแล้ว '+paid.length+' บิล':''].filter(Boolean).join(' · ');
+            panel.innerHTML=`<div class="bill-heading"><div><h2>บิลใกล้ถึงกำหนด</h2><p>ตามรอบบัญชีที่เลือก · ${summary}</p></div><button type="button" class="bill-button bill-secondary" onclick="showBills()">ดูทั้งหมด (${bills.length})</button></div>${visible.length?visible.map(billRowHTML).join(''):'<p class="bill-note">✓ ตรวจวันจ่ายและรายละเอียดได้ในรายการบิลทั้งหมด</p>'}${serverCapabilities.billPayments!==true?'<p class="bill-note">อัปเดต GAS เพื่อเปิดใช้การบันทึกและเชื่อมรายการจ่ายบิล</p>':''}`;
+        };
+        window.showBills=()=>{
+            const bills=getCycleBills(),{startDate,endDate}=getDateRange(state.currentDate),last=new Date(endDate);last.setDate(last.getDate()-1);
+            setText('summary-details-modal-title','บิลในรอบบัญชี');
+            $('summary-details-list').innerHTML=`<p class="bill-note">${billDateLabel(startDate)} – ${billDateLabel(last)}<br>สถานะจ่ายแล้วอ้างอิงรายการที่เชื่อมกับบิลนี้</p>`+(bills.length?bills.map(billRowHTML).join(''):'<p class="bill-note">ยังไม่มีบิล ตั้งค่าได้ที่ การตั้งค่า → รายจ่ายคงที่</p>');
+            modalControls['summary-details-modal'].open();
+        };
+        const findCycleBill=(id,month)=>getCycleBills().find(b=>b.id===id&&b.month===month);
+        window.showBillDetails=(id,month)=>{
+            const b=findCycleBill(id,month);if(!b)return showToast('ไม่พบบิลในรอบนี้ กรุณาโหลดข้อมูลล่าสุด','error');
+            setText('summary-details-modal-title',b.fixed.Description);
+            let body=`<div class="bill-detail"><span class="bill-status ${b.status==='paid'?'bill-paid':b.status==='scheduled'?'bill-scheduled':b.days<0?'bill-overdue':''}">${billStatusText(b)}</span><h3>${formatMoney(b.fixed.Amount)} <small>บาทตามกำหนด</small></h3><p>ครบกำหนด ${billDateLabel(b.dueDate)} · ${escapeHtml(b.fixed.Category)}</p></div>`;
+            if(b.payment) {
+                body+=`<div class="bill-match"><strong>${b.status==='scheduled'?'บันทึกรายการล่วงหน้าแล้ว':'จ่ายแล้ว'}</strong><p>${formatMoney(b.payment.Amount)} บาท · วันที่ ${billDateLabel(getLocalDate(b.payment.Date))}</p><p>${escapeHtml(b.payment.Description||'')}</p><p class="bill-note">แก้ไขหรือลบรายการนี้ได้ในเมนูรายการทั้งหมด หากลบ รายการบิลรอบนี้จะกลับเป็นยังไม่จ่าย</p></div>`;
+            } else {
+                if(b.candidates.length) body+=`<div class="bill-match"><strong>พบรายการที่อาจเป็นบิลนี้</strong><p class="bill-note">ตรวจวันที่และยอดเงิน แล้วเลือกใช้รายการเดิมเพื่อไม่เพิ่มรายจ่ายซ้ำ</p>${b.candidates.map(t=>`<div class="bill-candidate"><div>${billDateLabel(getLocalDate(t.Date))}<br><b>${formatMoney(t.Amount)} ฿</b><small>${escapeHtml(t.Description||'')}</small></div><button type="button" class="bill-button" ${serverCapabilities.billPayments!==true?'disabled':''} onclick="linkBillPayment('${escAttr(id)}','${escAttr(month)}','${escAttr(t.ID)}',${Number(t.Revision)||0})">ใช้รายการนี้</button></div>`).join('')}</div>`;
+                body+=`<button type="button" class="bill-button bill-primary bill-full" ${serverCapabilities.billPayments!==true?'disabled':''} onclick="openBillPayment('${escAttr(id)}','${escAttr(month)}',true)">${b.candidates.length?'เป็นคนละรายการ · บันทึกจ่ายใหม่':'บันทึกจ่ายบิล'}</button><p class="bill-note">กรอกยอดและวันที่จ่ายจริงในหน้าถัดไป ระบบจะเชื่อมกับบิลเดือน ${escapeHtml(month)}</p>`;
+                if(serverCapabilities.billPayments!==true)body+='<p class="bill-note">กรุณาอัปเดต GAS และโหลดข้อมูลล่าสุดก่อนใช้การจ่ายบิล</p>';
+            }
+            $('summary-details-list').innerHTML=body;
+            modalControls['summary-details-modal'].open();
+        };
+        window.openBillPayment=(id,month,allowNew=false)=>{
+            if(serverCapabilities.billPayments!==true)return showToast('กรุณาอัปเดต GAS และโหลดข้อมูลล่าสุดก่อนจ่ายบิล','error');
+            const b=findCycleBill(id,month);if(!b)return showToast('ไม่พบบิลในรอบนี้','error');
+            if(b.payment) {window.showBillDetails(id,month);return showToast('บิลรอบนี้มีรายการจ่ายแล้ว','info');}
+            if(b.candidates.length&&!allowNew){window.showBillDetails(id,month);return showToast('ตรวจรายการเดิมที่พบก่อนบันทึกจ่ายใหม่','info');}
+            openTransactionDraft({Type:'Expense',Category:b.fixed.Category,Amount:Number(b.fixed.Amount),Date:formatDateToInput(new Date()),Description:b.fixed.Description,FixedCostID:id,BillMonth:month});
+        };
+        let billLinkBusy=false;
+        window.linkBillPayment=async(fixedCostId,billMonth,id,expectedRevision)=>{
+            if(billLinkBusy)return;
+            if(serverCapabilities.billPayments!==true)return showToast('กรุณาอัปเดต GAS และโหลดข้อมูลล่าสุด','error');
+            const b=findCycleBill(fixedCostId,billMonth);
+            if(!b || b.payment || !b.candidates.some(t=>t.ID===id))return showToast('รายการบิลเปลี่ยนแปลง กรุณาเปิดบิลใหม่','error');
+            billLinkBusy=true;ui.loading.classList.remove('hidden');
+            try {
+                await apiCall('linkFixedCostPayment',{id,expectedRevision,fixedCostId,billMonth});
+                const refreshed=await init(true,true);showToast('เชื่อมรายการเดิมกับบิลแล้ว โดยไม่เพิ่มรายจ่าย');
+                if(refreshed)window.showBillDetails(fixedCostId,billMonth);else modalControls['summary-details-modal'].close();
+            } catch(error) {
+                showToast(error.message,'error');
+                if(['REVISION_CONFLICT','BILL_ALREADY_PAID'].includes(error.code)) {const refreshed=await init(true,true);if(refreshed)window.showBillDetails(fixedCostId,billMonth);}
+            } finally {billLinkBusy=false;ui.loading.classList.add('hidden');}
+        };
+        // End recurring bill helpers
+
+        const celebrateGoalSaving=(goalName,beforePercent)=>{
+            const goal=state.goals.find(g=>g.GoalName===goalName);if(!goal)return;
+            const after=goalSavingsPlan(goal,state.allTransactions).percent;
+            const milestone=[100,75,50,25,10].find(level=>Number(beforePercent)<level&&after>=level);
+            if(milestone)showToast('🌳 '+goalName+' ผ่านด่าน '+milestone+'% แล้ว!','success',5000);
+        };
 
         let reportTrendChart=null;
         const reportDayNumber=d=>Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())/86400000;
