@@ -10107,10 +10107,14 @@ button[class*="bg-[#00F5D4]"],button[class*="bg-[#06D6A0]"]{background:var(--rp-
 
 </style>
 <style id="voice-status-style">
-#voice-add-btn.is-listening, #modal-voice-add-btn.is-listening {
+#voice-add-btn.is-listening, #modal-voice-add-btn.is-listening,
+#nav-add-btn.is-listening, #bottom-nav-bar #nav-add-btn.is-listening {
     background: #c92b4e !important; color: #fff !important;
     border-color: #ffd5df !important; box-shadow: 0 0 0 3px rgba(201,43,78,.23) !important;
+    animation: voice-pulse 1.2s ease-in-out infinite;
 }
+.voice-hold-btn { touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+@keyframes voice-pulse { 50% { box-shadow: 0 0 0 9px rgba(201,43,78,.12) !important; } }
 </style>
 </head>
 <body>
@@ -12104,17 +12108,26 @@ button[class*="bg-[#00F5D4]"],button[class*="bg-[#06D6A0]"]{background:var(--rp-
             });
         }
 
-        // Voice input lifecycle: one session, tied to the current transaction draft.
+        // Voice input lifecycle: push-to-talk. Hold a voice button (or hold "+") to listen; release to stop.
         let activeVoice = null;
+        const VOICE_BUTTON_LABELS = {
+            'nav-add-btn': 'เพิ่มรายการใหม่ (กดค้างเพื่อพูดบันทึก)',
+            'voice-add-btn': 'กดค้างเพื่อพูดบันทึกรายการ',
+            'modal-voice-add-btn': 'กดค้างเพื่อพูดกรอกรายการ'
+        };
+        const setVoiceButtonsListening = (buttons, listening) => buttons.forEach(({btn, label}) => {
+            const text = listening ? 'กำลังฟัง ปล่อยปุ่มเมื่อพูดจบ' : label;
+            btn.setAttribute('aria-label', text);
+            btn.title = text;
+            btn.classList.toggle('is-listening', listening);
+            if (btn.id !== 'nav-add-btn') btn.setAttribute('aria-pressed', String(listening));
+            const icon = btn.id === 'nav-add-btn' ? btn.querySelector('i') : null;
+            if (icon) { icon.classList.toggle('ph-plus', !listening); icon.classList.toggle('ph-microphone', listening); }
+        });
         const resetVoiceButton = session => {
             clearTimeout(session.listenTimer);
             clearTimeout(session.resultTimer);
-            session.buttons.forEach(({btn, label}) => {
-                btn.setAttribute('aria-pressed', 'false');
-                btn.setAttribute('aria-label', label);
-                btn.title = label;
-                btn.classList.remove('is-listening');
-            });
+            setVoiceButtonsListening(session.buttons, false);
         };
         function stopTransactionVoice() {
             const session = activeVoice;
@@ -12124,114 +12137,161 @@ button[class*="bg-[#00F5D4]"],button[class*="bg-[#06D6A0]"]{background:var(--rp-
             try { session.recognition.abort(); }
             catch (_) { try { session.recognition.stop(); } catch (_) {} }
         }
+        // Fill the form from everything heard while the button was held.
+        const applyVoiceTranscript = session => {
+            if (activeVoice !== session) return;
+            const text = [...session.finals, session.interim].join(' ').replace(/\s+/g, ' ').trim();
+            const tooShort = Date.now() - session.startedAt < 600;
+            stopTransactionVoice();
+            if (session.draftVersion !== transactionDraftVersion || !modalControls['transaction-modal'].isOpen) return;
+            if (!text) return showToast(tooShort ? 'กดปุ่มค้างไว้แล้วพูด ปล่อยปุ่มเมื่อพูดจบ' : 'ไม่ได้ยินเสียง กรุณากดค้างแล้วพูดอีกครั้ง', 'info');
+            const match = text.match(/[\d,]+(\.\d+)?/);
+            const detectedAmount = match ? Number(match[0].replace(/,/g, '')) : null;
+            const detectedDesc = match ? text.replace(match[0], '').replace(/บาท/g, '').replace(/ราคา/g, '').trim() : text;
+            if (Number.isFinite(detectedAmount) && detectedAmount > 0) $('transaction-amount').value = detectedAmount;
+            if (detectedDesc) $('transaction-description').value = detectedDesc;
+            showToast(`ได้ยินว่า: "${text}" — ตรวจสอบรายการก่อนบันทึก`, 'success');
+            vibrate(15);
+        };
         const finishVoiceInput = session => {
             if (activeVoice !== session || session.finishing) return;
             session.finishing = true;
             clearTimeout(session.listenTimer);
             session.buttons.forEach(({btn}) => {
-                btn.setAttribute('aria-label', 'กำลังแปลงเสียง กดเพื่อยกเลิก');
-                btn.title = 'กำลังแปลงเสียง กดเพื่อยกเลิก';
+                btn.setAttribute('aria-label', 'กำลังแปลงเสียง...');
+                btn.title = 'กำลังแปลงเสียง...';
             });
-            // stop() releases audio but still allows the final transcript to arrive.
-            session.resultTimer = setTimeout(() => {
-                if (activeVoice !== session) return;
-                stopTransactionVoice();
-                showToast('ยังไม่ได้รับข้อความเสียง กรุณาลองใหม่หรือพิมพ์รายการ', 'info');
-            }, 5000);
+            // stop() releases the mic but still lets the last transcript arrive; onend applies it.
+            session.resultTimer = setTimeout(() => applyVoiceTranscript(session), 4000);
             try { session.recognition.stop(); }
-            catch (_) { stopTransactionVoice(); }
+            catch (_) { applyVoiceTranscript(session); }
         };
         const voiceErrorMessage = code => ({
             'not-allowed': 'ยังไม่ได้รับอนุญาตใช้ไมค์ กรุณาตรวจสิทธิ์ไมโครโฟนของเว็บไซต์',
             'service-not-allowed': 'เบราว์เซอร์ไม่อนุญาตบริการแปลงเสียง กรุณาพิมพ์รายการแทน',
             'audio-capture': 'เข้าถึงไมค์ไม่ได้ กรุณาตรวจไมค์หรือแอปอื่นที่กำลังใช้งาน',
             'network': 'เชื่อมต่อบริการแปลงเสียงไม่ได้ กรุณาลองใหม่',
-            'no-speech': 'ไม่ได้ยินเสียง กรุณากดไมค์แล้วพูดอีกครั้ง',
+            'no-speech': 'ไม่ได้ยินเสียง กรุณากดค้างแล้วพูดอีกครั้ง',
             'language-not-supported': 'เบราว์เซอร์นี้ไม่รองรับการแปลงเสียงภาษาไทย'
         }[code] || 'แปลงเสียงไม่สำเร็จ กรุณาลองใหม่หรือพิมพ์รายการ');
-        const setupVoiceButton = (btnId) => {
-            const btn = $(btnId);
-            if (!btn) return;
-            const label = btnId === 'voice-add-btn' ? 'เพิ่มรายการด้วยเสียง' : 'กรอกรายการด้วยเสียง';
-            btn.type = 'button';
-            btn.setAttribute('aria-pressed', 'false');
-            btn.setAttribute('aria-label', label);
-            btn.title = label;
-            btn.addEventListener('click', () => {
-                if (activeVoice) {
-                    if (activeVoice.finishing) stopTransactionVoice();
-                    else finishVoiceInput(activeVoice);
+        const startTransactionVoice = source => {
+            stopTransactionVoice();
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) { showToast('เบราว์เซอร์นี้ไม่รองรับการพิมพ์ด้วยเสียง', 'error'); return null; }
+            if (ui.submitTransBtn.disabled) { showToast('กรุณารอการบันทึกหรือตรวจรายการที่ขัดแย้งก่อน', 'info'); return null; }
+            if (source !== 'modal-voice-add-btn') {
+                openTransactionDraft();
+                $('modal-title').textContent = 'เพิ่มรายการ (เสียง)';
+                if (document.activeElement && document.activeElement.blur) document.activeElement.blur(); // Keep the keyboard closed while talking.
+            } else if (!modalControls['transaction-modal'].isOpen) return null;
+            let recognition;
+            try { recognition = new SpeechRecognition(); }
+            catch (_) { showToast('เปิดระบบแปลงเสียงไม่ได้ กรุณาพิมพ์รายการแทน', 'error'); return null; }
+            const buttons = Object.keys(VOICE_BUTTON_LABELS).map(id => ({btn: $(id), label: VOICE_BUTTON_LABELS[id]})).filter(item => item.btn);
+            const session = { recognition, buttons, source, draftVersion: transactionDraftVersion, finishing: false, finals: [], interim: '', startedAt: Date.now() };
+            activeVoice = session;
+            recognition.lang = 'th-TH';
+            recognition.continuous = true; // Do not end on pauses; only releasing the button ends it.
+            recognition.interimResults = true;
+            setVoiceButtonsListening(buttons, true);
+            recognition.onstart = () => {
+                if (activeVoice !== session) {
+                    try { recognition.abort(); } catch (_) {}
                     return;
                 }
-                stopTransactionVoice();
-                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-                if (!SpeechRecognition) return showToast('เบราว์เซอร์นี้ไม่รองรับการพิมพ์ด้วยเสียง', 'error');
-                if (ui.submitTransBtn.disabled) return showToast('กรุณารอการบันทึกหรือตรวจรายการที่ขัดแย้งก่อน', 'info');
-                if (btnId === 'voice-add-btn') {
-                    openTransactionDraft();
-                    $('modal-title').textContent = 'เพิ่มรายการ (เสียง)';
-                } else if (!modalControls['transaction-modal'].isOpen) return;
-                let recognition;
-                try { recognition = new SpeechRecognition(); }
-                catch (_) { return showToast('เปิดระบบแปลงเสียงไม่ได้ กรุณาพิมพ์รายการแทน', 'error'); }
-                const buttons = ['voice-add-btn', 'modal-voice-add-btn'].map(id => ({btn: $(id), label: id === 'voice-add-btn' ? 'เพิ่มรายการด้วยเสียง' : 'กรอกรายการด้วยเสียง'})).filter(item => item.btn);
-                const session = { recognition, buttons, draftVersion: transactionDraftVersion, finishing: false };
-                activeVoice = session;
-                recognition.lang = 'th-TH';
-                recognition.continuous = false;
-                recognition.interimResults = false;
-                buttons.forEach(({btn}) => {
-                    btn.setAttribute('aria-pressed', 'true');
-                    btn.setAttribute('aria-label', 'กำลังฟัง กดเพื่อหยุด');
-                    btn.title = 'กำลังฟัง กดเพื่อหยุด';
-                    btn.classList.add('is-listening');
-                });
-                recognition.onstart = () => {
-                    if (activeVoice !== session) {
-                        try { recognition.abort(); } catch (_) {}
-                        return;
-                    }
-                    showToast('🎙️ กำลังฟัง... พูดรายการและราคา กดไมค์อีกครั้งเพื่อหยุด', 'info');
-                    vibrate([50, 50]);
-                };
-                recognition.onspeechend = () => finishVoiceInput(session);
-                recognition.onresult = event => {
-                    if (activeVoice !== session) return;
-                    if (session.draftVersion !== transactionDraftVersion || !modalControls['transaction-modal'].isOpen) {
-                        stopTransactionVoice();
-                        return;
-                    }
-                    const result = event.results?.[event.resultIndex || 0];
-                    if (!result || result.isFinal === false) return;
-                    const text = String(result[0]?.transcript || '').trim();
-                    stopTransactionVoice(); // Final text is captured; no more audio is needed.
-                    if (!text) return showToast('ไม่ได้รับข้อความเสียง กรุณาลองใหม่', 'info');
-                    const match = text.match(/[\d,]+(\.\d+)?/);
-                    const detectedAmount = match ? Number(match[0].replace(/,/g, '')) : null;
-                    const detectedDesc = match ? text.replace(match[0], '').replace(/บาท/g, '').replace(/ราคา/g, '').trim() : text;
-                    if (Number.isFinite(detectedAmount) && detectedAmount > 0) $('transaction-amount').value = detectedAmount;
-                    if (detectedDesc) $('transaction-description').value = detectedDesc;
-                    showToast(`ได้ยินว่า: "${text}" — ตรวจสอบรายการก่อนบันทึก`, 'success');
-                    vibrate(15);
-                };
-                recognition.onerror = event => {
-                    if (activeVoice !== session) return;
+                if (session.restarted) return;
+                showToast('🎙️ กำลังฟัง... พูดรายการและราคา แล้วปล่อยปุ่มเมื่อพูดจบ', 'info');
+                vibrate([50, 50]);
+            };
+            recognition.onresult = event => {
+                if (activeVoice !== session) return;
+                if (session.draftVersion !== transactionDraftVersion || !modalControls['transaction-modal'].isOpen) {
                     stopTransactionVoice();
-                    if (event.error !== 'aborted') showToast(voiceErrorMessage(event.error), 'error');
-                };
-                recognition.onend = () => {
-                    if (activeVoice !== session) return;
-                    activeVoice = null;
-                    resetVoiceButton(session);
-                };
-                session.listenTimer = setTimeout(() => finishVoiceInput(session), 30000);
-                try { recognition.start(); }
-                catch (error) {
-                    stopTransactionVoice();
-                    showToast(voiceErrorMessage(error.name === 'NotAllowedError' ? 'not-allowed' : error.name), 'error');
+                    return;
                 }
+                let interim = '';
+                for (let i = event.resultIndex || 0; i < event.results.length; i++) {
+                    const result = event.results[i];
+                    const text = String(result?.[0]?.transcript || '').trim();
+                    if (!text) continue;
+                    if (result.isFinal) session.finals.push(text);
+                    else interim += ' ' + text;
+                }
+                session.interim = interim.trim();
+            };
+            recognition.onerror = event => {
+                if (activeVoice !== session) return;
+                // Silence while still holding is fine; onend restarts listening.
+                if (event.error === 'no-speech' || event.error === 'aborted') return;
+                stopTransactionVoice();
+                showToast(voiceErrorMessage(event.error), 'error');
+            };
+            recognition.onend = () => {
+                if (activeVoice !== session) return;
+                if (!session.finishing) {
+                    // Some browsers end a continuous session on their own; keep listening while held.
+                    if (session.interim) { session.finals.push(session.interim); session.interim = ''; }
+                    session.restarted = true;
+                    try { recognition.start(); return; }
+                    catch (_) { session.finishing = true; }
+                }
+                applyVoiceTranscript(session);
+            };
+            session.listenTimer = setTimeout(() => finishVoiceInput(session), 60000);
+            try { recognition.start(); }
+            catch (error) {
+                stopTransactionVoice();
+                showToast(voiceErrorMessage(error.name === 'NotAllowedError' ? 'not-allowed' : error.name), 'error');
+                return null;
+            }
+            return session;
+        };
+        // holdDelay > 0 keeps a short tap as a normal click (used by "+", which still opens the form on tap).
+        const setupVoiceButton = (btnId, holdDelay = 0) => {
+            const btn = $(btnId);
+            if (!btn) return;
+            btn.type = 'button';
+            btn.classList.add('voice-hold-btn');
+            if (btnId !== 'nav-add-btn') btn.setAttribute('aria-pressed', 'false');
+            btn.setAttribute('aria-label', VOICE_BUTTON_LABELS[btnId]);
+            btn.title = VOICE_BUTTON_LABELS[btnId];
+            let pointerId = null, holdTimer = null, session = null, suppressClick = false;
+            const release = () => {
+                clearTimeout(holdTimer);
+                holdTimer = null;
+                pointerId = null;
+                if (session && activeVoice === session) finishVoiceInput(session);
+                session = null;
+            };
+            btn.addEventListener('pointerdown', e => {
+                if (pointerId !== null || (e.pointerType === 'mouse' && e.button !== 0)) return;
+                pointerId = e.pointerId;
+                try { btn.setPointerCapture(e.pointerId); } catch (_) {}
+                if (!holdDelay) e.preventDefault();
+                holdTimer = setTimeout(() => {
+                    holdTimer = null;
+                    suppressClick = true;
+                    session = startTransactionVoice(btnId);
+                }, holdDelay);
+            });
+            ['pointerup', 'pointercancel', 'lostpointercapture'].forEach(type => btn.addEventListener(type, e => {
+                if (e.pointerId === pointerId) release();
+            }));
+            btn.addEventListener('contextmenu', e => e.preventDefault()); // Long-press menu on mobile.
+            btn.addEventListener('click', e => {
+                if (suppressClick) {
+                    suppressClick = false;
+                    e.preventDefault();
+                    e.stopImmediatePropagation();
+                    return;
+                }
+                if (holdDelay) return; // Short tap on "+" falls through to its normal click handler.
+                // Keyboard fallback for mic buttons: press once to start, again to stop.
+                if (activeVoice) finishVoiceInput(activeVoice);
+                else startTransactionVoice(btnId);
             });
         };
+        setupVoiceButton('nav-add-btn', 350);
         setupVoiceButton('voice-add-btn');
         setupVoiceButton('modal-voice-add-btn');
         // Invalid native inputs prevent submit; stop on invalid/click as well as submit.
