@@ -10106,6 +10106,14 @@ button[class*="bg-[#00F5D4]"],button[class*="bg-[#06D6A0]"]{background:var(--rp-
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important;scroll-behavior:auto!important;}}
 
 </style>
+<style id="transactions-day-groups-style">
+#transactions-list .tx-day-group + .tx-day-group { margin-top: 18px; }
+#transactions-list .tx-day-card { background: var(--card-bg); border: 1px solid var(--border-dark); border-radius: 16px; overflow: hidden; }
+#transactions-list .tx-day-card .transaction-item { border: 0 !important; border-radius: 0 !important; box-shadow: none !important; margin: 0 !important; background: transparent !important; }
+#transactions-list .tx-day-card .transaction-item + .transaction-item { border-top: 1px solid var(--border-dark) !important; }
+#transactions-list .tx-day-card .transaction-item:hover { background: var(--rp-hover, var(--card-alt)) !important; }
+#transactions-list .tx-day-card .transaction-item.border-\[\#4361EE\] { background: rgba(67,97,238,.12) !important; box-shadow: inset 3px 0 0 #4361EE !important; }
+</style>
 <style id="voice-status-style">
 #voice-add-btn.is-listening, #modal-voice-add-btn.is-listening,
 #nav-add-btn.is-listening, #bottom-nav-bar #nav-add-btn.is-listening {
@@ -11537,22 +11545,52 @@ button[class*="bg-[#00F5D4]"],button[class*="bg-[#06D6A0]"]{background:var(--rp-
             const signs = { 'Income': '+', 'Expense': '-', 'Saving': '', 'Investment': '', 'FreeCashFlow': '' };
             const classTypeMap = { 'Income': colors.income, 'Expense': colors.expense, 'Saving': colors.saving, 'Investment': colors.investment, 'FreeCashFlow': colors.fcf };
             
-            ui.lists.trans.innerHTML = sorted.map(t => {
-                const cat = state.categories.find(c => c.Name === t.Category) || { Emoji: '📄' };
-                const date = getLocalDate(t.Date); const isSelected = state.selectedTransactionIds.has(t.ID);
-                const deductLabel = t.IsDeduct ? '<span class="text-[10px] font-bold text-red-500 bg-red-100/10 px-1.5 py-0.5 border border-red-500 rounded ml-2 uppercase">ถอน</span>' : '';
-                
-                return `<div class="retro-card p-3 md:p-4 flex items-center justify-between transaction-item cursor-pointer mb-2.5 bg-[var(--card-bg)] ${isSelected ? 'border-[#4361EE] bg-blue-50/10 shadow-[0px_0px_0px_2px_#4361EE]' : 'hover:bg-[var(--card-alt)]'}" data-id="${escapeHtml(t.ID)}">
-                    <div class="flex items-center gap-3 md:gap-4">
-                        ${state.isSelectMode ? `<div class="w-5 h-5 rounded border-2 ${isSelected ? 'bg-[#4361EE] border-[#4361EE]' : 'border-[var(--border-dark)] bg-[var(--card-bg)]'} flex items-center justify-center shrink-0"><i class="ph-bold ph-check text-white text-xs ${isSelected ? '' : 'hidden'}"></i></div>` : ''}
-                        <div class="text-2xl w-12 h-12 rounded-xl bg-[var(--card-alt)] border-2 border-[var(--border-dark)] flex items-center justify-center shadow-[1px_1px_0px_0px_var(--shadow-color)] shrink-0">${escapeHtml(cat.Emoji)}</div>
-                        <div class="min-w-0">
-                            <p class="font-bold text-[var(--text-main)] flex items-center text-sm md:text-base truncate">${escapeHtml(t.Category)} ${deductLabel}</p>
-                            <p class="text-[10px] md:text-xs font-bold text-[var(--text-muted)] uppercase truncate mt-0.5">${date.getDate()} ${date.toLocaleString('th-TH',{month:'short'})} • ${escapeHtml(t.Description || '-')}</p>
+            // Group the cycle by day (newest first) like a statement: one header + one card per day.
+            const dayKey = d => formatDateToInput(d);
+            const todayKey = dayKey(new Date());
+            const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1);
+            const yesterdayKey = dayKey(yesterday);
+            const groups = [];
+            sorted.forEach(t => {
+                const date = getLocalDate(t.Date); if (!date) return;
+                const key = dayKey(date);
+                if (!groups.length || groups[groups.length - 1].key !== key) groups.push({ key, date, items: [] });
+                groups[groups.length - 1].items.push(t);
+            });
+            const timeOf = t => { const m = String(t.Date || '').match(/[T ](\d{2}):(\d{2})/); return m ? `${m[1]}:${m[2]}` : ''; }; // Date-only rows have no time.
+
+            ui.lists.trans.innerHTML = groups.map(g => {
+                const weekday = g.date.toLocaleDateString('th-TH', { weekday: 'long' }).replace(/^วัน/, '');
+                const dayLabel = g.key === todayKey ? 'วันนี้' : g.key === yesterdayKey ? 'เมื่อวาน' : g.date.toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: 'numeric' });
+                const spent = g.items.filter(t => t.Type === 'Expense').reduce((sum, t) => sum + (t.IsDeduct ? -1 : 1) * (parseFloat(t.Amount) || 0), 0);
+                const earned = g.items.filter(t => t.Type === 'Income').reduce((sum, t) => sum + (parseFloat(t.Amount) || 0), 0);
+                const totals = [spent ? `(฿${formatMoney(spent)})` : '', earned ? `<span class="${colors.income}">+฿${formatMoney(earned)}</span>` : ''].filter(Boolean).join(' ');
+                const rows = g.items.map(t => {
+                    const cat = state.categories.find(c => c.Name === t.Category) || { Emoji: '📄' };
+                    const date = getLocalDate(t.Date); const isSelected = state.selectedTransactionIds.has(t.ID);
+                    const deductLabel = t.IsDeduct ? '<span class="text-[10px] font-bold text-red-500 bg-red-100/10 px-1.5 py-0.5 border border-red-500 rounded ml-2 uppercase">ถอน</span>' : '';
+                    const title = t.Description || t.Category;
+                    const time = timeOf(t);
+                    const meta = `${date.getDate()} ${date.toLocaleString('th-TH', { month: 'short' })} ${date.toLocaleString('th-TH', { year: 'numeric' }).replace(/\D/g, '')}${time ? ' ' + time : ''}`;
+                    return `<div class="p-3 md:p-4 flex items-center justify-between gap-3 transaction-item cursor-pointer ${isSelected ? 'border-[#4361EE] bg-blue-50/10 shadow-[0px_0px_0px_2px_#4361EE]' : ''}" data-id="${escapeHtml(t.ID)}">
+                        <div class="flex items-center gap-3 md:gap-4 min-w-0">
+                            ${state.isSelectMode ? `<div class="w-5 h-5 rounded border-2 ${isSelected ? 'bg-[#4361EE] border-[#4361EE]' : 'border-[var(--border-dark)] bg-[var(--card-bg)]'} flex items-center justify-center shrink-0"><i class="ph-bold ph-check text-white text-xs ${isSelected ? '' : 'hidden'}"></i></div>` : ''}
+                            <div class="text-2xl w-12 h-12 rounded-xl bg-[var(--card-alt)] border-2 border-[var(--border-dark)] flex items-center justify-center shrink-0">${escapeHtml(cat.Emoji)}</div>
+                            <div class="min-w-0">
+                                <p class="font-bold text-[var(--text-main)] flex items-center text-sm md:text-base"><span class="truncate">${escapeHtml(title)}</span>${deductLabel}</p>
+                                <p class="text-[11px] md:text-xs text-[var(--text-muted)] truncate mt-0.5">${escapeHtml(t.Category)}</p>
+                            </div>
                         </div>
-                    </div>
-                    <span class="font-black font-mono-num text-right shrink-0 md:text-lg ${classTypeMap[t.Type]}">${signs[t.Type]}${formatMoney(t.Amount)}</span>
-                </div>`;
+                        <div class="text-right shrink-0">
+                            <span class="block font-black font-mono-num md:text-lg ${classTypeMap[t.Type]}">${signs[t.Type]}฿${formatMoney(t.Amount)}</span>
+                            <span class="block text-[10px] md:text-xs text-[var(--text-muted)] font-mono-num mt-0.5">${meta}</span>
+                        </div>
+                    </div>`;
+                }).join('');
+                return `<section class="tx-day-group">
+                    <h4 class="tx-day-header text-xs md:text-sm font-bold text-[var(--text-muted)] mb-2 px-1">${dayLabel} • ${weekday} <span class="font-mono-num">${totals}</span></h4>
+                    <div class="tx-day-card">${rows}</div>
+                </section>`;
             }).join('');
         };
 
