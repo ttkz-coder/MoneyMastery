@@ -10114,6 +10114,32 @@ button[class*="bg-[#00F5D4]"],button[class*="bg-[#06D6A0]"]{background:var(--rp-
 #transactions-list .tx-day-card .transaction-item:hover { background: var(--rp-hover, var(--card-alt)) !important; }
 #transactions-list .tx-day-card .transaction-item.border-\[\#4361EE\] { background: rgba(67,97,238,.12) !important; box-shadow: inset 3px 0 0 #4361EE !important; }
 </style>
+<style id="slip-review-style">
+#slip-review-modal .modal-sheet { display: flex; flex-direction: column; }
+.slip-summary { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 14px 16px; background: var(--card-bg); border: 1px solid var(--border-dark); border-radius: 16px; }
+.slip-item { background: var(--card-bg); border: 1px solid var(--border-dark); border-radius: 16px; overflow: hidden; transition: opacity .2s; }
+.slip-item.is-off .slip-head, .slip-item.is-off .slip-thumb { opacity: .45; }
+.slip-row { display: flex; align-items: center; gap: 10px; padding: 10px 12px; }
+.slip-head { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0; background: none; border: 0; padding: 0; color: inherit; }
+.slip-thumb { width: 44px; height: 52px; object-fit: cover; object-position: top; border-radius: 8px; background: #fff; flex-shrink: 0; }
+.slip-switch { position: relative; width: 44px; height: 26px; flex-shrink: 0; }
+.slip-switch input { position: absolute; inset: 0; opacity: 0; margin: 0; cursor: pointer; z-index: 1; }
+.slip-switch span { position: absolute; inset: 0; border-radius: 999px; background: var(--card-alt); border: 1px solid var(--border-dark); transition: background .2s; }
+.slip-switch span::after { content: ""; position: absolute; top: 2px; left: 2px; width: 20px; height: 20px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px #0004; transition: transform .2s; }
+.slip-switch input:checked + span { background: #4361EE; border-color: #4361EE; }
+.slip-switch input:checked + span::after { transform: translateX(18px); }
+.slip-switch input:focus-visible + span { outline: 2px solid #4361EE; outline-offset: 2px; }
+.slip-warn { margin: 0 12px 10px; padding: 6px 10px; border-radius: 10px; font-size: 11px; font-weight: 700; color: #E6A23C; background: rgba(230,162,60,.12); }
+.slip-detail { border-top: 1px solid var(--border-dark); padding: 6px 14px 12px; }
+.slip-field { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 0; font-size: 13px; color: var(--text-muted); }
+.slip-field > span:first-child, .slip-field-col > span:first-child { flex-shrink: 0; }
+.slip-field input { min-width: 0; flex: 1; text-align: right; background: var(--card-alt); color: var(--text-main); border: 1px solid var(--border-dark); border-radius: 10px; padding: 6px 10px; font-size: 14px; }
+.slip-field .flex input { flex: 1 1 auto; text-align: center; }
+.slip-field-col { padding: 8px 0; font-size: 13px; color: var(--text-muted); }
+.slip-chips { display: flex; gap: 8px; overflow-x: auto; padding: 8px 0 2px; scrollbar-width: none; }
+.slip-chip { flex-shrink: 0; padding: 5px 12px; border-radius: 999px; font-size: 12px; font-weight: 700; border: 1px solid var(--border-dark); background: var(--card-alt); color: var(--text-main); white-space: nowrap; }
+.slip-chip.is-active { background: #E6A23C; border-color: #E6A23C; color: #1E1E24; }
+</style>
 <style id="voice-status-style">
 #voice-add-btn.is-listening, #modal-voice-add-btn.is-listening,
 #nav-add-btn.is-listening, #bottom-nav-bar #nav-add-btn.is-listening {
@@ -10338,7 +10364,7 @@ button[class*="bg-[#00F5D4]"],button[class*="bg-[#06D6A0]"]{background:var(--rp-
                             <button id="select-transactions-btn" class="retro-btn bg-[var(--card-bg)] text-[var(--text-main)] px-1 py-2.5 md:px-4 md:py-2.5 rounded-xl text-[11px] sm:text-sm font-bold shadow-[2px_2px_0px_0px_var(--shadow-color)] flex items-center justify-center text-center leading-none">เลือกรายการ</button>
                             <button id="voice-add-btn" class="retro-btn bg-[#00F5D4] text-[#1E1E24] px-1 py-2.5 md:px-4 md:py-2.5 rounded-xl text-[11px] sm:text-sm flex items-center justify-center gap-1 font-bold shadow-[2px_2px_0px_0px_var(--shadow-color)]"><i class="ph-bold ph-microphone text-[14px] md:text-lg"></i> <span class="leading-none">พูดบันทึก</span></button>
                             <button id="scan-receipt-btn" class="retro-btn bg-[#FFD166] text-[#1E1E24] px-1 py-2.5 md:px-4 md:py-2.5 rounded-xl text-[11px] sm:text-sm flex items-center justify-center gap-1 font-bold shadow-[2px_2px_0px_0px_var(--shadow-color)]"><i class="ph-bold ph-camera text-[14px] md:text-lg"></i> <span class="leading-none">สแกนสลิป</span></button>
-                            <input type="file" id="receipt-uploader" accept="image/*" class="hidden">
+                            <input type="file" id="receipt-uploader" accept="image/*" multiple class="hidden">
                         </div>
                         
                         <!-- Search & Filter Bar -->
@@ -10653,6 +10679,22 @@ button[class*="bg-[#00F5D4]"],button[class*="bg-[#06D6A0]"]{background:var(--rp-
         </div>
     </div>
     
+    <!-- Slip Review Modal -->
+    <div id="slip-review-modal" class="fixed inset-0 z-50 hidden">
+        <div class="modal-backdrop absolute inset-0"></div>
+        <div class="modal-sheet">
+            <div class="w-full p-5 pb-3 shrink-0 border-b-2 border-retro-border bg-[var(--bg-base)] rounded-t-xl z-10 flex justify-between items-center">
+                <h3 class="font-black text-xl text-retro-text flex-1 text-center pl-8">ตรวจสอบสลิป</h3>
+                <button type="button" class="modal-cancel-btn text-[var(--text-muted)] hover:text-[var(--text-main)]" aria-label="ปิด"><i class="ph-bold ph-x text-2xl"></i></button>
+            </div>
+            <div id="slip-review-list" class="scroll-area flex-1 p-4 space-y-3"></div>
+            <div class="slip-footer grid grid-cols-2 gap-3 p-4 shrink-0 border-t border-[var(--border-dark)]">
+                <button type="button" class="modal-cancel-btn retro-btn bg-[var(--card-alt)] text-[var(--text-main)] py-3 rounded-xl font-bold">ยกเลิก</button>
+                <button type="button" id="slip-review-save-btn" class="retro-btn bg-[#4361EE] text-white py-3 rounded-xl font-black flex items-center justify-center gap-2 disabled:opacity-50">บันทึก</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Summary Details Modal -->
     <div id="summary-details-modal" class="fixed inset-0 z-50 hidden">
         <div class="modal-backdrop absolute inset-0"></div>
@@ -11009,7 +11051,7 @@ button[class*="bg-[#00F5D4]"],button[class*="bg-[#06D6A0]"]{background:var(--rp-
             backdrop.addEventListener('click', close);
             el.querySelectorAll('.modal-cancel-btn').forEach(btn => btn.addEventListener('click', close));
         };
-        ['transaction-modal', 'category-modal', 'day-details-modal', 'summary-details-modal', 'transaction-action-modal', 'bulk-edit-modal', 'goal-edit-modal', 'confirm-modal'].forEach(setupModal);
+        ['transaction-modal', 'category-modal', 'day-details-modal', 'summary-details-modal', 'transaction-action-modal', 'bulk-edit-modal', 'goal-edit-modal', 'confirm-modal', 'slip-review-modal'].forEach(setupModal);
 
         // -------------------------------------------------------------
         // 5. API & Utils
@@ -11121,7 +11163,7 @@ button[class*="bg-[#00F5D4]"],button[class*="bg-[#06D6A0]"]{background:var(--rp-
             showToast._timer = setTimeout(() => { ui.toast.classList.add('opacity-0', 'translate-y-[-20px]'); showToast._timer = null; }, duration);
         };
 
-        const preprocessImage = (file) => {
+        const preprocessImage = (file, filter = 'grayscale(100%) contrast(1.3)') => {
             return new Promise((resolve, reject) => {
                 const img = new Image();
                 let objectUrl = null, settled = false, timeout;
@@ -11138,10 +11180,11 @@ button[class*="bg-[#00F5D4]"],button[class*="bg-[#06D6A0]"]{background:var(--rp-
                     try {
                         const canvas = document.createElement('canvas'), ctx = canvas.getContext('2d');
                         if (!ctx || !img.width || !img.height) throw new Error('รูปภาพไม่สมบูรณ์');
-                        const scale = Math.min(1, 1200 / img.width, 4096 / img.height);
+                        // Upscale small slips: OCR reads thin grey text (dates, reference numbers) better at ~1600px wide.
+                        const scale = Math.min(1600 / img.width, 4096 / img.height);
                         canvas.width = Math.max(1, Math.round(img.width * scale));
                         canvas.height = Math.max(1, Math.round(img.height * scale));
-                        ctx.filter = 'grayscale(100%) contrast(1.5) brightness(1.1)';
+                        ctx.filter = filter; // Stronger contrast/brightness washes out light text.
                         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
                         finish(null, canvas.toDataURL('image/jpeg', 0.9));
                     } catch (error) { finish(error); }
@@ -11153,16 +11196,345 @@ button[class*="bg-[#00F5D4]"],button[class*="bg-[#06D6A0]"]{background:var(--rp-
         };
 
 
+        // Tesseract.js (~ several MB) is only downloaded the first time a slip is scanned.
+        let tesseractLoader = null;
+        const loadTesseract = () => {
+            if (window.Tesseract) return Promise.resolve();
+            return tesseractLoader ||= new Promise((resolve, reject) => {
+                const script = document.createElement('script');
+                script.src = 'https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js';
+                script.onload = resolve;
+                script.onerror = () => { tesseractLoader = null; script.remove(); reject(new Error('โหลดระบบสแกนสลิปไม่สำเร็จ')); };
+                document.head.appendChild(script);
+            });
+        };
+
+        // ── Slip text parsing (tuned on K PLUS, make, เป๋าตัง and Kept slips) ──
+        // OCR often splits "ำ" into "ํ" + "า" and drops tone marks; normalise before matching.
+        const normalizeSlipText = text => String(text || '').replace(/ํา/g, 'ำ').replace(/\r/g, '');
+        const SLIP_MONEY_RE = /((?:[0-9]{1,3}(?:,[0-9]{3})+|[0-9]+)\.[0-9]{2})(?![0-9])/;
+        const SLIP_INT_RE = /(?:^|\s)((?:[0-9]{1,3}(?:,[0-9]{3})+|[0-9]{1,7}))(?:\.[0-9]{2})?\s*(?:บาท|THB|Baht|un|vn|บ\.?)?\s*$/i;
+        const toSlipNumber = s => parseFloat(String(s).replace(/,/g, ''));
+        const extractSlipAmount = text => {
+            const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
+            const keyword = /จำนวน|ยอดเงิน|ยอดสุทธิ|ยอดชำระ|รวมทั้งสิ้น|amount|total/i;
+            for (let i = 0; i < lines.length; i++) {
+                const m = lines[i].match(keyword);
+                if (!m || /ค่าธรรมเนียม|fee/i.test(lines[i])) continue;
+                const rest = lines[i].slice(m.index + m[0].length).replace(/^\s*(?:เงิน)?\s*[:：]?/, '');
+                const sameLine = rest.match(SLIP_MONEY_RE) || rest.match(SLIP_INT_RE);
+                if (sameLine && toSlipNumber(sameLine[1]) > 0) return toSlipNumber(sameLine[1]);
+                const next = lines[i + 1] || '';
+                const nextLine = next.match(SLIP_MONEY_RE) || next.match(/^\s*((?:[0-9]{1,3}(?:,[0-9]{3})+|[0-9]{1,7}))\s*(?:บาท|THB|Baht|un|vn)\b/i);
+                if (nextLine && toSlipNumber(nextLine[1]) > 0) return toSlipNumber(nextLine[1]);
+            }
+            // KKP prints "130" large and ".00 THB" small; OCR often drops the dot ("13000 THB").
+            for (const line of lines) {
+                const m = line.match(/(?:^|\s)((?:[0-9]{1,3}(?:,[0-9]{3})+|[0-9]+))(\.[0-9]{2})?\s*T[HN][BE8]\b/);
+                if (!m) continue;
+                const value = m[2] ? toSlipNumber(m[1] + m[2]) : m[1].replace(/,/g, '').length >= 3 ? toSlipNumber(m[1]) / 100 : null;
+                if (value > 0) return value;
+            }
+            const candidates = lines.filter(l => !/ค่าธรรมเนียม|fee/i.test(l)).flatMap(l => [...l.matchAll(new RegExp(SLIP_MONEY_RE.source, 'g'))].map(m => toSlipNumber(m[1]))).filter(n => n > 0 && n < 10000000);
+            return candidates.length ? Math.max(...candidates) : null;
+        };
+        const SLIP_MONTHS = [['มกราคม',1],['กุมภาพันธ์',2],['มีนาคม',3],['เมษายน',4],['พฤษภาคม',5],['มิถุนายน',6],['กรกฎาคม',7],['สิงหาคม',8],['กันยายน',9],['ตุลาคม',10],['พฤศจิกายน',11],['ธันวาคม',12],
+            ['มีค',3],['เมย',4],['มิย',6],['พย',11],['มค',1],['กพ',2],['พค',5],['กค',7],['สค',8],['กย',9],['ตค',10],['ธค',12],
+            ['jan',1],['feb',2],['mar',3],['apr',4],['may',5],['jun',6],['jul',7],['aug',8],['sep',9],['oct',10],['nov',11],['dec',12]];
+        // Latin/digit look-alikes OCR produces for Thai month letters (e.g. "n.9." for "ก.ย.", "m.A." for "ต.ค.").
+        const SLIP_LOOKALIKE = { n: 'ก', 1: 'ก', 9: 'ย', u: 'ย', m: 'ต', a: 'ค', s: 'ธ', 5: 'ธ', w: 'พ' };
+        const slipMonth = (raw, lookalike) => {
+            let key = raw.toLowerCase().replace(/[ัุู็-๎.\s]/g, ''); // Drop dots, spaces and stray marks, keep ี/ิ used by มี.ค./มิ.ย.
+            if (lookalike) key = [...key].map(c => SLIP_LOOKALIKE[c] || c).join('');
+            const hit = SLIP_MONTHS.find(([name]) => key === name || key.endsWith(name) || (name.length > 3 && key.startsWith(name.slice(0, 3)) && /^[a-z]/.test(name)));
+            return hit ? hit[1] : 0;
+        };
+        const toSlipYear = (raw, thai) => {
+            let y = Number(raw);
+            if (raw.length <= 2) y += thai || y > 60 ? 2500 : 2000;
+            return y > 2400 ? y - 543 : y;
+        };
+        const extractSlipDate = text => {
+            const valid = (y, m, d) => { const dt = new Date(y, m - 1, d); return dt.getFullYear() === y && dt.getMonth() === m - 1 && dt.getDate() === d && dt - Date.now() < 2 * 864e5 && y > 2000 ? dt : null; };
+            let date = null;
+            const patterns = [
+                [/(\d{1,2})\s*([ก-๙A-Za-z][ก-๙A-Za-z.\s]{1,12}?)\s*(\d{4}|\d{2})(?!\d)/g, false],
+                [/(\d{1,2})\s+([ก-๙A-Za-z0-9]{1,3}\.\s?[ก-๙A-Za-z0-9]{1,3}\.?)\s*(\d{4}|\d{2})(?!\d)/g, true],
+                [/(?:^|\s)(\d{1,2})([0-9]?[A-Za-zก-๙]{1,3}\.)\s*(\d{4}|\d{2})(?!\d)/g, true] // Day glued to a misread month, e.g. "255A. 2568".
+            ];
+            for (const [re, lookalike] of patterns) {
+                for (const m of text.matchAll(re)) {
+                    const month = slipMonth(m[2], lookalike);
+                    if (!month) continue;
+                    date = valid(toSlipYear(m[3], !/^[a-z]+$/i.test(m[2].replace(/[.\s]/g, '')) || lookalike), month, Number(m[1]));
+                    if (date) break;
+                }
+                if (date) break;
+            }
+            if (!date) for (const m of text.matchAll(/(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{4}|\d{2})(?!\d)/g)) {
+                date = valid(toSlipYear(m[3], false), Number(m[2]), Number(m[1]));
+                if (date) break;
+            }
+            const t = text.match(/(?:^|[^\d])([01]?\d|2[0-3])\s*:\s*([0-5]\d)(?!\d)/);
+            return { date: date ? formatDateToInput(date) : '', time: t ? `${t[1].padStart(2, '0')}:${t[2]}` : '' };
+        };
+        // Reference numbers are only used to skip duplicates, so accept a token only right after a reference label.
+        const extractSlipRef = text => {
+            const lines = text.split('\n');
+            for (let i = 0; i < lines.length; i++) {
+                const m = lines[i].match(/เลขที่รายการ|รหัสอ้างอิง|เลขอ้างอิง|หมายเลขอ้างอิง|รหัสรายการ|Ref(?:erence)?\.?\s*(?:No\.?|ID)?|Transaction\s*(?:No\.?|ID)/i);
+                if (!m) continue;
+                const nearby = [lines[i].slice(m.index + m[0].length), ...lines.slice(i + 1, i + 4)].join(' ');
+                const token = nearby.split(/[\s:：]+/).find(tok => /^[A-Za-z0-9]{10,40}$/.test(tok) && (tok.match(/\d/g) || []).length >= 5);
+                if (token) return token.toUpperCase().replace(/O/g, '0').replace(/[IL]/g, '1'); // Fold OCR look-alikes so re-scans match.
+            }
+            return '';
+        };
+        const SLIP_ACCOUNT_RE = /(?:[xX*%]{2,}.*\d)|(?:\d.*[xX*%]{3,})|wallet|เลขพร้อมเพย์|พร้อมเพย์:/i;
+        // Whole-line bank names/codes and labels; a shop such as "กรุงศรีมั่งมีช้อป" still passes.
+        const SLIP_SKIP_RE = /^(?:(?:ธ\.|ธนาคาร)\s*)?(?:กสิกรไทย|กรุงเทพ|กรุงไทย|กรุงศรี(?:อยุธยา)?|ไทยพาณิชย์|ทหารไทยธนชาต|ทีทีบี|เกียรตินาคินภัทร|ออมสิน|ธ\.ก\.ส\.?|ซีไอเอ็มบี|ยูโอบี|แลนด์ แอนด์ เฮ้าส์|พร้อมเพย์|bank|krungsri|kbank|scb|ktb|bbl|ttb|kkp|gsb|baac|cimb|uob|lhb|pay|promptpay|จาก|ไปยัง|ถึง|to)$|^(?:ธ\.|ธนาคาร)|สำเร็จ|จำนวน|ค่าธรรมเนียม/i;
+        // OCR keeps wide gaps as runs of spaces; text after a gap is usually QR/mascot noise from the right side.
+        const cleanSlipName = s => s.split(/\s{3,}/)
+            .map(seg => seg
+                .replace(/^\s*(?:ไปยัง|ถึง|ผู้รับ(?:เงิน)?|ชื่อร้าน(?:ค้า)?|ร้านค้า|To|Merchant)\s*[:：]?\s*/i, '')
+                .replace(/^(?:\S{1,2}\s+)+/, '') // Logo noise such as "69", "oO", "J", "@", "๐" before the name.
+                .replace(/[|:：]+/g, ' ').replace(/\s+/g, ' ').trim())
+            .find(seg => (seg.match(/[ก-๙A-Za-z]/g) || []).length >= 3 && !/^\S{1,2}$/.test(seg))?.slice(0, 60) || '';
+        const SLIP_TITLE_RE = /^(?:นาย|นางสาว|นาง|น\.ส|ด\.ช\.|ด\.ญ\.|บจก|บมจ|บริษัท|หจก|ร้าน|MR\.?\s|MRS\.?\s|MS\.?\s|MISS\s)/i;
+        const looksLikeSlipName = s => (s.match(/[ก-๙A-Za-z]/g) || []).length >= 3 && !SLIP_ACCOUNT_RE.test(s) && !SLIP_SKIP_RE.test(s) && (s.match(/\d/g) || []).length < s.length / 3;
+        const extractSlipPayee = text => {
+            const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
+            const labelled = lines.findIndex(l => /^(?:ไปยัง|ถึง|ผู้รับ|To\b|Merchant)/i.test(l));
+            if (labelled >= 0) {
+                const name = cleanSlipName(lines[labelled]);
+                if (looksLikeSlipName(name)) return name;
+                const next = cleanSlipName(lines[labelled + 1] || '');
+                if (looksLikeSlipName(next)) return next;
+            }
+            // Bank slips list sender name + account, then recipient name + account.
+            const firstAccount = lines.findIndex(l => SLIP_ACCOUNT_RE.test(l));
+            if (firstAccount >= 0) {
+                for (let i = firstAccount + 1; i < lines.length; i++) {
+                    const name = cleanSlipName(lines[i]);
+                    if (SLIP_ACCOUNT_RE.test(lines[i]) || /จำนวน/.test(lines[i])) break;
+                    if (!looksLikeSlipName(name)) continue;
+                    // Long names wrap: Thai continues freely; Latin only when the next line has words (e.g. "COMPLEX CO.,LTD.").
+                    const next = cleanSlipName(lines[i + 1] || '');
+                    const continues = looksLikeSlipName(next) && !/\d/.test(next) && (/^[ก-๙]/.test(next) ? /[ก-๙]$/.test(name) : /\s/.test(next) && /[A-Za-z.]$/.test(name));
+                    // "พร้อมเพย์ e-Wallet" is the channel; the person's name follows a few lines below.
+                    if (/พร้อมเพย์|e-?wallet|promptpay/i.test(name)) {
+                        const person = lines.slice(i + 1, i + 6).map(cleanSlipName).find(l => SLIP_TITLE_RE.test(l));
+                        if (person) return person;
+                    }
+                    return continues ? `${name}${/^[ก-๙]/.test(next) ? '' : ' '}${next}`.slice(0, 60) : name;
+                }
+            }
+            const titled = lines.map(cleanSlipName).filter(l => SLIP_TITLE_RE.test(l));
+            return titled[titled.length - 1] || '';
+        };
+        const parseSlipText = raw => { const text = normalizeSlipText(raw); return { amount: extractSlipAmount(text), ...extractSlipDate(text), ref: extractSlipRef(text), payee: extractSlipPayee(text) }; };
+
+        // ── Duplicate memory: file fingerprints and slip reference numbers already saved on this device ──
+        const SLIP_SEEN_KEY = CACHE_KEY + ':scanned-slips-v1';
+        const loadSeenSlips = () => { try { const v = JSON.parse(localStorage.getItem(SLIP_SEEN_KEY) || '{}'); return v && typeof v === 'object' ? v : {}; } catch (_) { return {}; } };
+        const rememberSlip = keys => {
+            const seen = loadSeenSlips(); const now = Date.now();
+            keys.filter(Boolean).forEach(k => { seen[k] = now; });
+            const entries = Object.entries(seen).sort((a, b) => b[1] - a[1]).slice(0, 2000);
+            try { localStorage.setItem(SLIP_SEEN_KEY, JSON.stringify(Object.fromEntries(entries))); } catch (_) {}
+        };
+        const fingerprintFile = async file => {
+            try {
+                const digest = await crypto.subtle.digest('SHA-256', await file.arrayBuffer());
+                return 'f:' + [...new Uint8Array(digest)].map(b => b.toString(16).padStart(2, '0')).join('');
+            } catch (_) { return `f:${file.name}:${file.size}:${file.lastModified}`; }
+        };
+        // A slip with the same amount at the same minute already in the books is probably the same payment.
+        const findExistingSlipMatch = item => item.date && item.time && item.amount ? state.allTransactions.find(t => {
+            const d = getLocalDate(t.Date);
+            return d && Number(t.Amount) === item.amount && formatDateToInput(d) === item.date && `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}` === item.time;
+        }) : null;
+        const guessSlipCategory = payee => {
+            const expenseCats = state.categories.filter(c => c.Type === 'Expense').map(c => c.Name);
+            const counts = {}; const key = (payee || '').trim().toLowerCase();
+            state.allTransactions.forEach(t => {
+                if (t.Type !== 'Expense' || !expenseCats.includes(t.Category)) return;
+                const desc = (t.Description || '').trim().toLowerCase();
+                const weight = key && desc && (desc === key || desc.includes(key) || key.includes(desc)) ? 1000 : 1;
+                counts[t.Category] = (counts[t.Category] || 0) + weight;
+            });
+            const best = Object.entries(counts).sort((a, b) => b[1] - a[1])[0];
+            return best ? best[0] : (expenseCats[0] || '');
+        };
+
+        // ── Batch scan + review ──
+        const slipReview = { items: [], skipped: 0, saving: false };
+        const releaseSlipThumbs = () => slipReview.items.forEach(item => item.thumb && URL.revokeObjectURL(item.thumb));
+        const renderSlipReview = () => {
+            const list = $('slip-review-list'); if (!list) return;
+            const enabled = slipReview.items.filter(i => i.enabled);
+            const total = enabled.reduce((s, i) => s + (Number(i.amount) || 0), 0);
+            const expenseCats = state.categories.filter(c => c.Type === 'Expense');
+            const summary = `<div class="slip-summary">
+                <div><p class="font-bold text-[var(--text-main)]">สรุป</p><p class="text-xs text-[var(--text-muted)] mt-0.5">${enabled.length} จาก ${slipReview.items.length} สลิปที่ตรวจพบ${slipReview.skipped ? ` · ข้ามสลิปซ้ำ ${slipReview.skipped} ใบ` : ''}</p></div>
+                <div class="text-right"><p class="font-black font-mono-num text-lg ${colors.expense}">฿${formatMoney(total)}</p><p class="text-[10px] text-[var(--text-muted)]">รวม</p></div>
+            </div>`;
+            const rows = slipReview.items.map((item, idx) => {
+                const chips = expenseCats.map(c => `<button type="button" class="slip-chip ${c.Name === item.category ? 'is-active' : ''}" data-act="cat" data-idx="${idx}" data-cat="${escapeHtml(c.Name)}">${escapeHtml(c.Emoji || '')} ${escapeHtml(c.Name)}</button>`).join('');
+                const warn = item.duplicateOf ? '<p class="slip-warn">อาจซ้ำกับรายการที่บันทึกไว้แล้ว (ยอดและเวลาตรงกัน)</p>' : !item.amount ? '<p class="slip-warn">อ่านยอดเงินไม่ได้ กรุณากรอกเอง</p>' : !item.dateFound ? '<p class="slip-warn">อ่านวันที่ไม่ได้ ใช้วันนี้แทน กรุณาตรวจสอบ</p>' : '';
+                return `<div class="slip-item ${item.enabled ? '' : 'is-off'}" data-idx="${idx}">
+                    <div class="slip-row">
+                        <label class="slip-switch" aria-label="นำสลิปนี้ไปบันทึก"><input type="checkbox" data-act="toggle" data-idx="${idx}" ${item.enabled ? 'checked' : ''}><span></span></label>
+                        <img class="slip-thumb" src="${item.thumb}" alt="">
+                        <button type="button" class="slip-head" data-act="expand" data-idx="${idx}" aria-expanded="${item.expanded}">
+                            <span class="min-w-0 flex-1 text-left"><span class="block font-bold text-sm text-[var(--text-main)] truncate">${escapeHtml(item.payee || 'สลิปโอนเงิน')}</span><span class="block text-[11px] text-[#E6A23C] truncate">${escapeHtml(item.category || 'ยังไม่เลือกหมวด')}</span></span>
+                            <span class="font-black font-mono-num text-sm ${colors.expense} shrink-0">฿${formatMoney(item.amount || 0)}</span>
+                            <i class="ph-bold ${item.expanded ? 'ph-caret-up' : 'ph-caret-down'} text-[var(--text-muted)] shrink-0"></i>
+                        </button>
+                    </div>
+                    ${warn}
+                    ${item.expanded ? `<div class="slip-detail">
+                        <label class="slip-field"><span>จำนวน</span><input type="number" inputmode="decimal" min="0" step="0.01" data-field="amount" data-idx="${idx}" value="${item.amount ?? ''}"></label>
+                        <label class="slip-field"><span>ร้านค้า</span><input type="text" maxlength="80" data-field="payee" data-idx="${idx}" value="${escapeHtml(item.payee)}" placeholder="ชื่อร้าน / ผู้รับ"></label>
+                        <div class="slip-field-col"><span>หมวดหมู่</span><div class="slip-chips">${chips || '<span class="text-xs text-[var(--text-muted)]">ยังไม่มีหมวดรายจ่าย</span>'}</div></div>
+                        <div class="slip-field"><span>วันที่</span><span class="flex gap-2"><input type="date" data-field="date" data-idx="${idx}" value="${item.date}"><input type="time" data-field="time" data-idx="${idx}" value="${item.time}"></span></div>
+                        <label class="slip-field"><span>หมายเหตุ</span><input type="text" maxlength="120" data-field="note" data-idx="${idx}" value="${escapeHtml(item.note)}" placeholder="เพิ่มหมายเหตุ"></label>
+                    </div>` : ''}
+                </div>`;
+            }).join('');
+            list.innerHTML = summary + rows;
+            const saveBtn = $('slip-review-save-btn');
+            saveBtn.disabled = slipReview.saving || !enabled.length;
+            saveBtn.innerHTML = `<i class="ph-bold ph-check"></i> บันทึก ${enabled.length} รายการ`;
+        };
+        const closeSlipReview = () => { releaseSlipThumbs(); slipReview.items = []; slipReview.skipped = 0; };
+
+        const scanSlipBatch = async files => {
+            const seen = loadSeenSlips(); const batchKeys = new Set();
+            const items = []; let skipped = 0, failed = 0;
+            let worker = null;
+            ui.loading.classList.remove('hidden');
+            try {
+                await loadTesseract();
+                worker = await Tesseract.createWorker('tha+eng');
+                for (let i = 0; i < files.length; i++) {
+                    showToast(`กำลังอ่านสลิป ${i + 1}/${files.length}...`, 'info', 60000);
+                    const file = files[i];
+                    const fp = await fingerprintFile(file);
+                    if (seen[fp] || batchKeys.has(fp)) { skipped++; continue; }
+                    batchKeys.add(fp);
+                    try {
+                        const { data: { text } } = await worker.recognize(await preprocessImage(file));
+                        const parsed = parseSlipText(text);
+                        if (!parsed.amount) {
+                            // Light text on a dark/colour banner (e.g. KKP) reads better inverted; only retry when needed.
+                            const retry = parseSlipText((await worker.recognize(await preprocessImage(file, 'grayscale(100%) invert(100%) contrast(2)'))).data.text);
+                            ['amount', 'date', 'time', 'ref', 'payee'].forEach(k => { if (!parsed[k]) parsed[k] = retry[k]; });
+                        }
+                        if (parsed.ref && (seen['r:' + parsed.ref] || batchKeys.has('r:' + parsed.ref))) { skipped++; continue; }
+                        if (parsed.ref) batchKeys.add('r:' + parsed.ref);
+                        const item = { fp, ref: parsed.ref, amount: parsed.amount, payee: parsed.payee, date: parsed.date || formatDateToInput(new Date()), dateFound: !!parsed.date, time: parsed.time, note: '', expanded: false, thumb: URL.createObjectURL(file) };
+                        item.category = guessSlipCategory(item.payee);
+                        item.duplicateOf = findExistingSlipMatch(item)?.ID || null;
+                        item.enabled = !!item.amount && !item.duplicateOf;
+                        items.push(item);
+                    } catch (error) { console.error(error); failed++; }
+                }
+            } catch (error) {
+                console.error(error);
+                return showToast(error.message || 'เกิดข้อผิดพลาดในการสแกนสลิป', 'error');
+            } finally {
+                if (worker) { try { await worker.terminate(); } catch (e) { console.error(e); } }
+                ui.loading.classList.add('hidden');
+            }
+            if (!items.length) {
+                return showToast(skipped ? `สลิปทั้งหมดเคยบันทึกแล้ว (ข้าม ${skipped} ใบ)` : 'อ่านสลิปไม่สำเร็จ กรุณาลองรูปที่ชัดขึ้น', skipped ? 'info' : 'error', 5000);
+            }
+            releaseSlipThumbs();
+            items.sort((a, b) => `${b.date}${b.time}`.localeCompare(`${a.date}${a.time}`));
+            if (items.length === 1) items[0].expanded = true;
+            Object.assign(slipReview, { items, skipped, saving: false });
+            renderSlipReview();
+            modalControls['slip-review-modal'].open();
+            showToast(`อ่านสลิปได้ ${items.length} ใบ${skipped ? ` · ข้ามซ้ำ ${skipped} ใบ` : ''}${failed ? ` · อ่านไม่ได้ ${failed} ใบ` : ''} — ตรวจสอบก่อนบันทึก`, 'success', 5000);
+            vibrate([20, 50, 20]);
+        };
+
+        const saveSlipReview = async () => {
+            if (slipReview.saving) return;
+            const toSave = slipReview.items.filter(i => i.enabled);
+            const invalid = toSave.find(i => !(Number(i.amount) > 0) || !i.date || !i.category);
+            if (invalid) {
+                invalid.expanded = true; renderSlipReview();
+                return showToast('กรุณาระบุจำนวนเงิน วันที่ และหมวดหมู่ให้ครบทุกสลิปที่เลือก', 'error');
+            }
+            slipReview.saving = true; renderSlipReview(); ui.loading.classList.remove('hidden');
+            let saved = 0;
+            try {
+                for (const item of toSave) {
+                    const desc = [item.payee || 'สแกนจากสลิป', item.note].filter(Boolean).join(' - ');
+                    await apiCall('addTransaction', { data: { Type: 'Expense', Category: item.category, Amount: Number(item.amount), Date: `${item.date}T${item.time || '12:00'}:00`, Description: desc, Mood: '', IsDeduct: false } });
+                    rememberSlip([item.fp, item.ref && 'r:' + item.ref]);
+                    if (item.thumb) URL.revokeObjectURL(item.thumb);
+                    slipReview.items.splice(slipReview.items.indexOf(item), 1);
+                    saved++;
+                }
+            } catch (error) {
+                console.error(error); // apiCall already showed the reason; unsaved slips stay in the list.
+            } finally {
+                slipReview.saving = false; ui.loading.classList.add('hidden');
+            }
+            if (saved) showToast(`บันทึกจากสลิปแล้ว ${saved} รายการ`);
+            if (!slipReview.items.some(i => i.enabled)) { modalControls['slip-review-modal'].close(); closeSlipReview(); }
+            else renderSlipReview();
+            if (saved) await init(true, true);
+        };
+
+        (() => {
+            const list = $('slip-review-list'); if (!list) return;
+            list.addEventListener('click', e => {
+                const el = e.target.closest('[data-act]'); if (!el || slipReview.saving) return;
+                const item = slipReview.items[Number(el.dataset.idx)]; if (!item) return;
+                if (el.dataset.act === 'expand') item.expanded = !item.expanded;
+                else if (el.dataset.act === 'cat') item.category = el.dataset.cat;
+                else return;
+                renderSlipReview();
+            });
+            list.addEventListener('change', e => {
+                const el = e.target.closest('[data-act="toggle"]'); if (!el) return;
+                const item = slipReview.items[Number(el.dataset.idx)]; if (!item) return;
+                item.enabled = el.checked; renderSlipReview();
+            });
+            list.addEventListener('input', e => {
+                const el = e.target.closest('[data-field]'); if (!el) return;
+                const item = slipReview.items[Number(el.dataset.idx)]; if (!item) return;
+                item[el.dataset.field] = el.dataset.field === 'amount' ? (el.value === '' ? null : Number(el.value)) : el.value;
+                if (el.dataset.field === 'date') item.dateFound = true;
+            });
+            // Re-render after an edit is committed so the header row and total stay in sync without stealing focus mid-typing.
+            list.addEventListener('focusout', e => { if (e.target.closest('[data-field]') && !slipReview.saving) setTimeout(() => { if (!list.contains(document.activeElement) || !document.activeElement.matches('[data-field]')) renderSlipReview(); }, 0); });
+            $('slip-review-save-btn').addEventListener('click', saveSlipReview);
+            $('slip-review-modal').querySelectorAll('.modal-backdrop, .modal-cancel-btn').forEach(el => el.addEventListener('click', () => { if (!slipReview.saving) closeSlipReview(); }));
+        })();
+
         const handleScanReceipt = async (event) => {
-            const file = event.target.files?.[0]; if (!file) return;
-            if (handleScanReceipt.busy) return showToast('กำลังอ่านสลิป กรุณารอสักครู่', 'info');
+            const files = [...(event.target.files || [])]; if (!files.length) return;
+            if (handleScanReceipt.busy) { ui.receiptUploader.value = ''; return showToast('กำลังอ่านสลิป กรุณารอสักครู่', 'info'); }
             handleScanReceipt.busy = true;
             stopTransactionVoice();
+            // Outside the form: read every picked slip and review them together.
+            if (modalControls['transaction-modal'].isOpen !== true) {
+                try { await scanSlipBatch(files); }
+                finally { handleScanReceipt.busy = false; ui.receiptUploader.value = ''; }
+                return;
+            }
+            const file = files[0];
             let worker = null;
             const scanVersion=transactionDraftVersion,keepDraft=modalControls['transaction-modal'].isOpen===true;
             showToast('กำลังประมวลผลภาพ... กรุณารอสักครู่', 'info'); ui.loading.classList.remove('hidden');
             try {
                 const processedImage = await preprocessImage(file);
+                await loadTesseract();
                 worker = await Tesseract.createWorker('tha+eng');
                 const { data: { text } } = await worker.recognize(processedImage);
 
@@ -11557,7 +11929,8 @@ button[class*="bg-[#00F5D4]"],button[class*="bg-[#06D6A0]"]{background:var(--rp-
                 if (!groups.length || groups[groups.length - 1].key !== key) groups.push({ key, date, items: [] });
                 groups[groups.length - 1].items.push(t);
             });
-            const timeOf = t => { const m = String(t.Date || '').match(/[T ](\d{2}):(\d{2})/); return m ? `${m[1]}:${m[2]}` : ''; }; // Date-only rows have no time.
+            // Rows saved from the form use 12:00 as a "no time" placeholder, so only show other times.
+            const timeOf = t => { const d = getLocalDate(t.Date); if (!d || (d.getHours() === 12 && d.getMinutes() === 0)) return ''; return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`; };
 
             ui.lists.trans.innerHTML = groups.map(g => {
                 const weekday = g.date.toLocaleDateString('th-TH', { weekday: 'long' }).replace(/^วัน/, '');
