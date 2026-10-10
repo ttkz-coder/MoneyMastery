@@ -11163,7 +11163,7 @@ button[class*="bg-[#00F5D4]"],button[class*="bg-[#06D6A0]"]{background:var(--rp-
             showToast._timer = setTimeout(() => { ui.toast.classList.add('opacity-0', 'translate-y-[-20px]'); showToast._timer = null; }, duration);
         };
 
-        const preprocessImage = (file) => {
+        const preprocessImage = (file, filter = 'grayscale(100%) contrast(1.3)') => {
             return new Promise((resolve, reject) => {
                 const img = new Image();
                 let objectUrl = null, settled = false, timeout;
@@ -11184,7 +11184,7 @@ button[class*="bg-[#00F5D4]"],button[class*="bg-[#06D6A0]"]{background:var(--rp-
                         const scale = Math.min(1600 / img.width, 4096 / img.height);
                         canvas.width = Math.max(1, Math.round(img.width * scale));
                         canvas.height = Math.max(1, Math.round(img.height * scale));
-                        ctx.filter = 'grayscale(100%) contrast(1.3)'; // Stronger contrast/brightness washes out light text.
+                        ctx.filter = filter; // Stronger contrast/brightness washes out light text.
                         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
                         finish(null, canvas.toDataURL('image/jpeg', 0.9));
                     } catch (error) { finish(error); }
@@ -11227,6 +11227,13 @@ button[class*="bg-[#00F5D4]"],button[class*="bg-[#06D6A0]"]{background:var(--rp-
                 const next = lines[i + 1] || '';
                 const nextLine = next.match(SLIP_MONEY_RE) || next.match(/^\s*((?:[0-9]{1,3}(?:,[0-9]{3})+|[0-9]{1,7}))\s*(?:บาท|THB|Baht|un|vn)\b/i);
                 if (nextLine && toSlipNumber(nextLine[1]) > 0) return toSlipNumber(nextLine[1]);
+            }
+            // KKP prints "130" large and ".00 THB" small; OCR often drops the dot ("13000 THB").
+            for (const line of lines) {
+                const m = line.match(/(?:^|\s)((?:[0-9]{1,3}(?:,[0-9]{3})+|[0-9]+))(\.[0-9]{2})?\s*T[HN][BE8]\b/);
+                if (!m) continue;
+                const value = m[2] ? toSlipNumber(m[1] + m[2]) : m[1].replace(/,/g, '').length >= 3 ? toSlipNumber(m[1]) / 100 : null;
+                if (value > 0) return value;
             }
             const candidates = lines.filter(l => !/ค่าธรรมเนียม|fee/i.test(l)).flatMap(l => [...l.matchAll(new RegExp(SLIP_MONEY_RE.source, 'g'))].map(m => toSlipNumber(m[1]))).filter(n => n > 0 && n < 10000000);
             return candidates.length ? Math.max(...candidates) : null;
@@ -11284,7 +11291,8 @@ button[class*="bg-[#00F5D4]"],button[class*="bg-[#06D6A0]"]{background:var(--rp-
             return '';
         };
         const SLIP_ACCOUNT_RE = /(?:[xX*%]{2,}.*\d)|(?:\d.*[xX*%]{3,})|wallet|เลขพร้อมเพย์|พร้อมเพย์:/i;
-        const SLIP_SKIP_RE = /^(?:ธ\.|ธนาคาร|bank|krungsri|kbank|scb|ktb|bbl|ttb|gsb|pay|promptpay|จาก|ไปยัง|ถึง|to)$|^ธ\.|^ธนาคาร|กสิกรไทย|สำเร็จ|จำนวน|ค่าธรรมเนียม/i;
+        // Whole-line bank names/codes and labels; a shop such as "กรุงศรีมั่งมีช้อป" still passes.
+        const SLIP_SKIP_RE = /^(?:(?:ธ\.|ธนาคาร)\s*)?(?:กสิกรไทย|กรุงเทพ|กรุงไทย|กรุงศรี(?:อยุธยา)?|ไทยพาณิชย์|ทหารไทยธนชาต|ทีทีบี|เกียรตินาคินภัทร|ออมสิน|ธ\.ก\.ส\.?|ซีไอเอ็มบี|ยูโอบี|แลนด์ แอนด์ เฮ้าส์|พร้อมเพย์|bank|krungsri|kbank|scb|ktb|bbl|ttb|kkp|gsb|baac|cimb|uob|lhb|pay|promptpay|จาก|ไปยัง|ถึง|to)$|^(?:ธ\.|ธนาคาร)|สำเร็จ|จำนวน|ค่าธรรมเนียม/i;
         // OCR keeps wide gaps as runs of spaces; text after a gap is usually QR/mascot noise from the right side.
         const cleanSlipName = s => s.split(/\s{3,}/)
             .map(seg => seg
@@ -11292,6 +11300,7 @@ button[class*="bg-[#00F5D4]"],button[class*="bg-[#06D6A0]"]{background:var(--rp-
                 .replace(/^(?:\S{1,2}\s+)+/, '') // Logo noise such as "69", "oO", "J", "@", "๐" before the name.
                 .replace(/[|:：]+/g, ' ').replace(/\s+/g, ' ').trim())
             .find(seg => (seg.match(/[ก-๙A-Za-z]/g) || []).length >= 3 && !/^\S{1,2}$/.test(seg))?.slice(0, 60) || '';
+        const SLIP_TITLE_RE = /^(?:นาย|นางสาว|นาง|น\.ส|ด\.ช\.|ด\.ญ\.|บจก|บมจ|บริษัท|หจก|ร้าน|MR\.?\s|MRS\.?\s|MS\.?\s|MISS\s)/i;
         const looksLikeSlipName = s => (s.match(/[ก-๙A-Za-z]/g) || []).length >= 3 && !SLIP_ACCOUNT_RE.test(s) && !SLIP_SKIP_RE.test(s) && (s.match(/\d/g) || []).length < s.length / 3;
         const extractSlipPayee = text => {
             const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
@@ -11312,10 +11321,15 @@ button[class*="bg-[#00F5D4]"],button[class*="bg-[#06D6A0]"]{background:var(--rp-
                     // Long names wrap: Thai continues freely; Latin only when the next line has words (e.g. "COMPLEX CO.,LTD.").
                     const next = cleanSlipName(lines[i + 1] || '');
                     const continues = looksLikeSlipName(next) && !/\d/.test(next) && (/^[ก-๙]/.test(next) ? /[ก-๙]$/.test(name) : /\s/.test(next) && /[A-Za-z.]$/.test(name));
+                    // "พร้อมเพย์ e-Wallet" is the channel; the person's name follows a few lines below.
+                    if (/พร้อมเพย์|e-?wallet|promptpay/i.test(name)) {
+                        const person = lines.slice(i + 1, i + 6).map(cleanSlipName).find(l => SLIP_TITLE_RE.test(l));
+                        if (person) return person;
+                    }
                     return continues ? `${name}${/^[ก-๙]/.test(next) ? '' : ' '}${next}`.slice(0, 60) : name;
                 }
             }
-            const titled = lines.map(cleanSlipName).filter(l => /^(?:นาย|นางสาว|นาง|น\.ส|ด\.ช\.|ด\.ญ\.|บจก|บมจ|บริษัท|หจก|ร้าน|MR\.?\s|MRS\.?\s|MS\.?\s|MISS\s)/i.test(l));
+            const titled = lines.map(cleanSlipName).filter(l => SLIP_TITLE_RE.test(l));
             return titled[titled.length - 1] || '';
         };
         const parseSlipText = raw => { const text = normalizeSlipText(raw); return { amount: extractSlipAmount(text), ...extractSlipDate(text), ref: extractSlipRef(text), payee: extractSlipPayee(text) }; };
@@ -11412,6 +11426,11 @@ button[class*="bg-[#00F5D4]"],button[class*="bg-[#06D6A0]"]{background:var(--rp-
                     try {
                         const { data: { text } } = await worker.recognize(await preprocessImage(file));
                         const parsed = parseSlipText(text);
+                        if (!parsed.amount) {
+                            // Light text on a dark/colour banner (e.g. KKP) reads better inverted; only retry when needed.
+                            const retry = parseSlipText((await worker.recognize(await preprocessImage(file, 'grayscale(100%) invert(100%) contrast(2)'))).data.text);
+                            ['amount', 'date', 'time', 'ref', 'payee'].forEach(k => { if (!parsed[k]) parsed[k] = retry[k]; });
+                        }
                         if (parsed.ref && (seen['r:' + parsed.ref] || batchKeys.has('r:' + parsed.ref))) { skipped++; continue; }
                         if (parsed.ref) batchKeys.add('r:' + parsed.ref);
                         const item = { fp, ref: parsed.ref, amount: parsed.amount, payee: parsed.payee, date: parsed.date || formatDateToInput(new Date()), dateFound: !!parsed.date, time: parsed.time, note: '', expanded: false, thumb: URL.createObjectURL(file) };
