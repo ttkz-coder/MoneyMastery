@@ -11180,10 +11180,11 @@ button[class*="bg-[#00F5D4]"],button[class*="bg-[#06D6A0]"]{background:var(--rp-
                     try {
                         const canvas = document.createElement('canvas'), ctx = canvas.getContext('2d');
                         if (!ctx || !img.width || !img.height) throw new Error('รูปภาพไม่สมบูรณ์');
-                        const scale = Math.min(1, 1200 / img.width, 4096 / img.height);
+                        // Upscale small slips: OCR reads thin grey text (dates, reference numbers) better at ~1600px wide.
+                        const scale = Math.min(1600 / img.width, 4096 / img.height);
                         canvas.width = Math.max(1, Math.round(img.width * scale));
                         canvas.height = Math.max(1, Math.round(img.height * scale));
-                        ctx.filter = 'grayscale(100%) contrast(1.5) brightness(1.1)';
+                        ctx.filter = 'grayscale(100%) contrast(1.3)'; // Stronger contrast/brightness washes out light text.
                         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
                         finish(null, canvas.toDataURL('image/jpeg', 0.9));
                     } catch (error) { finish(error); }
@@ -11208,21 +11209,39 @@ button[class*="bg-[#00F5D4]"],button[class*="bg-[#06D6A0]"]{background:var(--rp-
             });
         };
 
-        // ── Slip text parsing ──
+        // ── Slip text parsing (tuned on K PLUS, make, เป๋าตัง and Kept slips) ──
+        // OCR often splits "ำ" into "ํ" + "า" and drops tone marks; normalise before matching.
+        const normalizeSlipText = text => String(text || '').replace(/ํา/g, 'ำ').replace(/\r/g, '');
         const SLIP_MONEY_RE = /((?:[0-9]{1,3}(?:,[0-9]{3})+|[0-9]+)\.[0-9]{2})(?![0-9])/;
+        const SLIP_INT_RE = /(?:^|\s)((?:[0-9]{1,3}(?:,[0-9]{3})+|[0-9]{1,7}))(?:\.[0-9]{2})?\s*(?:บาท|THB|Baht|un|vn|บ\.?)?\s*$/i;
+        const toSlipNumber = s => parseFloat(String(s).replace(/,/g, ''));
         const extractSlipAmount = text => {
-            const amountKeywords = ['จำนวนเงิน', 'ยอดเงิน', 'ยอดสุทธิ', 'รวมทั้งสิ้น', 'Amount', 'Total', 'THB', 'Baht', 'โอนเงินสำเร็จ'];
             const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
+            const keyword = /จำนวน|ยอดเงิน|ยอดสุทธิ|ยอดชำระ|รวมทั้งสิ้น|amount|total/i;
             for (let i = 0; i < lines.length; i++) {
-                if (!amountKeywords.some(kw => lines[i].toLowerCase().includes(kw.toLowerCase()))) continue;
-                const match = lines[i].match(SLIP_MONEY_RE) || (lines[i + 1] || '').match(SLIP_MONEY_RE);
-                if (match) return parseFloat(match[1].replace(/,/g, ''));
+                const m = lines[i].match(keyword);
+                if (!m || /ค่าธรรมเนียม|fee/i.test(lines[i])) continue;
+                const rest = lines[i].slice(m.index + m[0].length).replace(/^\s*(?:เงิน)?\s*[:：]?/, '');
+                const sameLine = rest.match(SLIP_MONEY_RE) || rest.match(SLIP_INT_RE);
+                if (sameLine && toSlipNumber(sameLine[1]) > 0) return toSlipNumber(sameLine[1]);
+                const next = lines[i + 1] || '';
+                const nextLine = next.match(SLIP_MONEY_RE) || next.match(/^\s*((?:[0-9]{1,3}(?:,[0-9]{3})+|[0-9]{1,7}))\s*(?:บาท|THB|Baht|un|vn)\b/i);
+                if (nextLine && toSlipNumber(nextLine[1]) > 0) return toSlipNumber(nextLine[1]);
             }
-            const candidates = [...text.matchAll(new RegExp(SLIP_MONEY_RE.source, 'g'))].map(m => parseFloat(m[1].replace(/,/g, ''))).filter(n => n > 0 && n < 10000000);
+            const candidates = lines.filter(l => !/ค่าธรรมเนียม|fee/i.test(l)).flatMap(l => [...l.matchAll(new RegExp(SLIP_MONEY_RE.source, 'g'))].map(m => toSlipNumber(m[1]))).filter(n => n > 0 && n < 10000000);
             return candidates.length ? Math.max(...candidates) : null;
         };
-        const SLIP_MONTHS = { 'มค':1,'มกราคม':1,'กพ':2,'กุมภาพันธ์':2,'มีค':3,'มีนาคม':3,'เมย':4,'เมษายน':4,'พค':5,'พฤษภาคม':5,'มิย':6,'มิถุนายน':6,'กค':7,'กรกฎาคม':7,'สค':8,'สิงหาคม':8,'กย':9,'กันยายน':9,'ตค':10,'ตุลาคม':10,'พย':11,'พฤศจิกายน':11,'ธค':12,'ธันวาคม':12,
-            jan:1,feb:2,mar:3,apr:4,may:5,jun:6,jul:7,aug:8,sep:9,oct:10,nov:11,dec:12 };
+        const SLIP_MONTHS = [['มกราคม',1],['กุมภาพันธ์',2],['มีนาคม',3],['เมษายน',4],['พฤษภาคม',5],['มิถุนายน',6],['กรกฎาคม',7],['สิงหาคม',8],['กันยายน',9],['ตุลาคม',10],['พฤศจิกายน',11],['ธันวาคม',12],
+            ['มีค',3],['เมย',4],['มิย',6],['พย',11],['มค',1],['กพ',2],['พค',5],['กค',7],['สค',8],['กย',9],['ตค',10],['ธค',12],
+            ['jan',1],['feb',2],['mar',3],['apr',4],['may',5],['jun',6],['jul',7],['aug',8],['sep',9],['oct',10],['nov',11],['dec',12]];
+        // Latin/digit look-alikes OCR produces for Thai month letters (e.g. "n.9." for "ก.ย.", "m.A." for "ต.ค.").
+        const SLIP_LOOKALIKE = { n: 'ก', 1: 'ก', 9: 'ย', u: 'ย', m: 'ต', a: 'ค', s: 'ธ', 5: 'ธ', w: 'พ' };
+        const slipMonth = (raw, lookalike) => {
+            let key = raw.toLowerCase().replace(/[ัุู็-๎.\s]/g, ''); // Drop dots, spaces and stray marks, keep ี/ิ used by มี.ค./มิ.ย.
+            if (lookalike) key = [...key].map(c => SLIP_LOOKALIKE[c] || c).join('');
+            const hit = SLIP_MONTHS.find(([name]) => key === name || key.endsWith(name) || (name.length > 3 && key.startsWith(name.slice(0, 3)) && /^[a-z]/.test(name)));
+            return hit ? hit[1] : 0;
+        };
         const toSlipYear = (raw, thai) => {
             let y = Number(raw);
             if (raw.length <= 2) y += thai || y > 60 ? 2500 : 2000;
@@ -11231,11 +11250,18 @@ button[class*="bg-[#00F5D4]"],button[class*="bg-[#06D6A0]"]{background:var(--rp-
         const extractSlipDate = text => {
             const valid = (y, m, d) => { const dt = new Date(y, m - 1, d); return dt.getFullYear() === y && dt.getMonth() === m - 1 && dt.getDate() === d && dt - Date.now() < 2 * 864e5 && y > 2000 ? dt : null; };
             let date = null;
-            for (const m of text.matchAll(/(\d{1,2})\s*([ก-๙A-Za-z][ก-๙A-Za-z.\s]{1,12}?)\s*(\d{4}|\d{2})(?!\d)/g)) {
-                const key = m[2].replace(/[.\s]/g, '').toLowerCase();
-                const month = SLIP_MONTHS[key] || SLIP_MONTHS[key.slice(0, 3)];
-                if (!month) continue;
-                date = valid(toSlipYear(m[3], /[ก-๙]/.test(key)), month, Number(m[1]));
+            const patterns = [
+                [/(\d{1,2})\s*([ก-๙A-Za-z][ก-๙A-Za-z.\s]{1,12}?)\s*(\d{4}|\d{2})(?!\d)/g, false],
+                [/(\d{1,2})\s+([ก-๙A-Za-z0-9]{1,3}\.\s?[ก-๙A-Za-z0-9]{1,3}\.?)\s*(\d{4}|\d{2})(?!\d)/g, true],
+                [/(?:^|\s)(\d{1,2})([0-9]?[A-Za-zก-๙]{1,3}\.)\s*(\d{4}|\d{2})(?!\d)/g, true] // Day glued to a misread month, e.g. "255A. 2568".
+            ];
+            for (const [re, lookalike] of patterns) {
+                for (const m of text.matchAll(re)) {
+                    const month = slipMonth(m[2], lookalike);
+                    if (!month) continue;
+                    date = valid(toSlipYear(m[3], !/^[a-z]+$/i.test(m[2].replace(/[.\s]/g, '')) || lookalike), month, Number(m[1]));
+                    if (date) break;
+                }
                 if (date) break;
             }
             if (!date) for (const m of text.matchAll(/(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{4}|\d{2})(?!\d)/g)) {
@@ -11245,25 +11271,54 @@ button[class*="bg-[#00F5D4]"],button[class*="bg-[#06D6A0]"]{background:var(--rp-
             const t = text.match(/(?:^|[^\d])([01]?\d|2[0-3])\s*:\s*([0-5]\d)(?!\d)/);
             return { date: date ? formatDateToInput(date) : '', time: t ? `${t[1].padStart(2, '0')}:${t[2]}` : '' };
         };
+        // Reference numbers are only used to skip duplicates, so accept a token only right after a reference label.
         const extractSlipRef = text => {
-            const m = text.match(/(?:เลขที่รายการ|รหัสอ้างอิง|เลขอ้างอิง|หมายเลขอ้างอิง|รหัสรายการ|Ref(?:erence)?\.?\s*(?:No\.?|ID)?|Transaction\s*(?:No\.?|ID))\s*[:：]?\s*\n?\s*([A-Za-z0-9][A-Za-z0-9 ]{7,40})/i);
-            const ref = m ? m[1].replace(/\s+/g, '').toUpperCase() : '';
-            return /\d{4,}/.test(ref) ? ref : '';
+            const lines = text.split('\n');
+            for (let i = 0; i < lines.length; i++) {
+                const m = lines[i].match(/เลขที่รายการ|รหัสอ้างอิง|เลขอ้างอิง|หมายเลขอ้างอิง|รหัสรายการ|Ref(?:erence)?\.?\s*(?:No\.?|ID)?|Transaction\s*(?:No\.?|ID)/i);
+                if (!m) continue;
+                const nearby = [lines[i].slice(m.index + m[0].length), ...lines.slice(i + 1, i + 4)].join(' ');
+                const token = nearby.split(/[\s:：]+/).find(tok => /^[A-Za-z0-9]{10,40}$/.test(tok) && (tok.match(/\d/g) || []).length >= 5);
+                if (token) return token.toUpperCase().replace(/O/g, '0').replace(/[IL]/g, '1'); // Fold OCR look-alikes so re-scans match.
+            }
+            return '';
         };
-        const cleanSlipName = s => s.replace(/\b[xX\d*]{3}[-\s]?[xX\d*][-\s]?[xX\d*]{3,5}[-\s]?[xX\d*]\b.*$/, '').replace(/[|:：]+/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 60);
+        const SLIP_ACCOUNT_RE = /(?:[xX*%]{2,}.*\d)|(?:\d.*[xX*%]{3,})|wallet|เลขพร้อมเพย์|พร้อมเพย์:/i;
+        const SLIP_SKIP_RE = /^(?:ธ\.|ธนาคาร|bank|krungsri|kbank|scb|ktb|bbl|ttb|gsb|pay|promptpay|จาก|ไปยัง|ถึง|to)$|^ธ\.|^ธนาคาร|กสิกรไทย|สำเร็จ|จำนวน|ค่าธรรมเนียม/i;
+        // OCR keeps wide gaps as runs of spaces; text after a gap is usually QR/mascot noise from the right side.
+        const cleanSlipName = s => s.split(/\s{3,}/)
+            .map(seg => seg
+                .replace(/^\s*(?:ไปยัง|ถึง|ผู้รับ(?:เงิน)?|ชื่อร้าน(?:ค้า)?|ร้านค้า|To|Merchant)\s*[:：]?\s*/i, '')
+                .replace(/^(?:\S{1,2}\s+)+/, '') // Logo noise such as "69", "oO", "J", "@", "๐" before the name.
+                .replace(/[|:：]+/g, ' ').replace(/\s+/g, ' ').trim())
+            .find(seg => (seg.match(/[ก-๙A-Za-z]/g) || []).length >= 3 && !/^\S{1,2}$/.test(seg))?.slice(0, 60) || '';
+        const looksLikeSlipName = s => (s.match(/[ก-๙A-Za-z]/g) || []).length >= 3 && !SLIP_ACCOUNT_RE.test(s) && !SLIP_SKIP_RE.test(s) && (s.match(/\d/g) || []).length < s.length / 3;
         const extractSlipPayee = text => {
             const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
-            for (let i = 0; i < lines.length; i++) {
-                const m = lines[i].match(/^(?:ไปยัง|ถึง|ผู้รับ(?:เงิน)?|ชื่อร้าน(?:ค้า)?|ร้านค้า|To|Merchant)\s*[:：]?\s*(.*)$/i);
-                if (!m) continue;
-                const name = cleanSlipName(m[1] || lines[i + 1] || '');
-                if (name.length >= 2) return name;
+            const labelled = lines.findIndex(l => /^(?:ไปยัง|ถึง|ผู้รับ|To\b|Merchant)/i.test(l));
+            if (labelled >= 0) {
+                const name = cleanSlipName(lines[labelled]);
+                if (looksLikeSlipName(name)) return name;
+                const next = cleanSlipName(lines[labelled + 1] || '');
+                if (looksLikeSlipName(next)) return next;
             }
-            // Bank slips list the sender first, then the recipient.
-            const names = lines.filter(l => /^(?:นาย|นางสาว|นาง|น\.ส\.|ด\.ช\.|ด\.ญ\.|บจก|บมจ|บริษัท|หจก|ร้าน|MR\.?|MRS\.?|MS\.?|MISS)\s*\S/i.test(l)).map(cleanSlipName);
-            return names[1] || '';
+            // Bank slips list sender name + account, then recipient name + account.
+            const firstAccount = lines.findIndex(l => SLIP_ACCOUNT_RE.test(l));
+            if (firstAccount >= 0) {
+                for (let i = firstAccount + 1; i < lines.length; i++) {
+                    const name = cleanSlipName(lines[i]);
+                    if (SLIP_ACCOUNT_RE.test(lines[i]) || /จำนวน/.test(lines[i])) break;
+                    if (!looksLikeSlipName(name)) continue;
+                    // Long names wrap: Thai continues freely; Latin only when the next line has words (e.g. "COMPLEX CO.,LTD.").
+                    const next = cleanSlipName(lines[i + 1] || '');
+                    const continues = looksLikeSlipName(next) && !/\d/.test(next) && (/^[ก-๙]/.test(next) ? /[ก-๙]$/.test(name) : /\s/.test(next) && /[A-Za-z.]$/.test(name));
+                    return continues ? `${name}${/^[ก-๙]/.test(next) ? '' : ' '}${next}`.slice(0, 60) : name;
+                }
+            }
+            const titled = lines.map(cleanSlipName).filter(l => /^(?:นาย|นางสาว|นาง|น\.ส|ด\.ช\.|ด\.ญ\.|บจก|บมจ|บริษัท|หจก|ร้าน|MR\.?\s|MRS\.?\s|MS\.?\s|MISS\s)/i.test(l));
+            return titled[titled.length - 1] || '';
         };
-        const parseSlipText = text => ({ amount: extractSlipAmount(text), ...extractSlipDate(text), ref: extractSlipRef(text), payee: extractSlipPayee(text) });
+        const parseSlipText = raw => { const text = normalizeSlipText(raw); return { amount: extractSlipAmount(text), ...extractSlipDate(text), ref: extractSlipRef(text), payee: extractSlipPayee(text) }; };
 
         // ── Duplicate memory: file fingerprints and slip reference numbers already saved on this device ──
         const SLIP_SEEN_KEY = CACHE_KEY + ':scanned-slips-v1';
