@@ -10114,6 +10114,20 @@ button[class*="bg-[#00F5D4]"],button[class*="bg-[#06D6A0]"]{background:var(--rp-
 #transactions-list .tx-day-card .transaction-item:hover { background: var(--rp-hover, var(--card-alt)) !important; }
 #transactions-list .tx-day-card .transaction-item.border-\[\#4361EE\] { background: rgba(67,97,238,.12) !important; box-shadow: inset 3px 0 0 #4361EE !important; }
 </style>
+<style id="net-balance-card-style">
+/* Hero card: brand gradient (same as the + button) so net balance stands apart from the stat cards. */
+#dashboard-page .modern-summary>div.net-balance-card{
+    background-color:#4a5bf3!important;
+    background-image:radial-gradient(ellipse at 88% 12%,rgba(255,255,255,.26),transparent 55%),linear-gradient(135deg,#3165f1 0%,#5b4ff2 55%,#8250f5 100%)!important;
+    border-color:rgba(255,255,255,.18)!important;border-top-color:rgba(255,255,255,.38)!important;
+    box-shadow:0 14px 34px rgba(80,72,240,.35)!important;color:#fff!important;
+}
+#dashboard-page .modern-summary>div.net-balance-card>p:first-of-type{color:rgba(255,255,255,.86)!important;}
+#dashboard-page .modern-summary>div.net-balance-card #summary-balance{color:#fff!important;text-shadow:0 2px 14px rgba(20,10,90,.28);}
+#dashboard-page .modern-summary>div.net-balance-card #summary-balance[class*="text-[#EF476F]"]{color:#ffd3de!important;}
+#dashboard-page .modern-summary>div.net-balance-card>.absolute{opacity:.16!important;}
+#dashboard-page .modern-summary>div.net-balance-card .ph-wallet{color:#fff!important;}
+</style>
 <style id="slip-review-style">
 #slip-review-modal .modal-sheet { display: flex; flex-direction: column; }
 .slip-summary { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 14px 16px; background: var(--card-bg); border: 1px solid var(--border-dark); border-radius: 16px; }
@@ -10271,7 +10285,7 @@ button[class*="bg-[#00F5D4]"],button[class*="bg-[#06D6A0]"]{background:var(--rp-
                     <div class="modern-summary grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3 lg:gap-4">
                         
                         <!-- Net Balance -->
-                        <div class="retro-panel p-5 col-span-2 lg:col-span-2 relative overflow-hidden bg-retro-card mb-0 border-retro-border flex flex-col justify-center">
+                        <div class="net-balance-card retro-panel p-5 col-span-2 lg:col-span-2 relative overflow-hidden bg-retro-card mb-0 border-retro-border flex flex-col justify-center">
                             <div class="absolute -right-4 -bottom-4 md:-right-8 md:-bottom-8 opacity-[0.05] transform rotate-12 pointer-events-none">
                                 <i class="ph-fill ph-wallet text-8xl md:text-[140px] text-[var(--text-main)]"></i>
                             </div>
