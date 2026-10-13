@@ -642,7 +642,116 @@ function initTimeline() {
 }
 
 /* ---------------------------------------------------------------- */
-/* 5. Pointer tilt for summary cards (desktop only)                  */
+/* 5. Transactions page: income / expense / saving as coin stacks     */
+/* ---------------------------------------------------------------- */
+function initCoinStacks() {
+    const list = document.getElementById('transactions-list');
+    const anchor = list?.parentElement;
+    if (!anchor) return null;
+    const sec = sectionShell({ id: 'mm3d-stacks', eyebrow: '3D COIN STACKS', title: 'กองเหรียญของรายการที่แสดงอยู่', subtitle: 'กองเขียวคือเงินเข้า กองแดงคือเงินออก ถ้ากองแดงสูงกว่า ก็... รู้ตัวนะ', hint: 'ลากเพื่อหมุน' });
+    sec.classList.add('mm3d-panel-compact');
+    anchor.before(sec);
+    const stage = sec.querySelector('.mm3d-stage');
+    const empty = sec.querySelector('.mm3d-empty');
+    const legend = sec.querySelector('.mm3d-legend');
+    const view = new View(stage, { fov: 34 });
+    const env = view.env;
+    const { scene, camera } = view;
+    view.onResize = (w, h) => {
+        const d = Math.max(13, 10 / (0.61 * (w / h)));
+        camera.position.set(0, d * 0.38, d);
+        camera.lookAt(0, 1.7, 0);
+    };
+    view.resize();
+    scene.add(new THREE.HemisphereLight(0xdfe4ff, 0x1a1033, 1.0));
+    const sun = new THREE.DirectionalLight(0xffffff, 2.4); sun.position.set(3, 9, 7); scene.add(sun);
+    // sway (idle motion) wraps world (drag orbit) so the two rotations don't fight.
+    const sway = new THREE.Group();
+    const world = new THREE.Group();
+    sway.add(world);
+    scene.add(sway);
+    const base = new THREE.Mesh(new THREE.CylinderGeometry(5.4, 5.6, 0.3, 64), new THREE.MeshPhysicalMaterial({ color: 0x23244a, metalness: 0.4, roughness: 0.3, clearcoat: 1, envMap: env, envMapIntensity: 0.6 }));
+    base.scale.z = 0.45; base.position.y = -0.15;
+    world.add(base);
+    themeFloor(view, base);
+    const orbit = attachOrbit(view, world, { yaw: 0, pitch: 0.3, auto: 0 });
+    const labels = labelLayer(stage);
+
+    const MAX = 24, R = 0.82, T = 0.16, GAP = 0.172;
+    const STACKS = [
+        { key: 'income', name: 'รายรับ', tint: '#34d399', x: -2.9, sign: '+' },
+        { key: 'expense', name: 'รายจ่าย', tint: '#fb7185', x: 0, sign: '-' },
+        { key: 'saving', name: 'ออม/ลงทุน', tint: '#a78bfa', x: 2.9, sign: '' }
+    ];
+    const geo = new THREE.CylinderGeometry(R, R, T, 48);
+    for (const st of STACKS) {
+        const face = coinFaceTexture('฿', st.tint);
+        const side = new THREE.MeshStandardMaterial({ color: st.tint, metalness: 1, roughness: 0.3, envMap: env });
+        const cap = new THREE.MeshStandardMaterial({ map: face, metalness: 0.75, roughness: 0.32, envMap: env });
+        st.mesh = new THREE.InstancedMesh(geo, [side, cap, cap], MAX);
+        st.mesh.count = 0;
+        st.mesh.frustumCulled = false; // instances sit away from the geometry's origin bounds
+        st.jitter = Array.from({ length: MAX }, () => [(Math.random() - 0.5) * 0.12, (Math.random() - 0.5) * 0.12, Math.random() * Math.PI]);
+        st.anchor = new THREE.Object3D();
+        world.add(st.mesh, st.anchor);
+    }
+    const m = new THREE.Matrix4(), q = new THREE.Quaternion(), e = new THREE.Euler(), v = new THREE.Vector3(), one = new THREE.Vector3(1, 1, 1);
+    const bounce = k => { if (k >= 1) return 1; const n = 7.5625, d = 2.75; if (k < 1 / d) return n * k * k; if (k < 2 / d) return n * (k -= 1.5 / d) * k + 0.75; if (k < 2.5 / d) return n * (k -= 2.25 / d) * k + 0.9375; return n * (k -= 2.625 / d) * k + 0.984375; };
+    let t0 = 0, sig = '';
+
+    view.update = ({ shown }) => {
+        const tot = { income: 0, expense: 0, saving: 0 };
+        for (const t of shown || []) {
+            const a = parseFloat(t.Amount) || 0;
+            if (t.Type === 'Income') tot.income += a;
+            else if (t.Type === 'Expense') tot.expense += t.IsDeduct ? -a : a;
+            else if (['Saving', 'Investment', 'FreeCashFlow'].includes(t.Type)) tot.saving += t.IsDeduct ? -a : a;
+        }
+        const next = JSON.stringify([Math.round(tot.income), Math.round(tot.expense), Math.round(tot.saving)]);
+        if (next === sig) return;
+        sig = next;
+        const max = Math.max(1, tot.income, tot.expense, Math.abs(tot.saving));
+        for (const st of STACKS) {
+            const val = tot[st.key];
+            st.value = val;
+            st.mesh.count = val > 0 ? Math.max(1, Math.round((val / max) * MAX)) : 0;
+        }
+        const hasAny = STACKS.some(st => st.mesh.count);
+        empty.hidden = hasAny;
+        empty.textContent = 'ยังไม่มีรายการให้กองเหรียญ ลองเลือกช่วงวันที่หรือล้างตัวกรองดูนะ';
+        labels.set(STACKS.map(st => ({ anchor: st.anchor, html: `<b>${st.name}</b><span>${st.value ? st.sign : ''}฿${money(Math.abs(st.value))}</span>` })));
+        const net = tot.income - tot.expense - tot.saving;
+        legend.innerHTML = STACKS.map(st => `<span><i style="background:${st.tint}"></i>${st.name} <b>${money(st.value)}</b></span>`).join('') +
+            `<span>คงเหลือจากรายการนี้ <b class="${net >= 0 ? 'mm3d-up' : 'mm3d-down'}">${net >= 0 ? '+' : ''}${money(net)}</b></span>`;
+        t0 = view.clock.elapsedTime;
+        view.kick();
+    };
+
+    view.tick = (dt, t) => {
+        orbit(dt);
+        if (!reduceMotion.matches) sway.rotation.y = Math.sin(t * 0.35) * 0.25;
+        const since = reduceMotion.matches ? 100 : t - t0;
+        STACKS.forEach((st, si) => {
+            for (let i = 0; i < st.mesh.count; i++) {
+                const k = clamp((since - si * 0.18 - i * 0.045) / 0.55, 0, 1);
+                const y = T / 2 + i * GAP + (1 - bounce(k)) * 6;
+                const [jx, jz, rot] = st.jitter[i];
+                e.set(0, rot + (1 - k) * 3, 0);
+                q.setFromEuler(e);
+                v.set(st.x + jx, y, jz);
+                m.compose(v, q, one);
+                st.mesh.setMatrixAt(i, m);
+            }
+            st.mesh.instanceMatrix.needsUpdate = true;
+            st.anchor.position.set(st.x, T + st.mesh.count * GAP + 0.45, 0);
+        });
+        labels.update(camera, view.size.w, view.size.h);
+    };
+    return view;
+}
+
+/* ---------------------------------------------------------------- */
+/* 6. Pointer tilt for summary cards (desktop only)                  */
 /* ---------------------------------------------------------------- */
 function initTilt() {
     if (!finePointer.matches || reduceMotion.matches) return;
@@ -686,7 +795,7 @@ function main() {
     if (!supportsWebGL()) { root.classList.add('mm3d-off'); return; }
     root.classList.add('mm3d-on');
     const views = {};
-    for (const [name, init] of [['bg', initBackground], ['hero', initHeroCoin], ['city', initCity], ['timeline', initTimeline]]) {
+    for (const [name, init] of [['bg', initBackground], ['hero', initHeroCoin], ['city', initCity], ['timeline', initTimeline], ['stacks', initCoinStacks]]) {
         try { views[name] = init(); } catch (e) { console.warn('[mm3d] ' + name + ' disabled', e); document.getElementById('mm3d-' + name)?.remove(); }
     }
     const apply = detail => {
@@ -697,6 +806,8 @@ function main() {
             views.city?.update?.(detail);
         } else if (detail.page === 'analytics-page') {
             views.timeline?.update?.(detail);
+        } else if (detail.page === 'transactions-page') {
+            views.stacks?.update?.(detail);
         }
     };
     window.addEventListener('mm:render', e => apply(e.detail));

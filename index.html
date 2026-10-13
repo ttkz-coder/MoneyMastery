@@ -10225,6 +10225,62 @@ button[class*="bg-[#00F5D4]"],button[class*="bg-[#06D6A0]"]{background:var(--rp-
 
 @media(prefers-reduced-motion:reduce){.page.active{animation:none}#dashboard-page .modern-summary>div,.mm3d-panel,.report-comparison>*{transform:none!important}}
 </style>
+<style id="mm3d-icons-style">
+/* 3D icons: glossy "clay" tiles (category emoji) and extruded glyphs (Phosphor icons). Pure CSS, no WebGL per icon. */
+.mm3d-icon{
+ --hi:#c7d2fe;--lo:#4f46e5;--edge:#3730a3;
+ position:relative;display:inline-flex!important;align-items:center;justify-content:center;
+ border:0!important;border-radius:14px!important;isolation:isolate;
+ box-shadow:inset 0 2px 1px rgba(255,255,255,.65),inset 0 -5px 8px rgba(0,0,0,.22),
+  0 1px 0 var(--edge),0 2px 0 var(--edge),0 3px 0 var(--edge),0 4px 0 var(--edge),
+  0 12px 16px -6px rgba(0,0,0,.55)!important;
+ transform:perspective(320px) rotateX(12deg) translateY(-2px);
+ transition:transform .35s cubic-bezier(.2,.9,.25,1.4),box-shadow .35s;
+ vertical-align:middle;
+}
+/* The id-qualified selector outranks the older transaction-row tile background rule. */
+.mm3d-icon,#transactions-list .transaction-item>div:first-child>div.mm3d-icon:first-child{
+ background:radial-gradient(120% 85% at 28% 12%,rgba(255,255,255,.65),rgba(255,255,255,0) 46%),linear-gradient(150deg,var(--hi),var(--lo) 78%)!important;
+}
+.mm3d-icon::after{content:"";position:absolute;inset:3px 6px auto;height:38%;border-radius:12px 12px 40% 40%;background:linear-gradient(rgba(255,255,255,.45),rgba(255,255,255,0));z-index:-1;pointer-events:none}
+.mm3d-glyph{display:inline-block;line-height:1;filter:drop-shadow(0 3px 1px rgba(0,0,0,.35)) drop-shadow(0 0 1px rgba(255,255,255,.4));transform:translateZ(0) scale(1.04);transition:transform .35s cubic-bezier(.2,.9,.25,1.4)}
+.mm3d-icon[data-type="Income"]{--hi:#86efac;--lo:#059669;--edge:#03694b}
+.mm3d-icon[data-type="Expense"]{--hi:#fda4af;--lo:#e11d48;--edge:#9b1036}
+.mm3d-icon[data-type="Saving"]{--hi:#fde68a;--lo:#f59e0b;--edge:#a85f06}
+.mm3d-icon[data-type="Investment"]{--hi:#d8b4fe;--lo:#7c3aed;--edge:#4c1d95}
+.mm3d-icon[data-type="FreeCashFlow"]{--hi:#a5f3fc;--lo:#0284c7;--edge:#075985}
+.mm3d-icon-sm{width:32px;height:32px;font-size:18px;border-radius:11px!important}
+/* Lift and turn the tile when its row is hovered or pressed. */
+.transaction-item:hover .mm3d-icon,.retro-card:hover .mm3d-icon,.mm3d-icon:hover{transform:perspective(320px) rotateX(4deg) rotateY(-16deg) translateY(-5px) scale(1.07);box-shadow:inset 0 2px 1px rgba(255,255,255,.7),inset 0 -5px 8px rgba(0,0,0,.2),0 1px 0 var(--edge),0 2px 0 var(--edge),0 3px 0 var(--edge),0 4px 0 var(--edge),0 5px 0 var(--edge),0 18px 20px -6px rgba(0,0,0,.5)!important}
+.transaction-item:hover .mm3d-glyph,.mm3d-icon:hover .mm3d-glyph{transform:scale(1.14) rotate(-6deg)}
+.transaction-item:active .mm3d-icon{transform:perspective(320px) rotateX(16deg) translateY(1px) scale(.96);transition-duration:.1s}
+/* Transaction rows sit like raised slabs. */
+#transactions-list .tx-day-card{box-shadow:0 1px 0 rgba(255,255,255,.06) inset,0 14px 30px -14px rgba(0,0,0,.6);border-color:var(--lg-outline,rgba(150,160,255,.18))!important;background:var(--lg-pane,var(--card-bg))!important;-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
+#transactions-list .transaction-item{transition:transform .25s ease,background .2s}
+@media(hover:hover){#transactions-list .transaction-item:hover{transform:translateX(4px)}}
+.tx-day-header{letter-spacing:.02em}
+
+/* Extruded glyphs: stacked text-shadows read as depth on any icon font. */
+.rp-stat-icon,.modern-brand-mark{position:relative;transform:perspective(260px) rotateX(10deg);box-shadow:inset 0 2px 1px rgba(255,255,255,.5),inset 0 -4px 6px rgba(0,0,0,.25),0 3px 0 rgba(0,0,0,.28),0 10px 16px -6px rgba(0,0,0,.5)!important;background-image:radial-gradient(120% 85% at 28% 12%,rgba(255,255,255,.5),rgba(255,255,255,0) 50%)!important}
+.rp-stat-icon i,.modern-brand-mark i,#nav-add-btn i,.mm3d-hint i,
+#select-transactions-btn i,#voice-add-btn i,#scan-receipt-btn i,#prev-month-btn i,#next-month-btn i,
+#mobile-theme-toggle-btn i,#desktop-theme-toggle-btn i,.retro-panel h3>i,.retro-panel h3 .ph-bold,.retro-panel h3 .ph-fill{
+ display:inline-block;text-shadow:0 1px 0 rgba(0,0,0,.28),0 2px 0 rgba(0,0,0,.24),0 3px 0 rgba(0,0,0,.2),0 5px 6px rgba(0,0,0,.35);transform:translateY(-1px)
+}
+.rp-stat-icon i,.modern-brand-mark i{filter:drop-shadow(0 0 1px rgba(255,255,255,.35))}
+#bottom-nav-bar .nav-btn i{display:inline-block;transition:transform .35s cubic-bezier(.2,.9,.25,1.4),text-shadow .3s}
+#bottom-nav-bar .nav-btn.active i,#bottom-nav-bar .nav-btn:hover i{text-shadow:0 1px 0 #4c3fd6,0 2px 0 #4033b8,0 3px 0 #33289a,0 6px 8px rgba(30,20,120,.55);transform:perspective(200px) rotateX(14deg) translateY(-2px) scale(1.08)}
+#bottom-nav-bar #nav-add-btn{transform:perspective(300px) rotateX(8deg);box-shadow:0 2px 0 #3b2fb3,0 4px 0 #2f2591,0 6px 0 #241c72,0 16px 24px -6px rgba(60,40,200,.6),inset 0 2px 1px rgba(255,255,255,.45)!important}
+#bottom-nav-bar #nav-add-btn:active{transform:perspective(300px) rotateX(8deg) translateY(4px);box-shadow:0 1px 0 #3b2fb3,0 2px 0 #2f2591,0 6px 12px -4px rgba(60,40,200,.6),inset 0 2px 1px rgba(255,255,255,.45)!important}
+/* Action buttons on the transactions page get a physical keycap edge. */
+#select-transactions-btn,#voice-add-btn,#scan-receipt-btn{box-shadow:inset 0 2px 1px rgba(255,255,255,.35),0 4px 0 rgba(0,0,0,.35),0 10px 16px -6px rgba(0,0,0,.45)!important;transition:transform .12s,box-shadow .12s!important}
+#select-transactions-btn:active,#voice-add-btn:active,#scan-receipt-btn:active{transform:translateY(4px)!important;box-shadow:inset 0 2px 1px rgba(255,255,255,.35),0 0 0 rgba(0,0,0,.35),0 4px 8px -4px rgba(0,0,0,.45)!important}
+:root:not(.dark) #transactions-list .tx-day-card{box-shadow:0 14px 30px -16px rgba(60,70,160,.35)}
+.mm3d-panel-compact .mm3d-stage{height:clamp(220px,30vw,300px)}
+.mm3d-panel-compact{margin-bottom:20px!important}
+.mm3d-legend .mm3d-up{color:#06D6A0}.mm3d-legend .mm3d-down{color:#EF476F}
+@media(prefers-reduced-motion:reduce){.mm3d-icon,.mm3d-glyph,.rp-stat-icon,.modern-brand-mark,#bottom-nav-bar .nav-btn i{transform:none!important}}
+</style>
 </head>
 <body>
     <!-- App Wrapper (Handles Desktop Sidebar vs Mobile Layout) -->
@@ -11668,6 +11724,7 @@ button[class*="bg-[#00F5D4]"],button[class*="bg-[#06D6A0]"]{background:var(--rp-
             routeToActivePage();
         };
         
+        let shownTransactions = []; // last list rendered on the transactions page, for the 3D coin stacks
         const filterTransactions = () => {
             const searchTerm = ui.transactionSearchInput.value.toLowerCase();
             const startDateVal = ui.filterDateStart.value; const endDateVal = ui.filterDateEnd.value;
@@ -11690,6 +11747,7 @@ button[class*="bg-[#00F5D4]"],button[class*="bg-[#06D6A0]"]{background:var(--rp-
                 });
             }
 
+            shownTransactions = transactionsToShow;
             renderTransactionsList(transactionsToShow);
             
             if (isFilterActive) {
@@ -11735,7 +11793,7 @@ button[class*="bg-[#00F5D4]"],button[class*="bg-[#06D6A0]"]{background:var(--rp-
                 if(state.activeSettingsPage) renderSettingsLists();
             }
             // Hand read-only data to the three.js layer (three-scene.js); it never writes app state.
-            window.__mmLastRender = { page: activePage.id, transactions: state.allTransactions, cycleTrans: cycleTrans || [], currentDate: state.currentDate, cycleRange: getDateRange, startDate, endDate };
+            window.__mmLastRender = { page: activePage.id, transactions: state.allTransactions, cycleTrans: cycleTrans || [], shown: activePage.id === 'transactions-page' ? shownTransactions : [], currentDate: state.currentDate, cycleRange: getDateRange, startDate, endDate };
             window.dispatchEvent(new CustomEvent('mm:render', { detail: window.__mmLastRender }));
 
             if(state.isSelectMode) {
@@ -11836,7 +11894,7 @@ button[class*="bg-[#00F5D4]"],button[class*="bg-[#06D6A0]"]{background:var(--rp-
                 const deductLabel = t.IsDeduct ? '<span class="text-[10px] font-bold text-red-500 bg-red-100/10 px-1 border border-red-500 rounded ml-2 uppercase">ถอน</span>' : '';
                 const cColor = typeColors[t.Type] || defaultColor || 'text-[var(--text-main)]';
                 
-                return `<div class="retro-card p-3 flex items-center justify-between transaction-item cursor-pointer hover:bg-[var(--card-bg)] bg-[var(--card-alt)] mb-2 border-[var(--border-dark)]/50 border" data-id="${escapeHtml(t.ID)}"><div class="flex items-center gap-3"><div class="text-xl w-10 h-10 rounded-lg bg-[var(--card-bg)] border-2 border-[var(--border-dark)] flex items-center justify-center shadow-[1px_1px_0_0_var(--shadow-color)]">${escapeHtml(cat.Emoji)}</div><div><p class="font-bold text-[var(--text-main)] text-sm flex items-center">${escapeHtml(t.Category)} ${deductLabel}</p><p class="text-[10px] font-bold text-[var(--text-muted)] uppercase">${date.getDate()} ${date.toLocaleString('th-TH', { month: 'short', year: '2-digit' })} ${escapeHtml(t.Description ? '• ' + t.Description : '')}</p></div></div><span class="font-black font-mono-num ${cColor}">${formatMoney(t.Amount)}</span></div>`;
+                return `<div class="retro-card p-3 flex items-center justify-between transaction-item cursor-pointer hover:bg-[var(--card-bg)] bg-[var(--card-alt)] mb-2 border-[var(--border-dark)]/50 border" data-id="${escapeHtml(t.ID)}"><div class="flex items-center gap-3"><div class="text-xl w-10 h-10 rounded-lg bg-[var(--card-bg)] border-2 border-[var(--border-dark)] flex items-center justify-center shadow-[1px_1px_0_0_var(--shadow-color)] mm3d-icon" data-type="${escapeHtml(t.Type || cat.Type || '')}"><span class="mm3d-glyph">${escapeHtml(cat.Emoji)}</span></div><div><p class="font-bold text-[var(--text-main)] text-sm flex items-center">${escapeHtml(t.Category)} ${deductLabel}</p><p class="text-[10px] font-bold text-[var(--text-muted)] uppercase">${date.getDate()} ${date.toLocaleString('th-TH', { month: 'short', year: '2-digit' })} ${escapeHtml(t.Description ? '• ' + t.Description : '')}</p></div></div><span class="font-black font-mono-num ${cColor}">${formatMoney(t.Amount)}</span></div>`;
             }).join('') : '<p class="text-center font-bold text-[var(--text-muted)] py-4 border-2 border-dashed border-[var(--border-dark)]/30 rounded bg-[var(--card-alt)]">ไม่มีรายการ</p>';
         };
 
@@ -11964,7 +12022,7 @@ button[class*="bg-[#00F5D4]"],button[class*="bg-[#06D6A0]"]{background:var(--rp-
             } else {
                 ui.investmentPortfolioList.innerHTML = Object.entries(grouped).sort(([,a], [,b]) => b - a).map(([name, amount]) => {
                     const cat = state.categories.find(c => c.Name === name) || { Emoji: '💹' };
-                    return `<div class="retro-card p-3 flex justify-between items-center bg-[var(--card-alt)] cursor-pointer hover:bg-[var(--card-bg)] transition-colors border border-[var(--border-dark)]/30" onclick="showCumulativeInvestmentDetails('${escAttr(name)}')"><div class="flex items-center gap-3 text-[var(--text-main)] font-bold"><span class="text-xl bg-[var(--card-bg)] w-8 h-8 flex items-center justify-center rounded border border-[var(--border-dark)]/50">${escapeHtml(cat.Emoji)}</span><span>${escapeHtml(name)}</span></div><span class="font-black text-[#8338EC] font-mono-num">${formatMoney(amount)}</span></div>`;
+                    return `<div class="retro-card p-3 flex justify-between items-center bg-[var(--card-alt)] cursor-pointer hover:bg-[var(--card-bg)] transition-colors border border-[var(--border-dark)]/30" onclick="showCumulativeInvestmentDetails('${escAttr(name)}')"><div class="flex items-center gap-3 text-[var(--text-main)] font-bold"><span class="text-xl bg-[var(--card-bg)] w-8 h-8 flex items-center justify-center rounded border border-[var(--border-dark)]/50 mm3d-icon" data-type="${escapeHtml(cat.Type || 'Investment')}"><span class="mm3d-glyph">${escapeHtml(cat.Emoji)}</span></span><span>${escapeHtml(name)}</span></div><span class="font-black text-[#8338EC] font-mono-num">${formatMoney(amount)}</span></div>`;
                 }).join('');
             }
             animateValue(ui.investmentPortfolioTotal, 0, total, 1000);
@@ -11982,7 +12040,7 @@ button[class*="bg-[#00F5D4]"],button[class*="bg-[#06D6A0]"]{background:var(--rp-
             container.innerHTML = sorted.map(([catName, amount]) => {
                 const cat = state.categories.find(c => c.Name === catName) || { Emoji: '💸' };
                 const percent = (amount / total) * 100;
-                return `<div class="flex flex-col space-y-1 bg-[var(--card-alt)] p-3 rounded-lg border border-[var(--border-dark)]/30 hover:border-[var(--border-dark)] transition-colors"><div class="flex justify-between items-center text-sm"><div class="flex items-center gap-2 font-bold"><span class="text-lg bg-[var(--card-bg)] w-8 h-8 rounded flex items-center justify-center border border-[var(--border-dark)]/50">${escapeHtml(cat.Emoji)}</span><span class="text-[var(--text-main)] uppercase">${escapeHtml(catName)}</span></div><div class="text-right"><p class="font-black text-[#EF476F] font-mono-num">${formatMoney(amount)} ฿</p></div></div><div class="flex items-center gap-2 mt-1.5"><div class="w-full bg-[var(--card-bg)] h-2 rounded-full border border-[var(--border-dark)] overflow-hidden"><div class="bg-[#EF476F] h-full" style="width: ${percent}%"></div></div><span class="text-[10px] font-bold text-[var(--text-muted)] w-8 text-right font-mono-num">${percent.toFixed(1)}%</span></div></div>`;
+                return `<div class="flex flex-col space-y-1 bg-[var(--card-alt)] p-3 rounded-lg border border-[var(--border-dark)]/30 hover:border-[var(--border-dark)] transition-colors"><div class="flex justify-between items-center text-sm"><div class="flex items-center gap-2 font-bold"><span class="text-lg bg-[var(--card-bg)] w-8 h-8 rounded flex items-center justify-center border border-[var(--border-dark)]/50 mm3d-icon" data-type="${escapeHtml(cat.Type || 'Expense')}"><span class="mm3d-glyph">${escapeHtml(cat.Emoji)}</span></span><span class="text-[var(--text-main)] uppercase">${escapeHtml(catName)}</span></div><div class="text-right"><p class="font-black text-[#EF476F] font-mono-num">${formatMoney(amount)} ฿</p></div></div><div class="flex items-center gap-2 mt-1.5"><div class="w-full bg-[var(--card-bg)] h-2 rounded-full border border-[var(--border-dark)] overflow-hidden"><div class="bg-[#EF476F] h-full" style="width: ${percent}%"></div></div><span class="text-[10px] font-bold text-[var(--text-muted)] w-8 text-right font-mono-num">${percent.toFixed(1)}%</span></div></div>`;
             }).join('');
         };
 
@@ -12024,7 +12082,7 @@ button[class*="bg-[#00F5D4]"],button[class*="bg-[#06D6A0]"]{background:var(--rp-
                     return `<div class="p-3 md:p-4 flex items-center justify-between gap-3 transaction-item cursor-pointer ${isSelected ? 'border-[#4361EE] bg-blue-50/10 shadow-[0px_0px_0px_2px_#4361EE]' : ''}" data-id="${escapeHtml(t.ID)}">
                         <div class="flex items-center gap-3 md:gap-4 min-w-0">
                             ${state.isSelectMode ? `<div class="w-5 h-5 rounded border-2 ${isSelected ? 'bg-[#4361EE] border-[#4361EE]' : 'border-[var(--border-dark)] bg-[var(--card-bg)]'} flex items-center justify-center shrink-0"><i class="ph-bold ph-check text-white text-xs ${isSelected ? '' : 'hidden'}"></i></div>` : ''}
-                            <div class="text-2xl w-12 h-12 rounded-xl bg-[var(--card-alt)] border-2 border-[var(--border-dark)] flex items-center justify-center shrink-0">${escapeHtml(cat.Emoji)}</div>
+                            <div class="text-2xl w-12 h-12 rounded-xl bg-[var(--card-alt)] border-2 border-[var(--border-dark)] flex items-center justify-center shrink-0 mm3d-icon" data-type="${escapeHtml(t.Type || cat.Type || '')}"><span class="mm3d-glyph">${escapeHtml(cat.Emoji)}</span></div>
                             <div class="min-w-0">
                                 <p class="font-bold text-[var(--text-main)] flex items-center text-sm md:text-base"><span class="truncate">${escapeHtml(title)}</span>${deductLabel}</p>
                                 <p class="text-[11px] md:text-xs text-[var(--text-muted)] truncate mt-0.5">${escapeHtml(t.Category)}</p>
@@ -12085,7 +12143,7 @@ button[class*="bg-[#00F5D4]"],button[class*="bg-[#06D6A0]"]{background:var(--rp-
                 $('summary-details-list').innerHTML = trans.length ? trans.map(t => {
                     const cat = state.categories.find(c => c.Name === t.Category) || { Emoji: '📄' }; const date = getLocalDate(t.Date);
                     const deductLabel = t.IsDeduct ? '<span class="text-[10px] font-bold text-red-500 bg-red-100/10 px-1 border border-red-500 rounded ml-2 uppercase">ถอน</span>' : '';
-                    return `<div class="retro-card p-3 flex items-center justify-between transaction-item bg-[var(--card-bg)] mb-2" data-id="${escapeHtml(t.ID)}"><div class="flex items-center gap-3"><div class="text-xl w-10 h-10 rounded-lg bg-[var(--card-alt)] border-2 border-[var(--border-dark)] flex items-center justify-center shadow-[1px_1px_0_0_var(--shadow-color)]">${escapeHtml(cat.Emoji)}</div><div><p class="font-bold text-[var(--text-main)] flex items-center text-sm">${escapeHtml(t.Category)} ${deductLabel}</p><p class="text-[10px] font-bold text-[var(--text-muted)] uppercase">${date.getDate()} ${date.toLocaleString('th-TH', { month: 'short' })} ${escapeHtml(t.Description ? '• ' + t.Description : '')}</p></div></div><span class="font-black font-mono-num ${colorMap[type] || 'text-[var(--text-main)]'}">${formatMoney(t.Amount)}</span></div>`;
+                    return `<div class="retro-card p-3 flex items-center justify-between transaction-item bg-[var(--card-bg)] mb-2" data-id="${escapeHtml(t.ID)}"><div class="flex items-center gap-3"><div class="text-xl w-10 h-10 rounded-lg bg-[var(--card-alt)] border-2 border-[var(--border-dark)] flex items-center justify-center shadow-[1px_1px_0_0_var(--shadow-color)] mm3d-icon" data-type="${escapeHtml(t.Type || cat.Type || '')}"><span class="mm3d-glyph">${escapeHtml(cat.Emoji)}</span></div><div><p class="font-bold text-[var(--text-main)] flex items-center text-sm">${escapeHtml(t.Category)} ${deductLabel}</p><p class="text-[10px] font-bold text-[var(--text-muted)] uppercase">${date.getDate()} ${date.toLocaleString('th-TH', { month: 'short' })} ${escapeHtml(t.Description ? '• ' + t.Description : '')}</p></div></div><span class="font-black font-mono-num ${colorMap[type] || 'text-[var(--text-main)]'}">${formatMoney(t.Amount)}</span></div>`;
                 }).join('') : '<p class="text-center font-bold text-[var(--text-muted)] py-4 border-2 border-dashed border-[var(--border-dark)]/30 rounded bg-[var(--card-alt)]">ไม่มีรายการ</p>';
                 modalControls['summary-details-modal'].open();
             });
@@ -12098,7 +12156,7 @@ button[class*="bg-[#00F5D4]"],button[class*="bg-[#06D6A0]"]{background:var(--rp-
              setText('summary-details-modal-title', "พอร์ตลงทุนรวม");
              $('summary-details-list').innerHTML = Object.keys(grouped).length ? Object.entries(grouped).sort(([,a],[,b]) => b-a).map(([name, amount]) => {
                     const cat = state.categories.find(c => c.Name === name) || { Emoji: '📈' };
-                    return `<div class="retro-card p-3 flex justify-between items-center bg-[var(--card-bg)] mb-2"><div class="flex items-center gap-3"><div class="text-xl w-10 h-10 rounded-lg bg-[var(--card-alt)] border-2 border-[var(--border-dark)] flex items-center justify-center shadow-[1px_1px_0_0_var(--shadow-color)]">${escapeHtml(cat.Emoji)}</div><span class="font-bold text-[var(--text-main)]">${escapeHtml(name)}</span></div><span class="font-black font-mono-num ${colors.investment}">${formatMoney(amount)}</span></div>`;
+                    return `<div class="retro-card p-3 flex justify-between items-center bg-[var(--card-bg)] mb-2"><div class="flex items-center gap-3"><div class="text-xl w-10 h-10 rounded-lg bg-[var(--card-alt)] border-2 border-[var(--border-dark)] flex items-center justify-center shadow-[1px_1px_0_0_var(--shadow-color)] mm3d-icon" data-type="${escapeHtml(cat.Type || 'Investment')}"><span class="mm3d-glyph">${escapeHtml(cat.Emoji)}</span></div><span class="font-bold text-[var(--text-main)]">${escapeHtml(name)}</span></div><span class="font-black font-mono-num ${colors.investment}">${formatMoney(amount)}</span></div>`;
                 }).join('') : '<p class="text-center font-bold text-[var(--text-muted)] py-4 border-2 border-dashed border-[var(--border-dark)]/30 rounded bg-[var(--card-alt)]">ยังไม่มีการลงทุน</p>';
              modalControls['summary-details-modal'].open();
         });
@@ -12111,7 +12169,7 @@ button[class*="bg-[#00F5D4]"],button[class*="bg-[#06D6A0]"]{background:var(--rp-
             const colorMap = { 'Income': colors.income, 'Expense': colors.expense, 'Saving': colors.saving, 'Investment': colors.investment, 'FreeCashFlow': colors.fcf };
             $('day-details-list').innerHTML = trans.length ? trans.map(t => {
                 const cat = state.categories.find(c => c.Name === t.Category) || { Emoji: '📄' };
-                return `<div class="retro-card p-3 flex items-center justify-between transaction-item cursor-pointer hover:bg-[var(--card-bg)] bg-[var(--card-bg)] mb-2" data-id="${escapeHtml(t.ID)}"><div class="flex items-center gap-3"><div class="text-xl w-10 h-10 rounded-lg bg-[var(--card-alt)] border-2 border-[var(--border-dark)] flex items-center justify-center shadow-[1px_1px_0_0_var(--shadow-color)]">${escapeHtml(cat.Emoji)}</div><div><p class="font-bold text-[var(--text-main)] text-sm">${escapeHtml(t.Category)}</p><p class="text-[10px] font-bold text-[var(--text-muted)] uppercase">${d.getDate()} ${d.toLocaleString('th-TH', { month: 'short' })} ${escapeHtml(t.Description ? '• ' + t.Description : '')}</p></div></div><span class="font-black font-mono-num ${colorMap[t.Type] || 'text-[var(--text-main)]'}">${formatMoney(t.Amount)}</span></div>`;
+                return `<div class="retro-card p-3 flex items-center justify-between transaction-item cursor-pointer hover:bg-[var(--card-bg)] bg-[var(--card-bg)] mb-2" data-id="${escapeHtml(t.ID)}"><div class="flex items-center gap-3"><div class="text-xl w-10 h-10 rounded-lg bg-[var(--card-alt)] border-2 border-[var(--border-dark)] flex items-center justify-center shadow-[1px_1px_0_0_var(--shadow-color)] mm3d-icon" data-type="${escapeHtml(t.Type || cat.Type || '')}"><span class="mm3d-glyph">${escapeHtml(cat.Emoji)}</span></div><div><p class="font-bold text-[var(--text-main)] text-sm">${escapeHtml(t.Category)}</p><p class="text-[10px] font-bold text-[var(--text-muted)] uppercase">${d.getDate()} ${d.toLocaleString('th-TH', { month: 'short' })} ${escapeHtml(t.Description ? '• ' + t.Description : '')}</p></div></div><span class="font-black font-mono-num ${colorMap[t.Type] || 'text-[var(--text-main)]'}">${formatMoney(t.Amount)}</span></div>`;
             }).join('') : '<p class="text-center font-bold text-[var(--text-muted)] py-4 border-2 border-dashed border-[var(--border-dark)]/30 rounded bg-[var(--card-alt)]">ไม่มีรายการ</p>';
             modalControls['day-details-modal'].open();
         };
@@ -12169,7 +12227,7 @@ button[class*="bg-[#00F5D4]"],button[class*="bg-[#06D6A0]"]{background:var(--rp-
                 content.innerHTML = state.categories.map(c => `
                     <div class="retro-card bg-[var(--card-bg)] p-3 flex justify-between items-center mb-2 border border-[var(--border-dark)]/30">
                         <div class="font-bold text-[var(--text-main)] truncate mr-2">
-                            <span>${escapeHtml(c.Emoji)} ${escapeHtml(c.Name)}</span> 
+                            <span class="mm3d-icon mm3d-icon-sm" data-type="${escapeHtml(c.Type)}"><span class="mm3d-glyph">${escapeHtml(c.Emoji)}</span></span><span class="align-middle ml-2">${escapeHtml(c.Name)}</span> 
                             <span class="text-[10px] text-[var(--text-muted)] uppercase ml-1 border border-[var(--border-dark)]/30 px-1.5 py-0.5 rounded bg-[var(--card-alt)]">(${escapeHtml(c.Type)})</span>
                         </div>
                         <div class="flex gap-2 shrink-0">
@@ -12520,7 +12578,7 @@ button[class*="bg-[#00F5D4]"],button[class*="bg-[#06D6A0]"]{background:var(--rp-
             if(invListEl) {
                 invListEl.innerHTML = sortedInv.length ? sortedInv.map(([name, amount]) => {
                     const cat = state.categories.find(c => c.Name === name) || { Emoji: '💹' }; const percent = invTotal > 0 ? Math.max(0,Math.min(100,(amount / invTotal) * 100)) : 0;
-                    return `<div class="flex flex-col space-y-1 bg-[var(--card-bg)] p-3 rounded-lg border border-[var(--border-dark)]/30 hover:border-[var(--border-dark)] transition-colors mb-3 cursor-pointer" onclick="showYearlyInvestmentDetails('${escAttr(name)}', '${escAttr(periodLabelForModal)}')"><div class="flex justify-between items-center text-sm"><div class="flex items-center gap-2 font-bold"><span class="text-xl bg-[var(--card-alt)] w-8 h-8 rounded border border-[var(--border-dark)]/50 flex items-center justify-center">${escapeHtml(cat.Emoji)}</span><span class="text-[var(--text-main)]">${escapeHtml(name)}</span></div><div class="text-right"><p class="font-black text-[#8338EC] font-mono-num">${formatMoney(amount)}</p></div></div><div class="flex items-center gap-2 mt-1.5"><div class="w-full bg-[var(--card-alt)] h-2.5 rounded-full border border-[var(--border-dark)]/50 overflow-hidden"><div class="bg-[#8338EC] h-full" style="width: ${percent}%"></div></div><span class="text-[10px] font-bold text-[var(--text-muted)] w-8 text-right font-mono-num">${percent.toFixed(1)}%</span></div></div>`;
+                    return `<div class="flex flex-col space-y-1 bg-[var(--card-bg)] p-3 rounded-lg border border-[var(--border-dark)]/30 hover:border-[var(--border-dark)] transition-colors mb-3 cursor-pointer" onclick="showYearlyInvestmentDetails('${escAttr(name)}', '${escAttr(periodLabelForModal)}')"><div class="flex justify-between items-center text-sm"><div class="flex items-center gap-2 font-bold"><span class="text-xl bg-[var(--card-alt)] w-8 h-8 rounded border border-[var(--border-dark)]/50 flex items-center justify-center mm3d-icon" data-type="${escapeHtml(cat.Type || 'Investment')}"><span class="mm3d-glyph">${escapeHtml(cat.Emoji)}</span></span><span class="text-[var(--text-main)]">${escapeHtml(name)}</span></div><div class="text-right"><p class="font-black text-[#8338EC] font-mono-num">${formatMoney(amount)}</p></div></div><div class="flex items-center gap-2 mt-1.5"><div class="w-full bg-[var(--card-alt)] h-2.5 rounded-full border border-[var(--border-dark)]/50 overflow-hidden"><div class="bg-[#8338EC] h-full" style="width: ${percent}%"></div></div><span class="text-[10px] font-bold text-[var(--text-muted)] w-8 text-right font-mono-num">${percent.toFixed(1)}%</span></div></div>`;
                 }).join('') : `<p class="text-center font-bold text-[var(--text-muted)] text-sm py-4 border-2 border-dashed border-[var(--border-dark)]/30 rounded-xl bg-[var(--card-alt)]">ไม่มีข้อมูลการลงทุนในช่วงนี้</p>`;
             }
             
